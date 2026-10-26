@@ -58,7 +58,7 @@ function drawBanner(x, y, str, col) {
   for (let i = 0; i < str.length; i += 3) rect(x + 10 + i * 8, y + 13, 1, 2 + (i * 5) % 4, col);
 }
 const HERO_TURBO = tintSet(HERO, '#40e0ff', 0.3);
-const FLOOR_ZONE = tx => L.id === 'f1' ? (tx < 60 ? 'lino' : tx < 140 ? 'shag' : 'wood') : null;
+const FLOOR_ZONE = tx => L.zone ? L.zone(tx) : null;
 const DECOR_F1 = [
   { t:'cabinets', x:96, w:90 }, { t:'clock', x:205 }, { t:'cabinets', x:300, w:120 }, { t:'window', x:470 }, { t:'banned', x:600 },
   { t:'cabinets', x:780, w:110 }, { t:'streamers', x:900, w:160 },
@@ -66,15 +66,30 @@ const DECOR_F1 = [
   { t:'window', x:1700 }, { t:'portrait', x:1840 }, { t:'partybanner', x:1990 }, { t:'streamers', x:2100, w:140 },
   { t:'trophies', x:2290 }, { t:'pure', x:2420 }, { t:'banned', x:2560 }, { t:'portrait', x:2760 }, { t:'window', x:2860 },
 ];
+const DECOR_F2 = [
+  { t:'photos', x:110 }, { t:'window', x:250 }, { t:'stitch', x:420 }, { t:'portrait', x:560 }, { t:'window', x:660 },
+  { t:'stars', x:780, w:820 }, { t:'unicorn', x:860 }, { t:'list', x:1020, title:'CHORES', items:['PRAY', 'TITHE', 'NO MTV', 'NO FUN', 'PRAY'], c:'#3048c0' },
+  { t:'window', x:1200 }, { t:'boyband', x:1330 }, { t:'unicorn', x:1480 },
+  { t:'mirror', x:1700 }, { t:'mirror', x:1880 },
+  { t:'keepout', x:2080 }, { t:'banner', x:2130, str:'VOMITRON', c:'#ff70c0' }, { t:'poster', x:2300, i:0 }, { t:'window', x:2380 }, { t:'banner', x:2470, str:'SKULLDRIFT', c:'#ffd850' },
+  { t:'poster', x:2640, i:1 }, { t:'poster', x:2700, i:2 },
+  { t:'portrait', x:2860 }, { t:'pure', x:2940 }, { t:'portrait', x:3040 },
+];
+const HOUSE_CFG = {
+  f1:{ walls:[[960, KITCHEN_WALL], [2240, LIVING_WALL], [1e9, DEN_WALL]], decor:DECOR_F1, fixtures:[180, 560, 900, 1300, 1700, 2100, 2500, 2860], fix:'#fff0c0', molding:['#f0e8d8', '#c8b898', '#8a7a5a'] },
+  f2:{ walls:[[768, HALL_WALL], [1600, SIS_WALL], [2048, BATH_WALL], [2816, TEEN_WALL], [1e9, MASTER_WALL]], decor:DECOR_F2,
+       fixtures:[200, 560, 1000, 1400, 1840, 2900, 3060], fix:'#fff0c0', molding:['#e8e0d0', '#b8a888', '#6a5a3a'], doorways:[768, 1600, 2048, 2816] },
+};
 function drawHouseWall(cx) {
-  const x0 = Math.floor(cx / 64) * 64;
-  for (let wx = x0; wx < cx + W + 64; wx += 64) {
-    const img = wx < 960 ? KITCHEN_WALL : wx < 2240 ? LIVING_WALL : DEN_WALL;
-    ctx.drawImage(img, wx - cx, HUD);
-  }
+  const cfg = HOUSE_CFG[L.id], x0 = Math.floor(cx / 64) * 64;
+  for (let wx = x0; wx < cx + W + 64; wx += 64) ctx.drawImage(cfg.walls.find(w => wx < w[0])[1], wx - cx, HUD);
   // crown molding + ceiling
-  rect(0, HUD, W, 6, '#f0e8d8'); rect(0, HUD + 6, W, 2, '#c8b898'); rect(0, HUD + 8, W, 1, '#8a7a5a');
-  for (const d of DECOR_F1) {
+  rect(0, HUD, W, 6, cfg.molding[0]); rect(0, HUD + 6, W, 2, cfg.molding[1]); rect(0, HUD + 8, W, 1, cfg.molding[2]);
+  for (const dx of cfg.doorways || []) {
+    const x = dx - cx; if (x < -40 || x > W + 40) continue;
+    rect(x - 10, HUD + 9, 20, GROUND - HUD - 9, '#e8dcc0'); rect(x - 8, HUD + 9, 2, GROUND - HUD - 9, '#ffffff'); rect(x + 6, HUD + 9, 4, GROUND - HUD - 9, '#b8a888');
+  }
+  for (const d of cfg.decor) {
     const x = Math.round(d.x - cx);
     if (x < -240 || x > W + 240) continue;
     switch (d.t) {
@@ -119,16 +134,49 @@ function drawHouseWall(cx) {
         text('P.U.R.E.', x + 35, 70, '#ffd850', { align:'center', bands:GOLD });
         text('STOP', x + 35, 88, '#ffffff', { align:'center' }); text('THE', x + 35, 98, '#ffffff', { align:'center' }); text('FILTH', x + 35, 108, '#ff5060', { align:'center' });
         ctx.drawImage(RECORD, x + 27, 122); rect(x + 25, 129, 20, 2, '#e02838'); break;
+      case 'stitch':
+        rect(x, 66, 76, 46, '#8a5428'); rect(x + 3, 69, 70, 40, '#f8f4e4');
+        for (let i = 0; i < 70; i += 4) { rect(x + 3 + i, 70, 2, 1, '#c02848'); rect(x + 3 + i, 107, 2, 1, '#c02848'); }
+        text('BLESS', x + 38, 76, '#3a6a30', { align:'center' }); text('THIS', x + 38, 86, '#3a6a30', { align:'center' }); text('MESS', x + 38, 96, '#c02848', { align:'center' }); break;
+      case 'stars':
+        for (let i = 0; i < d.w; i += 23) { const sy = 40 + ((i * 37) % 70), tw = ((frame >> 4) + i) % 5; rect(x + i, sy, 1, 3, '#c8ffb0'); rect(x + i - 1, sy + 1, 3, 1, '#c8ffb0'); if (tw === 0) rect(x + i, sy + 1, 1, 1, '#ffffff'); }
+        break;
+      case 'unicorn':
+        rect(x, 66, 40, 50, '#ffffff'); rect(x + 2, 68, 36, 46, '#a8d8ff');
+        for (let i = 0; i < 5; i++) rect(x + 2, 100 + i * 2, 36, 2, ['#ff6060', '#ffc040', '#f8f060', '#60e080', '#6090ff'][i]);
+        disc(x + 20, 86, 8, '#ffffff'); rect(x + 14, 90, 12, 10, '#ffffff'); rect(x + 24, 72, 2, 8, '#ffd850'); rect(x + 22, 84, 2, 2, '#ff60c0'); rect(x + 12, 80, 4, 8, '#ff88cc'); break;
+      case 'list':
+        rect(x, 66, 64, 76, '#f8f4e4'); rect(x, 66, 64, 12, d.c);
+        text(d.title, x + 32, 68, '#ffffff', { align:'center' });
+        d.items.forEach((w, i) => { text(w, x + 14, 84 + i * 11, '#3a3020'); rect(x + 5, 85 + i * 11, 5, 5, '#3a3020'); rect(x + 6, 86 + i * 11, 3, 3, '#f8f4e4'); });
+        break;
+      case 'boyband':
+        rect(x, 62, 60, 70, '#40c0ff'); rect(x + 2, 64, 56, 66, '#ffe0f0');
+        for (let i = 0; i < 4; i++) { const bx = x + 8 + i * 13; disc(bx + 2, 84, 4, '#f0c8a0'); rect(bx - 2, 78, 9, 4, ['#3a2010', '#e8c060', '#3a2010', '#8a5428'][i]); rect(bx - 2, 90, 9, 18, ['#ff60c0', '#ffd850', '#60e8ff', '#c8ff3c'][i]); }
+        text('THE GOOD', x + 30, 112, '#c02848', { align:'center' }); text('BOYS', x + 30, 121, '#c02848', { align:'center' }); break;
+      case 'mirror':
+        rect(x, 70, 56, 50, '#c8c4d4'); rect(x + 3, 73, 50, 44, '#90b0c8'); rect(x + 6, 76, 10, 2, '#ffffff'); rect(x + 6, 80, 4, 2, '#ffffff');
+        text(d.x < 1800 ? 'YENOM' : 'YEWED', x + 28, 86, '#e02838', { align:'center' }); text(d.x < 1800 ? 'DNES' : 'YEBO', x + 28, 98, '#e02838', { align:'center' });
+        light(x + 28, 96, 30, '#c0e0ff', 0.12); break;
+      case 'keepout':
+        rect(x, 80, 40, 28, '#ffd850'); rect(x + 2, 82, 36, 24, '#141018'); text('KEEP', x + 20, 85, '#ffd850', { align:'center' }); text('OUT', x + 20, 96, '#ff5060', { align:'center' }); break;
+      case 'banner': drawBanner(x, 52, d.str, d.c); break;
+      case 'poster': {
+        const p = POSTER[d.i], y = 70;
+        rect(x, y, 30, 40, p.bg); rect(x + 2, y + 2, 26, 36, p.inner); rect(x + 2, y + 2, 26, 1, '#ffffff');
+        ctx.drawImage(p.icon === 'skull' ? SKULL : p.icon === 'bolt' ? BOLT : CROSS_INV, x + 15 - 6, y + 8, p.icon === 'skull' ? 12 : 10, p.icon === 'skull' ? 12 : 14);
+        rect(x + 5, y + 27, 20, 2, p.bg); rect(x + 7, y + 31, 16, 1, p.bg); break;
+      }
     }
   }
   // ceiling light fixtures
-  for (const fx of [180, 560, 900, 1300, 1700, 2100, 2500, 2860]) {
+  for (const fx of cfg.fixtures) {
     const x = fx - cx; if (x < -80 || x > W + 80) continue;
     rect(x - 10, HUD + 6, 20, 5, '#f0e8d8'); rect(x - 7, HUD + 11, 14, 3, '#fff8d0');
-    light(x, HUD + 50, 90, '#fff0c0', 0.18);
+    light(x, HUD + 50, 90, cfg.fix, 0.18);
   }
 }
-function drawWall(cx) { if (L.theme === 'house') drawHouseWall(cx); else drawBasementWall(cx); }
+function drawWall(cx) { if (L.theme === 'basement') drawBasementWall(cx); else drawHouseWall(cx); }
 function drawBasementWall(cx) {
   const wx = cx * 0.6;
   const off = Math.floor(wx) % 96;
@@ -195,8 +243,14 @@ const PROPS_F1 = [
   { t:'fireplace', x:1596 }, { t:'floorlamp', x:1010 }, { t:'floorlamp', x:1760 }, { t:'plant', x:1262 }, { t:'archway', x:2230 },
   { t:'floorlamp', x:2380 }, { t:'plant', x:2700 }, { t:'stairs', x:2996 },
 ];
+const PROPS_F2 = [
+  { t:'basedoor', x:2, label:'1F' }, { t:'nightlight', x:150 }, { t:'nightlight', x:690 }, { t:'bunk', x:896 }, { t:'teddy', x:1150 }, { t:'nightlight', x:1270 },
+  { t:'tank', x:1824 }, { t:'towels', x:1960 }, { t:'lavalamp', x:2240 }, { t:'blacklight', x:2420 }, { t:'lavalamp', x:2560 }, { t:'bgamps', x:2600 },
+  { t:'bigbed', x:2880 }, { t:'nightstand', x:2846 }, { t:'nightstand', x:3010 },
+];
+const PROPS = { b1:PROPS_B1, f1:PROPS_F1, f2:PROPS_F2 };
 function drawProps(cx) {
-  for (const d of (L.id === 'f1' ? PROPS_F1 : PROPS_B1)) {
+  for (const d of PROPS[L.id]) {
     const x = Math.round(d.x - cx);
     if (x < -120 || x > W + 120) continue;
     switch (d.t) {
@@ -267,7 +321,36 @@ function drawProps(cx) {
       case 'basedoor':
         rect(x, GROUND - 56, 40, 56, '#5a3418'); rect(x + 3, GROUND - 53, 34, 53, '#0a0610');
         for (let i = 0; i < 5; i++) rect(x + 4, GROUND - 10 - i * 10, 32, 2, '#3a2a30');
-        text('B1', x + 20, GROUND - 66, '#80c8ff', { align:'center', shadow:'#000' }); break;
+        text(d.label || 'B1', x + 20, GROUND - 66, '#80c8ff', { align:'center', shadow:'#000' }); break;
+      case 'nightlight':
+        rect(x, GROUND - 24, 6, 8, '#f4f0e8'); rect(x + 1, GROUND - 23, 4, 5, '#ffe890'); light(x + 3, GROUND - 20, 26, '#ffe890', 0.3); break;
+      case 'bunk':
+        for (const ox of [0, 92]) { rect(x + ox, GROUND - 92, 4, 92, '#a86a30'); rect(x + ox, GROUND - 92, 4, 1, '#d89a58'); }
+        for (let i = 0; i < 5; i++) rect(x + 96, GROUND - 16 - i * 14, 8, 2, '#a86a30'); rect(x + 96, GROUND - 80, 2, 80, '#a86a30'); rect(x + 102, GROUND - 80, 2, 80, '#a86a30');
+        rect(x + 6, GROUND - 46, 16, 6, '#ffffff'); rect(x + 6, GROUND - 94, 16, 6, '#ffffff'); break;
+      case 'teddy':
+        disc(x + 8, GROUND - 8, 7, '#a8703c'); disc(x + 8, GROUND - 20, 6, '#a8703c'); disc(x + 3, GROUND - 25, 2, '#a8703c'); disc(x + 13, GROUND - 25, 2, '#a8703c');
+        rect(x + 6, GROUND - 21, 1, 1, '#141018'); rect(x + 10, GROUND - 21, 1, 1, '#141018'); disc(x + 8, GROUND - 17, 2, '#e8c890'); rect(x + 4, GROUND - 13, 9, 2, '#e02838'); break;
+      case 'tank':
+        rect(x, GROUND - 46, 30, 16, '#f4f4fa'); rect(x, GROUND - 46, 30, 2, '#ffffff'); rect(x + 26, GROUND - 46, 4, 16, '#c8c8d8'); rect(x + 4, GROUND - 42, 5, 2, '#c8c4d4');
+        rect(x + 2, GROUND - 52, 26, 6, '#f8f4e4'); text('P.U.R.E.', x + 15, GROUND - 52, '#3048c0', { align:'center' }); break;
+      case 'towels':
+        rect(x, GROUND - 90, 40, 2, '#c8c4d4'); rect(x + 4, GROUND - 88, 14, 26, '#ff88b8'); rect(x + 20, GROUND - 88, 14, 22, '#80d8d0'); rect(x + 4, GROUND - 66, 14, 2, '#e05888'); break;
+      case 'lavalamp': {
+        rect(x, GROUND - 6, 10, 6, '#c8c4d4'); rect(x + 1, GROUND - 30, 8, 24, '#ff5040'); rect(x + 2, GROUND - 34, 6, 4, '#c8c4d4');
+        const by = GROUND - 12 - ((frame * 0.3 + d.x) % 18); disc(x + 5, by, 2, '#ffd850'); disc(x + 4, GROUND - 26 + ((frame * 0.2) % 8), 1, '#ffd850');
+        light(x + 5, GROUND - 18, 40, '#ff6040', 0.3); break;
+      }
+      case 'blacklight':
+        rect(x - 30, HUD + 12, 60, 4, '#2a1a40'); rect(x - 28, HUD + 16, 56, 2, '#a060ff'); light(x, HUD + 70, 120, '#9040ff', 0.35); break;
+      case 'bigbed':
+        rect(x, GROUND - 60, 8, 60, '#5a3418'); rect(x, GROUND - 60, 8, 2, '#a86a30'); rect(x + 160, GROUND - 40, 8, 40, '#5a3418');
+        rect(x + 8, GROUND - 26, 152, 16, '#f4f0e8'); rect(x + 8, GROUND - 30, 152, 6, '#c02848'); rect(x + 8, GROUND - 30, 152, 1, '#e86888');
+        rect(x + 12, GROUND - 36, 30, 8, '#ffffff'); rect(x + 8, GROUND - 10, 152, 10, '#3a2010'); break;
+      case 'nightstand':
+        rect(x, GROUND - 26, 24, 26, '#7a4a28'); rect(x, GROUND - 26, 24, 2, '#b07848'); rect(x + 10, GROUND - 16, 4, 2, '#e8c048');
+        rect(x + 10, GROUND - 40, 4, 14, '#c8a040'); ctx.fillStyle = '#f0d890'; ctx.beginPath(); ctx.moveTo(x + 2, GROUND - 40); ctx.lineTo(x + 22, GROUND - 40); ctx.lineTo(x + 18, GROUND - 52); ctx.lineTo(x + 6, GROUND - 52); ctx.fill();
+        light(x + 12, GROUND - 40, 50, '#ffe0a0', 0.28); break;
       case 'sink':
         rect(x, GROUND - 52, 4, 10, '#c8c4d4'); rect(x, GROUND - 52, 14, 3, '#c8c4d4');
         for (let i = 0; i < 4; i++) { const sy = GROUND - 60 - ((frame * 0.4 + i * 9) % 36); rect(x + 4 + Math.sin(sy * 0.2 + i) * 3, sy, 3, 3, '#7a7486'); }
@@ -329,6 +412,23 @@ function drawTiles(cx) {
       }
       continue;
     }
+    if (L.theme === 'upstairs') {
+      if (t === 1) { const z = HOUSE[FLOOR_ZONE(tx)]; ctx.drawImage(below === 1 ? z.fill : z.top, x, y); }
+      else if (t === 2) ctx.drawImage(HOUSE.dresser[below === 2 ? 1 : 0], x, y);
+      else if (t === 3) ctx.drawImage(TILE.shelf, x, y);
+      else if (t === 4) ctx.drawImage(HOUSE.chest[below === 4 ? 1 : 0], x, y);
+      else if (t === 6) {
+        rect(x, y, T, T, '#f4f4fa'); rect(x, y + T - 2, T, 2, '#c8c8d8');
+        if (below !== 6) { rect(x, y, T, 3, '#ffffff'); rect(x, y + 3, T, 1, '#b8b8c8'); }
+        if (tileT(tx - 1, ty) !== 6) rect(x, y, 2, T, '#ffffff'); if (tileT(tx + 1, ty) !== 6) rect(x + T - 2, y, 2, T, '#b8b8c8');
+      } else if (t === 7) {
+        rect(x, y, T, T, '#3a6ec8'); rect(x, y + 12, T, 4, '#5a3418'); rect(x, y + 12, T, 1, '#8a5428');
+        const ph = Math.sin(frame * 0.1 + tx * 1.3), hy = Math.round(1 + ph);
+        rect(x, y + hy, T, 2, '#80c8ff'); rect(x + ((tx * 5 + (frame >> 2)) % 12), y + 5 + hy, 4, 1, '#a8d8ff');
+        if (tileT(tx - 1, ty) !== 7) rect(x, y - 4, 3, T + 4, '#5a3418'); if (tileT(tx + 1, ty) !== 7) rect(x + T - 3, y - 4, 3, T + 4, '#5a3418');
+      }
+      continue;
+    }
     if (t === 1) ctx.drawImage(below === 1 ? TILE.fill[(tx * 7 + ty) % 4] : TILE.top[(tx * 5 + ty * 3) % 4], x, y);
     else if (t === 2) ctx.drawImage(TILE.amp, x, y);
     else if (t === 3) ctx.drawImage(TILE.shelf, x, y);
@@ -379,6 +479,18 @@ function drawTV(tv, cx) {
 function drawGag(cx) {
   const x = Math.round(gag.x - cx), y = gag.y;
   if (x < -60 || x > W + 60) return;
+  if (gag.kind === 'board') {
+    ctx.drawImage(BOARD, x, y);
+    const a = gag.done ? frame * 0.21 : frame * 0.03;
+    ctx.drawImage(PLANCHETTE, x + 9 + Math.round(Math.cos(a) * 7), y + 2 + Math.round(Math.sin(a * 1.7) * 2));
+    if (!gag.done && (frame % 160) < 40) light(x + 13, y + 6, 22, '#c8ff3c', 0.3);
+    if (gag.done && gag.t > 0) {
+      const say = 'P-U-K-E R-U-L-E-S', n = Math.min(say.length, Math.floor((240 - gag.t) / 6));
+      text('THE BOARD SAYS:', x + 13, y - 34, '#a8a4b8', { align:'center', shadow:'#000' });
+      text(say.slice(0, n), x + 13, y - 20, '#c8ff3c', { align:'center', shadow:'#000' });
+    }
+    return;
+  }
   if (gag.kind === 'phone') {
     const ring = !gag.done && (frame % 120) < 24;
     ctx.drawImage(PHONE, x + (ring ? ((frame >> 1) & 1) : 0), y + (gag.done && gag.t > 0 ? 0 : 0));
@@ -419,7 +531,8 @@ function drawDoor(cx) {
     rect(x, y, 36, 56, '#6a2a18');
     for (const [px0, py0] of [[3, 3], [20, 3], [3, 30], [20, 30]]) { rect(x + px0, y + py0, 13, 22, '#7a3420'); rect(x + px0, y + py0, 13, 1, '#9a4a30'); }
     rect(x + 30, y + 28, 3, 3, '#e8c048');
-    text(L.id === 'b1' ? 'KEEP' : 'NO', x + 18, y + 16, '#e8e0c8', { align:'center' }); text(L.id === 'b1' ? 'OUT' : 'ENTRY', x + 18, y + 26, '#e8e0c8', { align:'center' });
+    const [l1, l2] = L.door || ['KEEP', 'OUT'];
+    text(l1, x + 18, y + 16, '#e8e0c8', { align:'center' }); text(l2, x + 18, y + 26, '#e8e0c8', { align:'center' });
   } else {
     rect(x, y, 36, 56, '#0a0610');
     for (let i = 0; i < 7; i++) { rect(x + 2 + i * 5, y + 48 - i * 7, 34 - i * 5, 2, '#7a7486'); rect(x + 2 + i * 5, y + 50 - i * 7, 34 - i * 5, 1, '#3a3646'); }
@@ -449,7 +562,42 @@ function drawPickups(cx) {
     }
   }
 }
-function drawBossObj(cx) { if (boss.kind === 'mom') drawMom(cx); else drawKit(cx); }
+function drawBossObj(cx) { if (boss.kind === 'pastor') drawPastor(cx); else if (boss.kind === 'mom') drawMom(cx); else drawKit(cx); }
+function drawSkateboard(x, y) {
+  rect(x, y, 40, 3, '#e02838'); rect(x, y, 40, 1, '#ff6870'); rect(x - 2, y - 1, 3, 2, '#e02838'); rect(x + 39, y - 1, 3, 2, '#e02838');
+  for (const wx of [6, 30]) { rect(x + wx, y + 3, 4, 2, '#8a8698'); disc(x + wx + 2, y + 6, 2, '#ffd850'); }
+}
+function drawPastor(cx) {
+  const B = boss; if (B.state === 'wait' && B.x - cx > W + 60) return;
+  const x = Math.round(B.x - cx), y = Math.round(B.y);
+  if (B.state === 'gone') { ctx.drawImage(pick(PASTOR_PURGED, B.face), x, y); return; }
+  if (B.state === 'dying' && (frame & 2)) return;
+  const fl = B.flash > 0 && (B.flash & 2);
+  if (B.pose === 'plank') {
+    ctx.save(); ctx.translate(x + 30, GROUND - 22); ctx.rotate(B.face * Math.PI / 2);
+    ctx.drawImage(fl ? pick(PASTOR.flash, B.face) : pick(PASTOR.idle[0], B.face), -32, -40); ctx.restore();
+    drawSkateboard(x + 10, GROUND - 9);
+    light(x + 30 + B.face * 30, GROUND - 22, 18, '#c8ff3c', 0.4);
+    return;
+  }
+  let img;
+  if (fl) img = pick(PASTOR.flash, B.face);
+  else if (B.pose === 'strum') img = pick(PASTOR.strum[(frame >> 3) & 1], B.face);
+  else if (B.pose === 'crouch') img = pick(PASTOR.crouch, B.face);
+  else if (B.pose === 'jump') img = pick(PASTOR.jump, B.face);
+  else if (B.pose === 'yell') img = pick(PASTOR.yell, B.face);
+  else img = pick(PASTOR.idle[(frame >> 5) & 1], B.face);
+  ctx.drawImage(img, x, y);
+  if (B.state === 'luge') drawSkateboard(x + 10, GROUND - 9);
+  light(x + 30 + B.face * 8, y + 18, 16, '#c8ff3c', 0.4);
+}
+function drawNotes(cx) {
+  for (const n of notes) {
+    const x = Math.round(n.x - cx), y = Math.round(n.y), c = (n.t >> 3) & 1 ? '#ffd850' : '#ff88cc';
+    disc(x - 2, y + 3, 3, OUT); disc(x - 2, y + 3, 2, c); rect(x, y - 6, 2, 9, OUT); rect(x, y - 6, 1, 9, c); rect(x + 1, y - 6, 3, 2, c);
+    light(x, y, 16, c, 0.35);
+  }
+}
 function drawMom(cx) {
   const B = boss; if (B.state === 'wait' && B.x - cx > W + 60) return;
   const x = Math.round(B.x - cx), y = Math.round(B.y);
@@ -544,6 +692,13 @@ function drawHumanoidEntity(set, e, cx, white) {
 }
 function drawEnemy(e, cx) {
   const white = e.flash > 0 && (e.flash & 2);
+  if (e.type === 'sheet') {
+    const x = Math.round(e.x - 2 - cx), y = Math.round(e.y - 1);
+    if (x < -30 || x > W + 30) return;
+    ctx.globalAlpha = e.mode === 'swoop' ? 1 : 0.88; ctx.drawImage(pick((white ? SHEET_W : SHEET)[Math.floor(e.anim) % 2], e.face), x, y); ctx.globalAlpha = 1;
+    light(x + 9 + e.face * 3, y + 7, 14, '#c8ff3c', 0.35);
+    return;
+  }
   if (e.type === 'rat') {
     const x = Math.round(e.x + 8 - 12 - cx), y = Math.round(e.y + 9 - 12);
     if (x < -30 || x > W + 30) return;
@@ -619,7 +774,7 @@ function drawHUD() {
   text('SCORE', 140, 4, '#a8a4b8'); text(pad6(score), 140, 14, '#f4f0ff');
   ctx.globalAlpha = P.record ? 1 : 0.3; ctx.drawImage(RECORD, 216, 5); ctx.globalAlpha = 1;
   text('FLOOR', 270, 4, '#80c8ff'); text(L.label, 286, 14, '#f4f0ff');
-  if (['intro', 'idle', 'volley', 'crash', 'roll', 'dying'].includes(boss.state)) {
+  if (boss.state !== 'wait' && boss.state !== 'gone') {
     const n = boss.state === 'intro' ? Math.min(BOSS_HP, Math.floor(boss.t / 5)) : Math.max(0, boss.hp);
     const bx0 = 302, by0 = 36, bh = BOSS_HP * 3 + 4;
     rect(bx0, by0, 10, bh, '#0a0410'); rect(bx0, by0, 10, 1, '#ffffff'); rect(bx0, by0 + bh - 1, 10, 1, '#ffffff'); rect(bx0, by0, 1, bh, '#ffffff'); rect(bx0 + 9, by0, 1, bh, '#ffffff');
@@ -654,9 +809,9 @@ function drawPlayScene() {
   for (const t of tracts) { ctx.save(); ctx.translate(Math.round(t.x - cx), Math.round(t.y)); ctx.rotate(t.rot * 0.25); ctx.drawImage(TRACT, -5, -4); ctx.restore(); }
   for (const s of sticks) drawStick(s, cx);
   for (const w of waves) drawWave(w, cx);
-  drawMomStuff(cx);
+  drawMomStuff(cx); drawNotes(cx);
   drawParts(cx);
-  drawLighting(L.theme === 'house' ? 0.34 : 0.6);
+  drawLighting(L.theme === 'house' ? 0.34 : L.theme === 'upstairs' ? 0.44 : 0.6);
   if (L.theme === 'basement') drawForeground(cx);
   ctx.restore();
   drawHUD();
@@ -790,7 +945,20 @@ const BROADCAST_F1 = [
     items:['1. PUZZLE CUBES', '2. BLUE GNOMES', '3. 20-SIDED DICE', '4. ROLLER SKATES', '5. LAVA LAMPS', '6. TROLL DOLLS', '7. FUN'] },
   { art:sceneToyBox, text:'"SON, YOU MAY HAVE BEATEN ONE MOTHER. P.U.R.E. HAS TEN THOUSAND OF THEM. CALL NOW."' },
 ];
-const BROADCASTS = { b1:BROADCAST, f1:BROADCAST_F1 };
+function sceneCloth() {
+  rect(0, 0, W, 164, '#0c0818');
+  bigTV(84, 80, 144, 118, (x, y, w, h) => gloryScreen(x, y, w, h, 'GLORY CLOTH'));
+  text('ONLY $49.95', 240, 14, '#ffd850', { align:'center', bands:GOLD, shadow:'#3a1060' });
+  rect(166, 28, 148, 1, '#6a3a80');
+  const sw = Math.sin(frame * 0.08) * 2;
+  ctx.save(); ctx.translate(84, 54 + sw); ctx.rotate(-0.08); rect(-20, -9, 40, 18, '#f8f0d0'); rect(-20, -9, 40, 2, '#ffffff'); rect(-6, -6, 12, 9, '#e8d8a0'); text('$', -4, -6, '#c89838'); ctx.restore();
+}
+const BROADCAST_F2 = [
+  { art:sceneCloth, song:'glory', text:'"FRIENDS, THIS GENUINE GLORY CLOTH HAS BEEN SOAKED IN MY OWN HOLY SWEAT. IT CURES:"',
+    items:['1. ACNE', '2. BACKMASKING', '3. MULLETS', '4. AIR GUITAR', '5. SLEEPOVERS', '6. SAXOPHONE', '7. YOUR WALLET'] },
+  { art:sceneCloth, text:'"SON, I SEE YOU\'VE MADE IT TO THE ATTIC STAIRS. THAT\'S WHERE THIS HOUSE KEEPS WHAT IT\'S ASHAMED OF. COME ON UP."' },
+];
+const BROADCASTS = { b1:BROADCAST, f1:BROADCAST_F1, f2:BROADCAST_F2 };
 const GAMEOVER = [
   { art:sceneGameOver, song:'glory', text:'"SON, THAT WASN\'T PUKE. THAT WAS SIN LEAVING YOUR BODY. CONTINUE? CALL NOW."' },
 ];
@@ -868,7 +1036,7 @@ function drawTitle() {
   for (const d of DRIPS) { d.len += d.sp; if (d.len > 18) d.len = 0; rect(d.x, 52, 2, Math.floor(d.len), '#58a010'); if (d.len > 2) rect(d.x - 1, 52 + Math.floor(d.len), 4, 3, '#a8e030'); }
   if ((frame >> 5) & 1 || frame < 30) text('PRESS START', 160, 222, '#ffffff', { align:'center', shadow:'#000' });
   text('HI ' + pad6(hiscore), 6, 232, '#6a6478');
-  text('\u25C4 START: FLOOR ' + LEVELS[startFloor].label + ' \u25BA', 160, 207, startFloor === 'b1' ? '#a8a4b8' : '#80c8ff', { align:'center', shadow:'#000' });
+  text('\u25C4 START: FLOOR ' + LEVELS[startFloor].label + ' \u25BA', 160, 207, startFloor === 'b1' ? '#a8a4b8' : startFloor === 'f1' ? '#80c8ff' : '#ff88cc', { align:'center', shadow:'#000' });
   text('©198X BARFTRONICS', 314, 232, '#58a010', { align:'right' });
 }
 function drawFloorCard() {
@@ -895,7 +1063,7 @@ function drawTally() {
   if (stateT > 120) {
     text('ROXY IS STILL UP THERE...', 160, 164, '#ff88cc', { align:'center' });
     const nx = L.next && LEVELS[L.next];
-    text(nx ? 'NEXT: FLOOR ' + nx.label + '  ' + nx.name : 'NEXT: FLOOR 2F  UPSTAIRS', 160, 182, '#80c8ff', { align:'center' });
+    text(nx ? 'NEXT: FLOOR ' + nx.label + '  ' + nx.name : 'NEXT: THE ATTIC', 160, 182, '#80c8ff', { align:'center' });
     if (!nx) text('COMING SOON', 160, 196, '#6a6478', { align:'center' });
     if ((frame >> 4) & 1) text('PRESS START', 160, 222, '#ffffff', { align:'center' });
   }
