@@ -119,6 +119,7 @@ function humanoid(S, P) {
     g.rect(tx, shY, 10, 11, S.shirt);
     g.rect(tx, shY, 2, 11, S.shirtS);
     g.rect(tx + 1, shY - 1, 8, 1, S.shirt);
+    if (S.cross) { g.rect(tx + 5, shY + 2, 2, 7, S.cross); g.rect(tx + 3, shY + 4, 6, 2, S.cross); }
     if (S.logo) { const L = S.logo; g.px(tx + 4, shY + 3, L); g.px(tx + 5, shY + 4, L); g.px(tx + 6, shY + 5, L); g.px(tx + 7, shY + 4, L); g.px(tx + 8, shY + 3, L); g.rect(tx + 4, shY + 7, 5, 1, L); }
     if (S.vest) {
       g.rect(tx, shY + 1, 10, 10, S.vest);
@@ -137,6 +138,11 @@ function humanoid(S, P) {
     leg(hipF, fF, S.pants, [S.shoe, S.shoeS], S.skin, S.rips);
     if (S.robe) { g.rect(tx - 1, shY + 11, 12, 9, S.shirt); g.rect(tx - 1, shY + 11, 2, 9, S.shirtS); g.rect(tx + 7, shY + 11, 1, 9, S.shirtS); g.rect(tx - 1, shY + 11, 12, 1, S.robe); }
     if (S.holding === 'pamphlets') g.rect(hF[0] - 1, hF[1] - 5, 5, 6, '#f4f0e0'), g.rect(hF[0] - 1, hF[1] - 5, 5, 1, '#e0b040');
+    if (S.holding === 'acoustic') {
+      g.line(tx + 7, shY + 9, tx + 18, shY + 2, '#5a3418', 2); g.rect(tx + 17, shY, 3, 3, '#3a2010'); g.px(tx + 18, shY - 1, '#e8e8f0');
+      g.ell(tx + 4, shY + 10, 5, 4, '#d89848'); g.ell(tx + 3, shY + 10, 3, 3, '#e8b060'); g.ell(tx + 5, shY + 9, 1, 1, '#2a1408');
+      g.rect(tx + 1, shY + 13, 6, 1, '#8a5428');
+    }
     if (S.holding === 'clipboard') { g.rect(hF[0] - 2, hF[1] - 8, 7, 9, '#8a5428'); g.rect(hF[0] - 1, hF[1] - 6, 5, 6, '#f8f4e4'); g.rect(hF[0], hF[1] - 9, 3, 2, '#c8c4d4'); g.px(hF[0], hF[1] - 4, '#c02030'); g.px(hF[0] + 2, hF[1] - 2, '#c02030'); }
     arm([tx + 7, shY + 1], hF, S.sleeve, S.skin, S.sleeves !== false);
 
@@ -190,6 +196,9 @@ function humanoid(S, P) {
       g.rect(hx - 1, headTop - 2, 11, 4, S.hairC); g.rect(hx - 1, headTop, 3, 6, S.hairC);
       for (let i = 0; i < 4; i++) { g.rect(hx - 1 + i * 3, headTop - 3, 2, 2, '#ff90c8'); g.px(hx - 1 + i * 3, headTop - 3, '#ffd0e8'); }
       g.rect(hx - 3, headTop + 1, 2, 2, '#ff90c8');
+    } else if (S.hair === 'capback') {
+      g.rect(hx - 1, headTop - 1, 10, 3, S.capC); g.rect(hx - 4, headTop + 1, 4, 1, S.capC); g.px(hx + 4, headTop - 1, '#ffffff');
+      g.rect(hx + 5, headTop + 2, 4, 1, S.hairC); g.rect(hx - 1, headTop + 2, 3, 4, S.hairC); g.px(hx + 7, headTop + 3, S.hairH);
     } else if (S.hair === 'cap') {
       g.rect(hx - 1, headTop - 1, 10, 3, S.capC);
       g.rect(hx + 8, headTop + 1, 4, 1, S.capC);
@@ -601,4 +610,89 @@ const DEN_WALL = paint(64, 184, g => {
   for (let y = 6; y < 184; y += 20) for (let x = (y / 20 % 2) * 16; x < 64; x += 32) { g.ell(x + 8, y, 3, 3, '#7a2a3a'); g.px(x + 8, y, '#c8a040'); g.px(x + 6, y + 3, '#3a6a30'); g.px(x + 10, y + 3, '#3a6a30'); }
   g.rect(0, 120, 64, 3, '#c8a040');
   for (let x = 0; x < 64; x += 16) { g.rect(x, 123, 16, 61, '#3a1018'); g.rect(x + 2, 126, 12, 55, '#4a1820'); }
+}, null);
+
+/* =========================================================
+   FLOOR 2F: THE BEDROOMS — sheet ghosts, the Youth Pastor, upstairs tiles + walls
+   ========================================================= */
+function sheetFrame(f) {
+  return paint(18, 24, g => {
+    g.ell(9, 7, 7, 7, '#f4f4fa'); g.rect(2, 7, 15, 11, '#f4f4fa'); g.rect(2, 7, 3, 11, '#c8c8dc'); g.ell(5, 5, 2, 2, '#ffffff');
+    for (let x = 2; x < 17; x++) g.rect(x, 18, 1, 1 + ((x + f * 2) % 4 < 2 ? 1 : 0), x < 5 ? '#c8c8dc' : '#f4f4fa');
+    g.rect(10, 6, 2, 3, '#140b1a'); g.rect(14, 6, 2, 3, '#140b1a'); g.px(10, 7, '#c8ff3c'); g.px(14, 7, '#c8ff3c');
+    g.rect(12, 11, 3, 2, '#140b1a');
+    g.rect(5 + f, 21, 4, 2, '#e02838'); g.rect(11 - f, 21, 4, 2, '#e02838'); g.rect(5 + f, 22, 4, 1, '#ffffff'); g.rect(11 - f, 22, 4, 1, '#ffffff');
+  });
+}
+const SHEET = [pair(sheetFrame(0)), pair(sheetFrame(1))];
+const SHEET_W = SHEET.map(p => [tintC(p[0], '#ffffff', 0.85), tintC(p[1], '#ffffff', 0.85)]);
+const SHEET_RAG = paint(18, 12, g => { g.rect(1, 2, 16, 8, '#f4f4fa'); g.rect(1, 2, 16, 2, '#ffffff'); g.rect(5, 4, 2, 2, '#140b1a'); g.rect(11, 4, 2, 2, '#140b1a'); });
+const GUITAR_SPR = paint(12, 12, g => { g.ell(4, 7, 3, 3, '#d89848'); g.px(4, 7, '#2a1408'); g.line(6, 5, 10, 1, '#5a3418', 1); });
+const BOARD = paint(26, 12, g => {
+  g.rect(1, 1, 24, 10, '#d8b878'); g.rect(1, 1, 24, 1, '#f0d8a0'); g.rect(1, 10, 24, 1, '#a8885a');
+  for (let i = 0; i < 9; i++) g.px(3 + i * 2 + 1, 3 + (i % 2), '#3a2010');
+  for (let i = 0; i < 8; i++) g.px(4 + i * 2 + 1, 6 + (i % 2), '#3a2010');
+  g.rect(4, 8, 3, 1, '#3a2010'); g.rect(19, 8, 3, 1, '#3a2010');
+});
+const PLANCHETTE = paint(8, 7, g => { g.rect(1, 2, 6, 3, '#f4f0e0'); g.rect(2, 1, 4, 5, '#f4f0e0'); g.px(4, 3, '#3a2010'); });
+const PASTOR_S = {
+  skin:'#c6d3bd', skinS:'#93a88e', glow:'#c8ff3c', fangs:true, hair:'capback', capC:'#ff3c90', hairC:'#e8c060', hairS:'#b08830', hairH:'#fff0a0',
+  shirt:'#40e0d0', shirtS:'#20a098', sleeve:'#40e0d0', sleeveS:'#20a098', cross:'#ffd850',
+  pants:'#6a88d0', pantsS:'#4a68a8', shoe:'#f4f4f8', shoeS:'#b8b8c8', hightop:true, rips:true, holding:'acoustic',
+};
+const pastorPose = {
+  idle:[IDLE(0), IDLE(1)].map(p => Object.assign(p, { handF:[16, 26 + p.bob], handB:[24, 20 + p.bob] })),
+  strum:[0, 1].map(i => Object.assign(IDLE(i), { handF:[15 + i, 24 + i * 3], handB:[24, 19], headDy:i, lean:1 })),
+  crouch:{ footF:[22, 38], footB:[8, 38], handF:[26, 22], handB:[4, 22], bob:3, kneeBend:4, lean:2 },
+  jump:{ footF:[20, 34], footB:[10, 34], handF:[24, 6], handB:[6, 6], kneeBend:3, mouth:'open' },
+  yell:{ footF:[19, 38], footB:[11, 38], handF:[16, 26], handB:[24, 20], lean:1, mouth:'open' },
+};
+const PASTOR = {
+  idle:pastorPose.idle.map(p => pair(x2(humanoid(PASTOR_S, p)))),
+  strum:pastorPose.strum.map(p => pair(x2(humanoid(PASTOR_S, p)))),
+  crouch:pair(x2(humanoid(PASTOR_S, pastorPose.crouch))),
+  jump:pair(x2(humanoid(PASTOR_S, pastorPose.jump))),
+  yell:pair(x2(humanoid(Object.assign({}, PASTOR_S, { fangs:false }), pastorPose.yell))),
+};
+PASTOR.flash = pair(tintC(PASTOR.idle[0][0], '#ffffff', 0.85));
+const PASTOR_PURGED = pair(x2(humanoid(Object.assign(unpossessed(PASTOR_S, '#f0c8a0', '#c8946a'), { holding:null, cross:null }), { footF:[17, 38], footB:[12, 38], handF:[20, 30], handB:[11, 30], headDx:-1, headDy:1 })));
+
+// upstairs floor tiles
+{
+  const r = rng(303), shagTop = (base, lo, hi, edge) => paint(16, 16, g => { g.rect(0, 0, 16, 16, base); for (let i = 0; i < 40; i++) g.px(r() * 16, r() * 16, r() < 0.5 ? hi : lo); g.rect(0, 0, 16, 1, edge); for (let x = 0; x < 16; x += 2) g.px(x, 1, hi); }, null);
+  const under = HOUSE.lino.fill;
+  HOUSE.carpet = tileSet(shagTop('#b89868', '#98784a', '#d0b080', '#e8d0a0'), under);
+  HOUSE.pink = tileSet(shagTop('#e078a8', '#b85080', '#f8a0c8', '#ffd0e4'), under);
+  HOUSE.purple = tileSet(shagTop('#4a2878', '#2e1650', '#6a40a0', '#9a70d0'), under);
+  HOUSE.dresser = [paint(16, 16, g => { g.rect(0, 0, 16, 16, '#7a4a28'); g.rect(0, 0, 16, 2, '#b07848'); g.rect(0, 0, 16, 1, '#d8a068'); g.rect(1, 4, 14, 5, '#8a5a30'); g.rect(1, 4, 14, 1, '#a87040'); g.rect(7, 6, 2, 1, '#e8c048'); g.rect(1, 11, 14, 4, '#8a5a30'); g.rect(1, 11, 14, 1, '#a87040'); g.rect(7, 12, 2, 1, '#e8c048'); }, null),
+                   paint(16, 16, g => { g.rect(0, 0, 16, 16, '#7a4a28'); g.rect(1, 1, 14, 6, '#8a5a30'); g.rect(1, 1, 14, 1, '#a87040'); g.rect(7, 3, 2, 1, '#e8c048'); g.rect(1, 9, 14, 6, '#8a5a30'); g.rect(1, 9, 14, 1, '#a87040'); g.rect(7, 11, 2, 1, '#e8c048'); }, null)];
+  HOUSE.chest = [paint(16, 16, g => { g.rect(0, 0, 16, 16, '#f070a8'); g.rect(0, 0, 16, 3, '#ffa0c8'); g.rect(0, 0, 16, 1, '#ffd0e4'); g.rect(0, 3, 16, 1, '#b84078'); g.ell(8, 9, 3, 3, '#ffffff'); g.px(8, 9, '#f8d040'); g.rect(1, 14, 14, 1, '#b84078'); }, null),
+                 paint(16, 16, g => { g.rect(0, 0, 16, 16, '#d85890'); g.rect(1, 1, 14, 14, '#f070a8'); }, null)];
+}
+// upstairs walls (100% parallax)
+const HALL_WALL = paint(64, 184, g => {
+  for (let x = 0; x < 64; x += 8) { g.rect(x, 0, 8, 100, (x / 8) % 2 ? '#c8c098' : '#d8d0a8'); g.rect(x + 4, 0, 1, 100, '#b8b088'); }
+  for (let y = 12; y < 100; y += 24) for (let x = 4; x < 64; x += 16) { g.px(x, y, '#8a9858'); g.px(x - 1, y + 1, '#8a9858'); g.px(x + 1, y + 1, '#8a9858'); g.px(x, y + 2, '#b85868'); }
+  g.rect(0, 100, 64, 4, '#f0e8d8'); g.rect(0, 103, 64, 1, '#a89878');
+  for (let x = 0; x < 64; x += 8) { g.rect(x, 104, 8, 80, '#e8e0cc'); g.rect(x, 104, 1, 80, '#c0b498'); g.rect(x + 1, 104, 1, 80, '#fffaf0'); }
+}, null);
+const SIS_WALL = paint(64, 184, g => {
+  g.rect(0, 0, 64, 184, '#f4b8d0');
+  for (let y = 8; y < 184; y += 22) for (let x = (y / 22 % 2) * 16 + 6; x < 64; x += 32) { g.ell(x, y, 2, 2, '#ff88b8'); g.ell(x + 3, y, 2, 2, '#ff88b8'); for (let k = 0; k < 4; k++) g.rect(x - 2 + k, y + 1 + k, 7 - k * 2, 1, '#ff88b8'); }
+  for (let x = 0; x < 64; x += 16) g.ell(x + 10, 60, 5, 2, '#ffffff');
+}, null);
+const BATH_WALL = paint(64, 184, g => {
+  g.rect(0, 0, 64, 70, '#a8e0d8'); for (let y = 6; y < 70; y += 14) for (let x = (y / 14 % 2) * 12; x < 64; x += 24) { g.ell(x + 4, y, 3, 2, '#f8a060'); g.px(x + 8, y, '#f8a060'); g.px(x + 3, y - 1, '#ffffff'); }
+  g.rect(0, 70, 64, 3, '#ffffff');
+  for (let y = 73; y < 184; y += 8) for (let x = 0; x < 64; x += 8) { g.rect(x, y, 7, 7, (x + y) % 16 ? '#f8c8d8' : '#f0b0c8'); g.px(x, y, '#ffffff'); }
+}, null);
+const TEEN_WALL = paint(64, 184, g => {
+  g.rect(0, 0, 64, 184, '#1e1428');
+  const r = rng(808); for (let i = 0; i < 30; i++) g.px(r() * 64, r() * 184, r() < 0.5 ? '#2a1e38' : '#140c1c');
+  g.rect(0, 176, 64, 8, '#120a18'); g.rect(0, 176, 64, 1, '#3a2850');
+}, null);
+const MASTER_WALL = paint(64, 184, g => {
+  g.rect(0, 0, 64, 184, '#2a3068');
+  for (let y = 10; y < 130; y += 24) for (let x = (y / 24 % 2) * 16 + 8; x < 64; x += 32) { g.rect(x, y - 3, 1, 7, '#c8a040'); g.rect(x - 3, y, 7, 1, '#c8a040'); g.px(x, y, '#fff0a0'); }
+  g.rect(0, 130, 64, 3, '#c8a040'); for (let x = 0; x < 64; x += 16) { g.rect(x, 133, 16, 51, '#1a1e48'); g.rect(x + 2, 136, 12, 45, '#22285a'); }
 }, null);

@@ -122,6 +122,11 @@ const PARTY_RIFF =
   "A2 A2 . A2 A2 . A2 A2 G3! ~ F3! ~ E3! ~ D3! ~ " +
   "F2! ~ F2 F2 F2 . F2 F2 G2! ~ G2 G2 G2 . G2 G2 " +
   "A2 A2 . A2 A2 . A2 A2 E3! ~ ~ ~ E2! ~ G2! ~";
+const UP_RIFF =
+  "D2 D2 D2 . D2 D2 F2! ~ D2 D2 D2 . G2! ~ G#2! ~ " +
+  "D2 D2 D2 . D2 D2 F2! ~ D2 D2 C3! ~ A#2! ~ A2! ~ " +
+  "A#1! ~ A#1 A#1 A#1 . A#1 A#1 C2! ~ C2 C2 C2 . C2 C2 " +
+  "D2 D2 D2 . D2 D2 F2! ~ D2 D2 A2! ~ G#2! ~ G2! ~";
 const BOSS_RIFF =
   "E2 E2 E2 E2 F2! ~ E2 . E2 E2 E2 E2 A#2! ~ A2! ~ " +
   "E2 E2 E2 E2 F2! ~ E2 . G2! ~ F#2! ~ F2! ~ E2! ~ " +
@@ -162,6 +167,19 @@ const SONGS = {
       "F5 ~ ~ ~ E5 ~ D5 ~ C5 ~ D5 ~ E5 ~ ~ ~ " +
       "A4 ~ C5 ~ D5 ~ E5 ~ G5 ~ E5 ~ A5 ~ ~ ~") },
     drum:{ steps:parse("C . h h S . h h K K h h S . h h " + rep("K . h h S . h h K K h h S . h K", 6) + " S S K S S K S S K K S S C . . .") },
+  }},
+  upstairs: { bpm:158, loop:true, ch:{
+    gtr:{ inst:'gtr', vol:0.55, steps:parse(UP_RIFF) },
+    bass:{ inst:'bass', vol:0.3, steps:parse(UP_RIFF) },
+    organ:{ inst:'organ', vol:0.035, steps:parse(
+      "D5 ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ " + rep(". . . . . . . . . . . . . . . .", 3)) },
+    lead:{ inst:'lead', vol:0.05, steps:parse(
+      rep(". . . . . . . . . . . . . . . .", 4) +
+      "D5 ~ ~ ~ F5 ~ E5 ~ D5 ~ C5 ~ A4 ~ ~ ~ " +
+      "A#4 ~ ~ ~ A4 ~ G4 ~ A4 ~ ~ ~ ~ ~ ~ ~ " +
+      "F5 ~ ~ ~ E5 ~ D5 ~ C5 ~ D5 ~ E5 ~ ~ ~ " +
+      "D5 ~ F5 ~ A5 ~ G#5 ~ G5 ~ F5 ~ D5 ~ ~ ~") },
+    drum:{ steps:parse("C . h . S . h h K . K h S . h . " + rep("K . h . S . h h K . K h S . h .", 6) + " S . S . S S K . S S S S C . . .") },
   }},
   boss: { bpm:172, loop:true, ch:{
     gtr:{ inst:'gtr', vol:0.55, steps:parse(BOSS_RIFF) },
@@ -254,6 +272,8 @@ const SFX = {
     o.connect(fl); fl.connect(g); g.connect(AU.sGain); o.start(t); o.stop(t + 0.5); lfo.start(t); lfo.stop(t + 0.5);
     noiseHit(AU.sGain, t, 0.3, 0.12, 'bandpass', 300, 120, 1.5);
   },
+  boing()  { const t = AU.ctx.currentTime; osc('sine', 140, t, 0.28, AU.sGain, 0.14, 420); osc('triangle', 280, t + 0.02, 0.2, AU.sGain, 0.05, 700); },
+  strum()  { const t = AU.ctx.currentTime; [0, 4, 7, 12].forEach((s, i) => osc('triangle', 392 * Math.pow(2, s / 12), t + i * 0.025, 0.3, AU.sGain, 0.05)); },
   whip()   { const t = AU.ctx.currentTime; noiseHit(AU.sGain, t, 0.16, 0.3, 'bandpass', 600, 3500, 1.2); },
   snot()   { const t = AU.ctx.currentTime; noiseHit(AU.sGain, t, 0.05, 0.25, 'lowpass', 500); noiseHit(AU.sGain, t + 0.05, 0.14, 0.3, 'bandpass', 2600, 900, 2); osc('square', 700, t + 0.05, 0.1, AU.sGain, 0.04, 1400); },
   type()   { const t = AU.ctx.currentTime; osc('square', 1300, t, 0.015, AU.sGain, 0.02); },
