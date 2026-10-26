@@ -139,7 +139,7 @@ const LEVELS = {
             ['aerobic', 102], ['pusher', 110], ['airg', 118], ['mosher', 126], ['aerobic', 136], ['airg', 146], ['pusher', 154], ['mosher', 162]],
     pickups:[['pizza', 17], ['record', 34.5], ['punch', 75], ['turbo', 85], ['pizza', 112], ['turbo', 130], ['pizza', 159.5]],
     tvs:[8, 60, 89, 121, 156], checks:[3, 100, 166], gag:{ col:25, kind:'phone' }, next:'f2',
-    zone:tx => tx < 60 ? 'lino' : tx < 140 ? 'shag' : 'wood', door:['NO', 'ENTRY'],
+    zone:tx => tx < 60 ? 'lino' : tx < 140 ? 'shag' : 'wood', doorSign:['NO', 'ENTRY'],
   },
   f2: {
     id:'f2', label:'2F', name:'THE BEDROOMS', tagline:'LIGHTS OUT. NOBODY IS SLEEPING.', theme:'upstairs', song:'upstairs',
@@ -168,7 +168,7 @@ const LEVELS = {
             ['rat', 106], ['sheet', 112], ['mosher', 118], ['airg', 134], ['sheet', 144], ['mosher', 152], ['aerobic', 158], ['sheet', 165], ['pusher', 170]],
     pickups:[['pizza', 19.5], ['punch', 58.5], ['pizza', 81.5], ['turbo', 111], ['record', 138.5], ['pizza', 155.5], ['punch', 172]],
     tvs:[9, 63, 101, 131, 168], checks:[3, 99, 172], gag:{ col:70, kind:'board' }, next:null, trashEnd:174,
-    zone:tx => tx < 48 ? 'carpet' : tx < 100 ? 'pink' : tx < 128 ? 'lino' : tx < 176 ? 'purple' : 'wood', door:['GOD', 'SEES'],
+    zone:tx => tx < 48 ? 'carpet' : tx < 100 ? 'pink' : tx < 128 ? 'lino' : tx < 176 ? 'purple' : 'wood', doorSign:['GOD', 'SEES'],
   },
 };
 const FLOOR_ORDER = Object.keys(LEVELS);

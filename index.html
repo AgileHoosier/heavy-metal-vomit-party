@@ -60,9 +60,9 @@ kbd{font-family:var(--f-pixel);font-size:8px;color:var(--ink);background:#0d0a12
 
 <div class="wrap">
   <div class="top">
-    <div class="eyebrow">16-bit prototype · Floors B1 + 1F of 5</div>
+    <div class="eyebrow">16-bit prototype · Floors B1–2F of 5</div>
     <div class="floors" aria-label="Floor progress">
-      <span class="floor on">B1 BASEMENT</span><span class="floor on">1F PARTY</span><span class="floor">2F UPSTAIRS</span><span class="floor">ATTIC</span><span class="floor">ROOF</span>
+      <span class="floor on">B1 BASEMENT</span><span class="floor on">1F PARTY</span><span class="floor on">2F BEDROOMS</span><span class="floor">ATTIC</span><span class="floor">ROOF</span>
     </div>
   </div>
   <div class="cab">
@@ -102,8 +102,9 @@ kbd{font-family:var(--f-pixel);font-size:8px;color:var(--ink);background:#0d0a12
         <li><b>The Tithe Bite:</b> getting bitten costs a heart and floats your score away as dollar signs.</li>
         <li><b>Floor B1, The Basement:</b> Undead Moshers, Pamphlet Pushers, possessed rats, and the Possessed Drummer.</li>
         <li><b>Floor 1F, The Party:</b> kitchen, living room and den. New Aerobics Undead (jumping-jack hops) and Air Guitar Undead (power-chord shockwaves), Turbo Cola, holes in the floor, and the Concerned Mom, who throws confiscated records, rolls a TV cart at you and yells GROUNDED.</li>
-        <li><b>Secrets:</b> a VOMITRON record on each floor, plus a record player and a ringing phone worth a puke.</li>
-        <li><b>Floor select:</b> press ← or → on the title screen to start on 1F.</li>
+        <li><b>Floor 2F, The Bedrooms:</b> hallway, a sleepover, the bathroom and a metalhead's room. New Bedsheet Ghosts float overhead and swoop at you (lob your puke with ↑), a waterbed launches you sky-high if you hold jump, and the Radical Youth Pastor strums homing music notes, skateboards across the room and trust-falls onto you.</li>
+        <li><b>Secrets:</b> a VOMITRON record on each floor, plus a record player, a ringing phone and a spirit board worth a puke.</li>
+        <li><b>Floor select:</b> press ← or → on the title screen to start on 1F or 2F.</li>
       </ul>
     </section>
     <section>
@@ -1243,7 +1244,7 @@ const LEVELS = {
             ['aerobic', 102], ['pusher', 110], ['airg', 118], ['mosher', 126], ['aerobic', 136], ['airg', 146], ['pusher', 154], ['mosher', 162]],
     pickups:[['pizza', 17], ['record', 34.5], ['punch', 75], ['turbo', 85], ['pizza', 112], ['turbo', 130], ['pizza', 159.5]],
     tvs:[8, 60, 89, 121, 156], checks:[3, 100, 166], gag:{ col:25, kind:'phone' }, next:'f2',
-    zone:tx => tx < 60 ? 'lino' : tx < 140 ? 'shag' : 'wood', door:['NO', 'ENTRY'],
+    zone:tx => tx < 60 ? 'lino' : tx < 140 ? 'shag' : 'wood', doorSign:['NO', 'ENTRY'],
   },
   f2: {
     id:'f2', label:'2F', name:'THE BEDROOMS', tagline:'LIGHTS OUT. NOBODY IS SLEEPING.', theme:'upstairs', song:'upstairs',
@@ -1272,7 +1273,7 @@ const LEVELS = {
             ['rat', 106], ['sheet', 112], ['mosher', 118], ['airg', 134], ['sheet', 144], ['mosher', 152], ['aerobic', 158], ['sheet', 165], ['pusher', 170]],
     pickups:[['pizza', 19.5], ['punch', 58.5], ['pizza', 81.5], ['turbo', 111], ['record', 138.5], ['pizza', 155.5], ['punch', 172]],
     tvs:[9, 63, 101, 131, 168], checks:[3, 99, 172], gag:{ col:70, kind:'board' }, next:null, trashEnd:174,
-    zone:tx => tx < 48 ? 'carpet' : tx < 100 ? 'pink' : tx < 128 ? 'lino' : tx < 176 ? 'purple' : 'wood', door:['GOD', 'SEES'],
+    zone:tx => tx < 48 ? 'carpet' : tx < 100 ? 'pink' : tx < 128 ? 'lino' : tx < 176 ? 'purple' : 'wood', doorSign:['GOD', 'SEES'],
   },
 };
 const FLOOR_ORDER = Object.keys(LEVELS);
@@ -2613,7 +2614,7 @@ function drawDoor(cx) {
     rect(x, y, 36, 56, '#6a2a18');
     for (const [px0, py0] of [[3, 3], [20, 3], [3, 30], [20, 30]]) { rect(x + px0, y + py0, 13, 22, '#7a3420'); rect(x + px0, y + py0, 13, 1, '#9a4a30'); }
     rect(x + 30, y + 28, 3, 3, '#e8c048');
-    const [l1, l2] = L.door || ['KEEP', 'OUT'];
+    const [l1, l2] = L.doorSign || ['KEEP', 'OUT'];
     text(l1, x + 18, y + 16, '#e8e0c8', { align:'center' }); text(l2, x + 18, y + 26, '#e8e0c8', { align:'center' });
   } else {
     rect(x, y, 36, 56, '#0a0610');

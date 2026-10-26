@@ -531,7 +531,7 @@ function drawDoor(cx) {
     rect(x, y, 36, 56, '#6a2a18');
     for (const [px0, py0] of [[3, 3], [20, 3], [3, 30], [20, 30]]) { rect(x + px0, y + py0, 13, 22, '#7a3420'); rect(x + px0, y + py0, 13, 1, '#9a4a30'); }
     rect(x + 30, y + 28, 3, 3, '#e8c048');
-    const [l1, l2] = L.door || ['KEEP', 'OUT'];
+    const [l1, l2] = L.doorSign || ['KEEP', 'OUT'];
     text(l1, x + 18, y + 16, '#e8e0c8', { align:'center' }); text(l2, x + 18, y + 26, '#e8e0c8', { align:'center' });
   } else {
     rect(x, y, 36, 56, '#0a0610');
