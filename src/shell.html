@@ -1,0 +1,126 @@
+<title>Heavy Metal Vomit Party</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap">
+<style>
+/* Layout: a single arcade-cabinet column. CRT bezel on top, controller strip under it, build notes last. */
+:root{
+  --bg:#09060f; --plate:#15101c; --plate-edge:#2b2236; --ink:#ece6f4; --muted:#9b90ae;
+  --hot:#f85898; --slime:#b8f818; --cyan:#3cbcfc; --gold:#ffd850;
+  --f-pixel:"Press Start 2P", ui-monospace, "Courier New", monospace;
+  --f-body:"VT323", ui-monospace, "Courier New", monospace;
+  color-scheme:dark;
+}
+html,body{background:var(--bg);color:var(--ink)}
+body{font-family:var(--f-body);font-size:21px;line-height:1.2;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 48px}
+.wrap{max-width:900px;margin:0 auto;display:grid;gap:18px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.eyebrow{font-family:var(--f-pixel);font-size:10px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase}
+.floors{display:flex;gap:6px;flex-wrap:wrap}
+.floor{font-family:var(--f-pixel);font-size:8px;letter-spacing:.06em;padding:6px 7px;border:2px solid var(--plate-edge);color:var(--muted)}
+.floor.on{border-color:var(--slime);color:var(--slime);box-shadow:0 0 12px rgba(184,248,24,.25)}
+.cab{background:var(--plate);border:2px solid var(--plate-edge);border-radius:20px;padding:clamp(10px,3vw,26px);display:grid;gap:14px;box-shadow:0 0 0 6px #050309,0 24px 70px rgba(248,88,152,.13)}
+.screen{position:relative;width:100%;max-width:100%;aspect-ratio:4/3;background:#000;border-radius:16px;overflow:hidden;outline:none;cursor:pointer;box-shadow:inset 0 0 0 3px #000,0 0 28px rgba(60,188,252,.10)}
+.screen:focus-visible{box-shadow:inset 0 0 0 3px #000,0 0 0 3px var(--cyan)}
+.screen canvas{position:absolute;inset:0;width:100%;height:100%;display:block;image-rendering:pixelated;image-rendering:crisp-edges}
+.screen.crt canvas{filter:saturate(1.12) contrast(1.05)}
+.screen::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(to bottom,transparent 50%,rgba(0,0,0,.22) 50%) 0 0/100% calc(100% / 240),radial-gradient(ellipse at center,transparent 62%,rgba(0,0,0,.55) 100%)}
+.screen:not(.crt)::after{display:none}
+.bar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.keys{display:flex;flex-wrap:wrap;gap:8px 14px;color:var(--muted);font-size:19px}
+.keys span{display:inline-flex;align-items:center;gap:6px}
+kbd{font-family:var(--f-pixel);font-size:8px;color:var(--ink);background:#0d0a12;border:2px solid var(--plate-edge);border-bottom-width:4px;padding:4px 6px;border-radius:4px}
+.toggles{display:flex;gap:8px;flex-wrap:wrap}
+.tog{font-family:var(--f-pixel);font-size:8px;letter-spacing:.06em;color:var(--ink);background:#0d0a12;border:2px solid var(--plate-edge);padding:8px 10px;border-radius:6px;cursor:pointer}
+.tog[aria-pressed="true"]{border-color:var(--cyan);color:var(--cyan)}
+.tog:hover{border-color:var(--muted)}
+.tog:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+.pad{display:none;justify-content:space-between;align-items:center;gap:12px;user-select:none;-webkit-user-select:none;touch-action:none}
+@media (pointer:coarse){.pad{display:flex}.keys{display:none}}
+.dpad{display:grid;grid-template-columns:repeat(3,52px);grid-template-rows:repeat(2,52px);gap:2px}
+.pb{font-family:var(--f-pixel);font-size:10px;color:#cfc6dc;background:#1f1a26;border:2px solid #3a3145;border-radius:8px;display:grid;place-items:center;touch-action:none}
+.pb.on{background:#3a3145}
+.dpad .up{grid-column:2;grid-row:1}.dpad .left{grid-column:1;grid-row:2}.dpad .right{grid-column:3;grid-row:2}
+.mid{display:grid;gap:6px;justify-items:center}
+.mid .pb{width:64px;height:26px;border-radius:13px;font-size:7px}
+.ab{display:grid;grid-template-columns:repeat(3,48px);grid-template-rows:repeat(3,48px);gap:2px}
+.ab .pb{width:48px;height:48px;border-radius:50%;background:#7a1a3a;border-color:#c8306a;color:#ffd0e0;font-size:9px}
+.ab .x{grid-column:2;grid-row:1}.ab .y{grid-column:1;grid-row:2}.ab .a{grid-column:3;grid-row:2}.ab .b{grid-column:2;grid-row:3}
+.ab .x,.ab .y{background:#3a2a6a;border-color:#6a50c0;color:#e0d8ff}.ab .x.on,.ab .y.on{background:#6a50c0}
+.ab .pb.on{background:#c8306a}
+.ab small{display:block;font-size:6px;margin-top:3px}
+.notes{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:18px;padding-top:4px}
+.notes h2{font-family:var(--f-pixel);font-size:10px;letter-spacing:.08em;color:var(--slime);margin:0 0 10px;font-weight:400}
+.notes ul{margin:0;padding-left:20px;color:var(--muted);display:grid;gap:4px}
+.notes li{max-width:62ch}
+.notes b{color:var(--ink);font-weight:400}
+@media (prefers-reduced-motion:reduce){.floor.on{box-shadow:none}}
+</style>
+
+<div class="wrap">
+  <div class="top">
+    <div class="eyebrow">16-bit prototype · Floors B1 + 1F of 5</div>
+    <div class="floors" aria-label="Floor progress">
+      <span class="floor on">B1 BASEMENT</span><span class="floor on">1F PARTY</span><span class="floor">2F UPSTAIRS</span><span class="floor">ATTIC</span><span class="floor">ROOF</span>
+    </div>
+  </div>
+  <div class="cab">
+    <div class="screen crt" id="screen" tabindex="0" aria-label="Game screen. Press Enter to start.">
+      <canvas id="game" width="320" height="240"></canvas>
+    </div>
+    <div class="pad" id="pad" aria-hidden="true">
+      <div class="dpad"><div class="pb up" data-k="up">▲</div><div class="pb left" data-k="left">◀</div><div class="pb right" data-k="right">▶</div></div>
+      <div class="mid"><div class="pb" data-k="start">START</div></div>
+      <div class="ab"><div class="pb x" data-k="snot">X<small>SNOT</small></div><div class="pb y" data-k="fart">Y<small>FART</small></div><div class="pb a" data-k="jump">A<small>JUMP</small></div><div class="pb b" data-k="fire">B<small>PUKE</small></div></div>
+    </div>
+    <div class="bar">
+      <div class="keys">
+        <span><kbd>←</kbd><kbd>→</kbd> move</span>
+        <span><kbd>Z</kbd> A · jump</span>
+        <span><kbd>X</kbd> B · puke</span>
+        <span><kbd>↑</kbd>+<kbd>X</kbd> lob</span>
+        <span><kbd>C</kbd> X · snot rocket</span>
+        <span><kbd>V</kbd> Y · fart</span>
+        <span><kbd>ENTER</kbd> start / pause</span>
+      </div>
+      <div class="toggles">
+        <button class="tog" id="snd" aria-pressed="true" type="button">SOUND ON</button>
+        <button class="tog" id="crt" aria-pressed="true" type="button">CRT ON</button>
+        <button class="tog" id="fs" type="button">FULLSCREEN</button>
+      </div>
+    </div>
+  </div>
+  <div class="notes">
+    <section>
+      <h2>WHAT'S PLAYABLE</h2>
+      <ul>
+        <li><b>The story:</b> you were in the bathroom throwing up when Rev. Dewey Dollarson's broadcast turned every guest into the Born-Again Undead.</li>
+        <li><b>Four buttons:</b> A jumps, B pukes (hold up to lob it), X fires a snot rocket: fast, straight, free, and it slimes enemies so they slow down. Y farts: on the ground it leaves a stink cloud behind you that gasses the Undead and blocks projectiles; in the air it's a fart-propelled double jump.</li>
+        <li><b>Purge them:</b> puke knocks the sweater vest off and sends them stumbling away. Purge one near a working TV and it gets turned again.</li>
+        <li><b>TVs:</b> puke them until they go off the air. Each one is a bonus.</li>
+        <li><b>The Tithe Bite:</b> getting bitten costs a heart and floats your score away as dollar signs.</li>
+        <li><b>Floor B1, The Basement:</b> Undead Moshers, Pamphlet Pushers, possessed rats, and the Possessed Drummer.</li>
+        <li><b>Floor 1F, The Party:</b> kitchen, living room and den. New Aerobics Undead (jumping-jack hops) and Air Guitar Undead (power-chord shockwaves), Turbo Cola, holes in the floor, and the Concerned Mom, who throws confiscated records, rolls a TV cart at you and yells GROUNDED.</li>
+        <li><b>Secrets:</b> a VOMITRON record on each floor, plus a record player and a ringing phone worth a puke.</li>
+        <li><b>Floor select:</b> press ← or → on the title screen to start on 1F.</li>
+      </ul>
+    </section>
+    <section>
+      <h2>HOW IT'S MADE</h2>
+      <ul>
+        <li>320×240 canvas with 16-bit era touches: shaded sprites with outlines, parallax layers, and colored light from bulbs, candles and TVs.</li>
+        <li>Every sprite is drawn by code pixel by pixel. No image files.</li>
+        <li>Music is synthesized live: distorted guitar, bass, lead, church organ and drums.</li>
+        <li>Keyboard, gamepad, or touch. High score is saved in this browser.</li>
+      </ul>
+    </section>
+  </div>
+</div>
+
+<script>
+(() => {
+'use strict';
+/*__SCRIPT__*/
+})();
+</script>

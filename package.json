@@ -1,0 +1,14 @@
+{
+  "name": "heavy-metal-vomit-party",
+  "version": "0.2.0",
+  "private": true,
+  "description": "A 16-bit style browser side-scroller: puke your way up five floors of a house possessed by a televangelist's broadcast.",
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs",
+    "test": "node build.mjs && node test/smoke.cjs"
+  },
+  "devDependencies": {
+    "@napi-rs/canvas": "0.1.65"
+  }
+}
