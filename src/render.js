@@ -246,7 +246,7 @@ const PROPS_F1 = [
 const PROPS_F2 = [
   { t:'basedoor', x:2, label:'1F' }, { t:'nightlight', x:150 }, { t:'nightlight', x:690 }, { t:'bunk', x:896 }, { t:'teddy', x:1150 }, { t:'nightlight', x:1270 },
   { t:'tank', x:1824 }, { t:'towels', x:1960 }, { t:'lavalamp', x:2240 }, { t:'blacklight', x:2420 }, { t:'lavalamp', x:2560 }, { t:'bgamps', x:2600 },
-  { t:'bigbed', x:2880 }, { t:'nightstand', x:2846 }, { t:'nightstand', x:3010 },
+  { t:'nightstand', x:2846 }, { t:'nightstand', x:3010 },
 ];
 const PROPS = { b1:PROPS_B1, f1:PROPS_F1, f2:PROPS_F2 };
 function drawProps(cx) {
@@ -343,10 +343,6 @@ function drawProps(cx) {
       }
       case 'blacklight':
         rect(x - 30, HUD + 12, 60, 4, '#2a1a40'); rect(x - 28, HUD + 16, 56, 2, '#a060ff'); light(x, HUD + 70, 120, '#9040ff', 0.35); break;
-      case 'bigbed':
-        rect(x, GROUND - 60, 8, 60, '#5a3418'); rect(x, GROUND - 60, 8, 2, '#a86a30'); rect(x + 160, GROUND - 40, 8, 40, '#5a3418');
-        rect(x + 8, GROUND - 26, 152, 16, '#f4f0e8'); rect(x + 8, GROUND - 30, 152, 6, '#c02848'); rect(x + 8, GROUND - 30, 152, 1, '#e86888');
-        rect(x + 12, GROUND - 36, 30, 8, '#ffffff'); rect(x + 8, GROUND - 10, 152, 10, '#3a2010'); break;
       case 'nightstand':
         rect(x, GROUND - 26, 24, 26, '#7a4a28'); rect(x, GROUND - 26, 24, 2, '#b07848'); rect(x + 10, GROUND - 16, 4, 2, '#e8c048');
         rect(x + 10, GROUND - 40, 4, 14, '#c8a040'); ctx.fillStyle = '#f0d890'; ctx.beginPath(); ctx.moveTo(x + 2, GROUND - 40); ctx.lineTo(x + 22, GROUND - 40); ctx.lineTo(x + 18, GROUND - 52); ctx.lineTo(x + 6, GROUND - 52); ctx.fill();
@@ -480,10 +476,10 @@ function drawGag(cx) {
   const x = Math.round(gag.x - cx), y = gag.y;
   if (x < -60 || x > W + 60) return;
   if (gag.kind === 'board') {
-    ctx.drawImage(BOARD, x, y);
+    ctx.drawImage(BOARD, x, y + 8);
     const a = gag.done ? frame * 0.21 : frame * 0.03;
-    ctx.drawImage(PLANCHETTE, x + 9 + Math.round(Math.cos(a) * 7), y + 2 + Math.round(Math.sin(a * 1.7) * 2));
-    if (!gag.done && (frame % 160) < 40) light(x + 13, y + 6, 22, '#c8ff3c', 0.3);
+    ctx.drawImage(PLANCHETTE, x + 9 + Math.round(Math.cos(a) * 7), y + 10 + Math.round(Math.sin(a * 1.7) * 2));
+    if (!gag.done && (frame % 160) < 40) light(x + 13, y + 14, 22, '#c8ff3c', 0.3);
     if (gag.done && gag.t > 0) {
       const say = 'P-U-K-E R-U-L-E-S', n = Math.min(say.length, Math.floor((240 - gag.t) / 6));
       text('THE BOARD SAYS:', x + 13, y - 34, '#a8a4b8', { align:'center', shadow:'#000' });
@@ -750,7 +746,11 @@ function drawParts(cx) {
     for (let i = 1; i <= 6; i++) ctx.lineTo(b.x0 - cx + (b.x1 - b.x0) * i / 6 + (i < 6 ? (Math.random() - 0.5) * 8 : 0), b.y0 + (b.y1 - b.y0) * i / 6 + (i < 6 ? (Math.random() - 0.5) * 8 : 0));
     ctx.stroke(); light(b.x1 - cx, b.y1, 30, '#80c8ff', 0.4);
   }
-  for (const p of pops) { if (p.life < 15 && (frame & 2)) continue; text(p.str, Math.round(p.x - cx), Math.round(p.y), p.c, { align:'center', shadow:'#000' }); }
+  for (const p of pops) {
+    if (p.life < 15 && (frame & 2)) continue;
+    const hw = p.str.length * 4 + 2;
+    text(p.str, Math.round(Math.max(hw, Math.min(W - hw, p.x - cx))), Math.round(p.y), p.c, { align:'center', shadow:'#000' });
+  }
 }
 function drawForeground(cx) {
   const fx = cx * 1.35;
@@ -1103,4 +1103,4 @@ function boot(data) {
 try { window.claude && window.claude.hot && window.claude.hot.snapshot && window.claude.hot.snapshot(() => ({ hiscore })); } catch (e) {}
 const hot = window.claude && window.claude.hot;
 if (hot && hot.ready) hot.ready(boot); else boot((hot && hot.data) || {});
-window.__HMVP = { update, render, kbd, get state() { return state; }, set state(v) { state = v; }, get P() { return P; }, get boss() { return boss; }, get enemies() { return enemies; }, get dazed() { return dazed; }, get tvs() { return tvs; }, get score() { return score; }, get cam() { return cam; }, set cam(v) { cam = v; } };
+window.__HMVP = { update, render, kbd, goto(id) { loadLevel(id); startRun(); state = 'play'; stateT = 0; playSong(L.song); }, get L() { return L; }, get pickups() { return pickups; }, get gag() { return gag; }, get state() { return state; }, set state(v) { state = v; }, get P() { return P; }, get boss() { return boss; }, get enemies() { return enemies; }, get dazed() { return dazed; }, get tvs() { return tvs; }, get score() { return score; }, get cam() { return cam; }, set cam(v) { cam = v; } };

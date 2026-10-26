@@ -256,7 +256,7 @@ function resetLevel() {
   lamps = CHECKS.map((c, i) => ({ x:c * T, on:i === 0 }));
   tvs = TV_COLS.map(c => { const x = c * T; return { x, y:groundYAt(x + 16, 28), w:32, h:28, hp:5, on:true, flash:0 }; });
   if (L.gag.kind === 'record') gag = { kind:'record', x:L.gag.col * T + 2, y:GROUND - 30, w:26, h:30, done:false, t:0 };
-  else { const gx = L.gag.col * T, gw = L.gag.kind === 'board' ? 26 : 22, gh = L.gag.kind === 'board' ? 12 : 18; gag = { kind:L.gag.kind, x:gx, y:groundYAt(gx + gw / 2, gh), w:gw, h:gh, done:false, t:0 }; }
+  else { const gx = L.gag.col * T, gw = L.gag.kind === 'board' ? 26 : 22, gh = L.gag.kind === 'board' ? 20 : 18; gag = { kind:L.gag.kind, x:gx, y:groundYAt(gx + gw / 2, gh), w:gw, h:gh, done:false, t:0 }; }
   if (L.boss === 'drummer') boss = { kind:'drummer', x:BOSS_CX - 20, y:144, w:40, h:34, hp:BOSS_HP, state:'wait', t:0, flash:0, arms:0, phase:1, qi:0, crashFlash:0 };
   else if (L.boss === 'pastor') boss = { kind:'pastor', x:BOSS_CX - 30, y:GROUND - 80, w:60, h:80, hp:BOSS_HP, state:'wait', t:0, flash:0, phase:1, qi:0, face:-1, pose:'idle', vx:0, vy:0, air:false };
   else boss = { kind:'mom', x:BOSS_CX - 30, y:GROUND - 78, w:60, h:80, hp:BOSS_HP, state:'wait', t:0, flash:0, phase:1, qi:0, face:-1, pose:'idle', anim:0 };
