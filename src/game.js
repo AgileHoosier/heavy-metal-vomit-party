@@ -101,7 +101,7 @@ document.getElementById('fs').addEventListener('click', () => {
 const ROWS = 15, GROUND = 13 * T;
 let COLS = 0, map = null, L = null;
 let SPAWNS, PICKUPS, TV_COLS, CHECKS, ARENA_X, LOCK_X, BOSS_CX, DOOR_X, BOSS_HP;
-// tiles: 0 air, 1 floor, 2 block, 3 one-way ledge, 4 soft block (crate/couch), 5 boss furniture, 6 fridge
+// tiles: 0 air, 1 floor, 2 block, 3 one-way ledge, 4 soft block (crate/couch), 5 boss furniture, 6 fridge/porcelain, 7 waterbed (bouncy)
 function fill(x0, y0, x1, y1, t) { for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) map[y * COLS + x] = t; }
 const LEVELS = {
   b1: {
@@ -138,9 +138,40 @@ const LEVELS = {
     spawns:[['pusher', 20], ['aerobic', 30], ['mosher', 40], ['airg', 52], ['aerobic', 63], ['pusher', 72], ['airg', 80], ['mosher', 92],
             ['aerobic', 102], ['pusher', 110], ['airg', 118], ['mosher', 126], ['aerobic', 136], ['airg', 146], ['pusher', 154], ['mosher', 162]],
     pickups:[['pizza', 17], ['record', 34.5], ['punch', 75], ['turbo', 85], ['pizza', 112], ['turbo', 130], ['pizza', 159.5]],
-    tvs:[8, 60, 89, 121, 156], checks:[3, 100, 166], gag:{ col:25, kind:'phone' }, next:null,
+    tvs:[8, 60, 89, 121, 156], checks:[3, 100, 166], gag:{ col:25, kind:'phone' }, next:'f2',
+    zone:tx => tx < 60 ? 'lino' : tx < 140 ? 'shag' : 'wood', door:['NO', 'ENTRY'],
+  },
+  f2: {
+    id:'f2', label:'2F', name:'THE BEDROOMS', tagline:'LIGHTS OUT. NOBODY IS SLEEPING.', theme:'upstairs', song:'upstairs',
+    cols:196, arena:176, lock:178, bossCx:3040, door:3092, boss:'pastor', bossHp:30, bossName:['THE RADICAL', 'YOUTH PASTOR'],
+    build() {
+      fill(0, 13, COLS - 1, 14, 1);
+      for (const [a, b] of [[38, 40], [90, 92], [124, 127], [160, 162]]) fill(a, 13, b, 14, 0);
+      // hallway: hamper, linen shelf, dresser
+      [[12, 12, 13, 12]].forEach(r => fill(...r, 4));
+      [[26, 11, 27, 12], [42, 11, 43, 12]].forEach(r => fill(...r, 2));
+      [[18, 10, 21, 10], [44, 9, 47, 9]].forEach(r => fill(...r, 3));
+      // sister's room: bunk beds, toy chest, dollhouse, desk
+      [[56, 11, 61, 11], [56, 8, 61, 8], [80, 10, 83, 10]].forEach(r => fill(...r, 3));
+      [[66, 12, 68, 12]].forEach(r => fill(...r, 4));
+      [[74, 11, 76, 12]].forEach(r => fill(...r, 2));
+      // bathroom: tub, toilet, vanity, towel shelf, the rotted floor
+      [[104, 11, 108, 12], [114, 12, 115, 12]].forEach(r => fill(...r, 6));
+      [[119, 11, 121, 12]].forEach(r => fill(...r, 2));
+      [[110, 9, 112, 9], [125, 11, 126, 11]].forEach(r => fill(...r, 3));
+      // the teen's room: waterbed, a shelf way above it, speakers, desk, dresser
+      fill(136, 12, 141, 12, 7);
+      [[137, 6, 140, 6], [154, 10, 157, 10]].forEach(r => fill(...r, 3));
+      [[148, 11, 149, 12], [166, 11, 167, 12]].forEach(r => fill(...r, 2));
+    },
+    spawns:[['rat', 16], ['pusher', 24], ['sheet', 31], ['mosher', 46], ['sheet', 54], ['aerobic', 64], ['sheet', 72], ['airg', 82], ['pusher', 96],
+            ['rat', 106], ['sheet', 112], ['mosher', 118], ['airg', 134], ['sheet', 144], ['mosher', 152], ['aerobic', 158], ['sheet', 165], ['pusher', 170]],
+    pickups:[['pizza', 19.5], ['punch', 58.5], ['pizza', 81.5], ['turbo', 111], ['record', 138.5], ['pizza', 155.5], ['punch', 172]],
+    tvs:[9, 63, 101, 131, 168], checks:[3, 99, 172], gag:{ col:70, kind:'board' }, next:null, trashEnd:174,
+    zone:tx => tx < 48 ? 'carpet' : tx < 100 ? 'pink' : tx < 128 ? 'lino' : tx < 176 ? 'purple' : 'wood', door:['GOD', 'SEES'],
   },
 };
+const FLOOR_ORDER = Object.keys(LEVELS);
 function loadLevel(id) {
   L = LEVELS[id]; COLS = L.cols; map = new Uint8Array(COLS * ROWS); L.build();
   SPAWNS = L.spawns; PICKUPS = L.pickups; TV_COLS = L.tvs; CHECKS = L.checks;
@@ -149,7 +180,7 @@ function loadLevel(id) {
 loadLevel('b1');
 
 const tileT = (tx, ty) => (tx < 0 || tx >= COLS) ? 1 : (ty < 0 || ty >= ROWS) ? 0 : map[ty * COLS + tx];
-const isSolid = t => t === 1 || t === 2 || t === 4 || t === 5 || t === 6;
+const isSolid = t => t === 1 || t === 2 || t === 4 || t === 5 || t === 6 || t === 7;
 function groundYAt(px, h) {
   const tx = Math.floor(px / T);
   for (let ty = 0; ty < ROWS; ty++) { const t = tileT(tx, ty); if (isSolid(t) || t === 3) return ty * T - h; }
@@ -166,14 +197,14 @@ function collideY(e, pb) {
   const l = Math.floor(e.x / T), r = Math.floor((e.x + e.w - 1) / T);
   if (e.vy > 0) {
     const ty = Math.floor((e.y + e.h - 0.01) / T);
-    for (let tx = l; tx <= r; tx++) { const t = tileT(tx, ty); if (isSolid(t) || (t === 3 && pb <= ty * T + 0.5)) { e.y = ty * T - e.h; e.vy = 0; e.onGround = true; break; } }
+    for (let tx = l; tx <= r; tx++) { const t = tileT(tx, ty); if (isSolid(t) || (t === 3 && pb <= ty * T + 0.5)) { e.y = ty * T - e.h; e.vy = 0; e.onGround = true; e.floorT = t; break; } }
   } else if (e.vy < 0) {
     const ty = Math.floor(e.y / T);
     for (let tx = l; tx <= r; tx++) if (isSolid(tileT(tx, ty))) { e.y = (ty + 1) * T; e.vy = 0; break; }
   }
 }
 function moveBody(e, grav = 0.26, maxFall = 6) {
-  e.vy = Math.min(e.vy + grav, maxFall);
+  e.vy = Math.min(e.vy + grav, maxFall); e.landVy = e.vy;
   e.x += e.vx; collideX(e);
   const pb = e.y + e.h; e.y += e.vy; collideY(e, pb);
 }
@@ -194,17 +225,17 @@ try { hiscore = +localStorage.getItem('hmvp_hi') || 0; } catch (e) {}
 try { if (localStorage.getItem('hmvp_sound') === '0') AU.on = false; } catch (e) {}
 let score = 0, shake = 0, cam = 0, camLock = false, doorOpen = false, cpIndex = 0;
 let frisbees = [], carts = [], yells = [], startFloor = 'b1', floorScore = 0;
-try { if (/^#?(1f|f1|floor2|level2)$/i.test(location.hash || '')) startFloor = 'f1'; } catch (e) {}
-let clouds = [], snots = [], P, enemies, dazed, blobs, puddles, parts, pops, pickups, sticks, waves, boss, spawns, lamps, tvs, tracts, trash, beams, gag;
+try { const h = location.hash || ''; if (/^#?(1f|f1|floor2|level2)$/i.test(h)) startFloor = 'f1'; else if (/^#?(2f|f2|floor3|level3)$/i.test(h)) startFloor = 'f2'; } catch (e) {}
+let notes = [], clouds = [], snots = [], P, enemies, dazed, blobs, puddles, parts, pops, pickups, sticks, waves, boss, spawns, lamps, tvs, tracts, trash, beams, gag;
 let sceneList = null, sceneIdx = 0, afterScene = null, tally = 0, clearBonus = 0;
 
 function newPlayer(x) {
   return { x, y:GROUND - 32, w:12, h:32, vx:0, vy:0, face:1, onGround:false, coyote:0, jumpBuf:0,
-    hearts:3, belly:100, cool:0, inv:0, turbo:0, snotCd:0, snotT:0, fartT:0, fartCd:0, fartJumped:false, punch:0, anim:0, pukeT:0, emptyCd:0, record:false };
+    hearts:3, belly:100, cool:0, inv:0, turbo:0, bounceT:0, snotCd:0, snotT:0, fartT:0, fartCd:0, fartJumped:false, punch:0, anim:0, pukeT:0, emptyCd:0, record:false };
 }
 function makeTrash() {
   const R = rng(4242), out = [];
-  for (let tx = 2; tx < 162; tx++) {
+  for (let tx = 2; tx < (L.trashEnd || 162); tx++) {
     if (!isSolid(tileT(tx, 13)) || tileT(tx, 12) !== 0) continue;
     if (R() > 0.55) continue;
     const roll = R();
@@ -214,7 +245,7 @@ function makeTrash() {
   return out;
 }
 function resetLevel() {
-  frisbees = []; carts = []; yells = [];
+  frisbees = []; carts = []; yells = []; notes = [];
   clouds = []; snots = []; enemies = []; dazed = []; blobs = []; puddles = []; parts = []; pops = []; sticks = []; waves = []; tracts = []; beams = [];
   trash = makeTrash();
   spawns = SPAWNS.map(([type, x]) => ({ type, x:x * T, done:false }));
@@ -225,8 +256,9 @@ function resetLevel() {
   lamps = CHECKS.map((c, i) => ({ x:c * T, on:i === 0 }));
   tvs = TV_COLS.map(c => { const x = c * T; return { x, y:groundYAt(x + 16, 28), w:32, h:28, hp:5, on:true, flash:0 }; });
   if (L.gag.kind === 'record') gag = { kind:'record', x:L.gag.col * T + 2, y:GROUND - 30, w:26, h:30, done:false, t:0 };
-  else { const gx = L.gag.col * T; gag = { kind:'phone', x:gx, y:groundYAt(gx + 11, 18), w:22, h:18, done:false, t:0 }; }
+  else { const gx = L.gag.col * T, gw = L.gag.kind === 'board' ? 26 : 22, gh = L.gag.kind === 'board' ? 12 : 18; gag = { kind:L.gag.kind, x:gx, y:groundYAt(gx + gw / 2, gh), w:gw, h:gh, done:false, t:0 }; }
   if (L.boss === 'drummer') boss = { kind:'drummer', x:BOSS_CX - 20, y:144, w:40, h:34, hp:BOSS_HP, state:'wait', t:0, flash:0, arms:0, phase:1, qi:0, crashFlash:0 };
+  else if (L.boss === 'pastor') boss = { kind:'pastor', x:BOSS_CX - 30, y:GROUND - 80, w:60, h:80, hp:BOSS_HP, state:'wait', t:0, flash:0, phase:1, qi:0, face:-1, pose:'idle', vx:0, vy:0, air:false };
   else boss = { kind:'mom', x:BOSS_CX - 30, y:GROUND - 78, w:60, h:80, hp:BOSS_HP, state:'wait', t:0, flash:0, phase:1, qi:0, face:-1, pose:'idle', anim:0 };
   camLock = false; doorOpen = false; cpIndex = 0;
   P = newPlayer(CHECKS[0] * T + 14);
@@ -269,7 +301,7 @@ function update() {
   if (shake > 0) shake--;
   switch (state) {
     case 'title':
-      if (pressed.left || pressed.right) { startFloor = startFloor === 'b1' ? 'f1' : 'b1'; sfx('select'); }
+      if (pressed.left || pressed.right) { const n = FLOOR_ORDER.length; startFloor = FLOOR_ORDER[(FLOOR_ORDER.indexOf(startFloor) + (pressed.right ? 1 : n - 1)) % n]; sfx('select'); }
       if (pressed.start || pressed.jump || pressed.fire) {
         auInit(); sfx('select'); loadLevel(startFloor); startRun();
         if (startFloor === 'b1') { runScenes(INTRO, () => toFloorCard()); playSong('title'); } else toFloorCard();
@@ -321,7 +353,7 @@ function updatePlay() {
   lamps.forEach((l, i) => { if (!l.on && P.x > l.x) { l.on = true; cpIndex = i; sfx('check'); popText('CHECKPOINT', l.x + 6, GROUND - 40, '#ff88cc'); } });
   for (const e of enemies) updateEnemy(e);
   enemies = enemies.filter(e => !e.gone);
-  updateDazed(); updateBlobs(); updateSnots(); updateClouds(); updateTracts(); updateBoss(); updateSticks(); updateWaves(); updateMomStuff(); updatePickups(); updateTrash(); updateTVs(); updateParts();
+  updateDazed(); updateBlobs(); updateSnots(); updateClouds(); updateTracts(); updateBoss(); updateSticks(); updateWaves(); updateMomStuff(); updateNotes(); updatePickups(); updateTrash(); updateTVs(); updateParts();
   for (const p of puddles) p.life--; puddles = puddles.filter(p => p.life > 0);
   for (const b of beams) b.life--; beams = beams.filter(b => b.life > 0);
   if (gag.t > 0) gag.t--;
@@ -344,8 +376,14 @@ function updatePlayer() {
   if (pressed.jump) p.jumpBuf = 7;
   if (p.jumpBuf > 0) p.jumpBuf--;
   if (p.jumpBuf > 0 && p.coyote > 0) { p.vy = -5.6; p.jumpBuf = 0; p.coyote = 0; sfx('jump'); }
-  if (!held.jump && p.vy < -2.2) p.vy = -2.2;
+  if (!held.jump && p.vy < -2.2 && !p.bounceT) p.vy = -2.2;
+  if (p.bounceT > 0) p.bounceT--;
   moveBody(p);
+  // waterbed: hold jump to launch, let go and the bounces die down
+  if (p.onGround && p.floorT === 7 && (held.jump || p.landVy > 2.4)) {
+    p.vy = held.jump ? -8.2 : -p.landVy * 0.6; p.onGround = false; p.bounceT = 24; p.jumpBuf = 0; sfx('boing');
+    for (let i = 0; i < 6; i++) parts.push({ x:p.x + 6 + (Math.random() - 0.5) * 20, y:p.y + p.h, vx:(Math.random() - 0.5) * 1.2, vy:-0.8 - Math.random(), life:18, c:i % 2 ? '#80c8ff' : '#ffffff', g:0.1 });
+  }
   if (camLock && p.x < ARENA_X + 2) { p.x = ARENA_X + 2; p.vx = Math.max(0, p.vx); }
   p.coyote = p.onGround ? 6 : Math.max(0, p.coyote - 1);
   p.anim += Math.abs(p.vx) * 0.09;
@@ -390,6 +428,7 @@ function updatePlayer() {
 function makeEnemy(type, x) {
   const base = { type, x, vx:0, vy:0, face:-1, flash:0, stun:0, slip:0, slipCd:0, anim:0, onGround:false, mode:'walk', mt:0, cd:40 };
   if (type === 'rat') Object.assign(base, { w:16, h:9, hp:1 });
+  else if (type === 'sheet') { Object.assign(base, { w:14, h:20, hp:2, y:GROUND - 74, by:GROUND - 74, mt:0, cd:60 }); return base; }
   else Object.assign(base, { w:12, h:32, hp:type === 'mosher' ? 3 : 2, hops:0 });
   base.y = groundYAt(x + base.w / 2, base.h);
   return base;
@@ -398,6 +437,11 @@ function killEnemy(e) {
   e.gone = true;
   const cx = e.x + e.w / 2;
   if (e.type === 'rat') { burst(cx, e.y + 4, 10, ['#c8ff3c', '#58a010', '#ffffff']); addScore(100, cx, e.y - 10); sfx('hit'); return; }
+  if (e.type === 'sheet') {
+    staticPuff(cx, e.y + 10); sfx('purge'); burst(cx, e.y + 10, 10, ['#ffffff', '#c8ff3c']);
+    parts.push({ x:cx - 9, y:e.y, vx:(Math.random() < 0.5 ? -1 : 1) * 0.8, vy:-1.5, life:80, g:0.04, spr:SHEET_RAG, spin:true });
+    addScore(250, cx, e.y - 10); popText('UNSHEETED!', cx, e.y - 20, '#c8ff3c', 50); return;
+  }
   staticPuff(cx, e.y + 14); sfx('purge');
   parts.push({ x:cx - 6, y:e.y + 12, vx:(Math.random() < 0.5 ? -1 : 1) * 1.6, vy:-3.4, life:70, g:0.15, spr:e.type === 'mosher' ? VEST : VEST_PINK, spin:true });
   addScore(e.type === 'mosher' ? 300 : e.type === 'pusher' ? 200 : 250, cx, e.y - 10);
@@ -407,6 +451,7 @@ function killEnemy(e) {
 }
 function updateEnemy(e) {
   if (e.flash > 0) e.flash--; if (e.slipCd > 0) e.slipCd--; if (e.cd > 0) e.cd--;
+  if (e.type === 'sheet') { updateSheet(e); return; }
   if (e.slip > 0) { e.slip--; e.vx *= 0.975; }
   else if (e.stun > 0) { e.stun--; e.vx *= 0.8; }
   else if (e.type === 'mosher') updateMosher(e);
@@ -447,6 +492,25 @@ function updateMosher(e) {
       break;
     case 'dizzy': e.vx *= 0.7; if (--e.mt <= 0) { e.mode = 'walk'; e.cd = 70; } break;
   }
+}
+// bedsheet ghost: floats above head height, swoops down at you, ignores walls
+function updateSheet(e) {
+  e.mt++;
+  const dx = (P.x + P.w / 2) - (e.x + e.w / 2);
+  if (e.stun > 0) { e.stun--; e.vx *= 0.85; e.vy = (e.by - e.y) * 0.05; if (e.mode === 'swoop') { e.mode = 'walk'; e.cd = 80; } }
+  else if (e.mode === 'swoop') {
+    e.vx = e.face * 2.2; e.vy = ((e.mt < 32 ? e.ty : e.by) - e.y) * 0.09;
+    if (e.mt > 64) { e.mode = 'walk'; e.cd = 110; }
+  } else {
+    if (Math.abs(dx) < 260) e.face = dx >= 0 ? 1 : -1;
+    e.vx += (e.face * 0.55 - e.vx) * 0.05;
+    e.vy = (e.by + Math.sin(e.mt * 0.06) * 8 - e.y) * 0.1;
+    if (!e.cd && Math.abs(dx) < 120 && Math.abs(dx) > 30) { e.mode = 'swoop'; e.mt = 0; e.ty = Math.min(GROUND - e.h, P.y + 8); sfx('whip'); }
+  }
+  if (e.slimed > 0) { e.slimed--; e.vx *= 0.5; if (frame % 10 === 0) parts.push({ x:e.x + Math.random() * e.w, y:e.y + 10, vx:0, vy:0.6, life:24, c:'#9ad828', g:0.05 }); }
+  e.x += e.vx; e.y = Math.min(GROUND - e.h, e.y + e.vy);
+  e.anim += 0.12;
+  if (overlap(e, P)) hurt(e.x + e.w / 2, true);
 }
 function updateAerobic(e) {
   const dx = (P.x + P.w / 2) - (e.x + e.w / 2);
@@ -554,7 +618,7 @@ function updateBlobs() {
     }
     if (b.dead) continue;
     if (!gag.done && overlap(b, gag)) {
-      b.dead = true; gag.done = true; gag.t = 220; sfx(gag.kind === 'phone' ? 'record' : 'backward'); addScore(300, gag.x + 13, gag.y - 8);
+      b.dead = true; gag.done = true; gag.t = 240; sfx(gag.kind === 'phone' ? 'record' : 'backward'); addScore(300, gag.x + 13, gag.y - 8);
       continue;
     }
     if (bossHittable() && overlap(b, bossBox())) {
@@ -637,15 +701,16 @@ function updateTVs() {
   }
 }
 
-const bossBox = () => boss.kind === 'mom' ? { x:boss.x + 18, y:boss.y + 8, w:24, h:70 } : { x:boss.x + 6, y:boss.y, w:28, h:24 };
-const bossHittable = () => ['idle', 'volley', 'crash', 'roll', 'records', 'cart', 'yell', 'walk'].includes(boss.state);
+const bossBox = () => boss.kind === 'pastor' ? (boss.pose === 'plank' ? { x:boss.x - 10, y:GROUND - 30, w:80, h:26 } : { x:boss.x + 18, y:boss.y + 8, w:24, h:70 })
+  : boss.kind === 'mom' ? { x:boss.x + 18, y:boss.y + 8, w:24, h:70 } : { x:boss.x + 6, y:boss.y, w:28, h:24 };
+const bossHittable = () => ['idle', 'volley', 'crash', 'roll', 'records', 'cart', 'yell', 'walk', 'strum', 'luge', 'slam'].includes(boss.state);
 function throwStick(ft, jitter) {
   const g = 0.15, sx = BOSS_CX - 10, sy = boss.y + 4;
   const tx = P.x + P.w / 2 + (Math.random() * 2 - 1) * jitter;
   sticks.push({ x:sx, y:sy, vx:(tx - sx) / ft, vy:(GROUND - 4 - sy - 0.5 * g * ft * ft) / ft, rot:0, bounced:false, harmless:false });
   sfx('stick');
 }
-function updateBoss() { if (boss.kind === 'mom') updateMom(); else updateDrummer(); }
+function updateBoss() { if (boss.kind === 'pastor') updatePastor(); else if (boss.kind === 'mom') updateMom(); else updateDrummer(); }
 function updateDrummer() {
   const B = boss;
   if (B.state === 'wait') return;
@@ -737,10 +802,91 @@ function updateMom() {
   }
   if (bossHittable() && overlap(P, bossBox())) hurt(B.x + 30, true);
 }
+function updatePastor() {
+  const B = boss;
+  if (B.state === 'wait') return;
+  if (B.state === 'gone') { if (frame % 140 === 0) popText(['IS IT TOO LATE TO START A BAND?', 'I WAS NEVER COOL.'][(frame / 140 | 0) % 2], B.x + 30, B.y - 8, '#c8c4d4', 110); return; }
+  B.t++; if (B.flash > 0) B.flash--;
+  const p2 = B.phase === 2, dx = (P.x + P.w / 2) - (B.x + 30);
+  const turn = () => { B.face = dx >= 0 ? 1 : -1; };
+  const LEFT = ARENA_X + 12, RIGHT = DOOR_X - 66;
+  switch (B.state) {
+    case 'intro':
+      B.pose = (B.t >> 4) & 1 ? 'yell' : 'strum'; turn();
+      if (B.t === 20) popText('WHO WANTS TO RAP ABOUT PURITY?', B.x + 30, B.y - 12, '#80c8ff', 90);
+      if (B.t > 120) { B.state = 'idle'; B.t = 0; }
+      break;
+    case 'idle': B.pose = 'idle'; turn();
+      if (B.t > (p2 ? 26 : 44)) { B.state = ['strum', 'luge', 'slam'][B.qi++ % 3]; B.t = 0; } break;
+    case 'strum': {
+      // a homing verse of music notes; puke them out of the air
+      turn(); B.pose = 'strum';
+      const n = p2 ? 5 : 3;
+      for (let i = 0; i < n; i++) if (B.t === 18 + i * 12) {
+        notes.push({ x:B.x + 30 + B.face * 24, y:B.y + 26, by:B.y + 26, vx:B.face * (p2 ? 2.1 : 1.7), t:i * 9 }); sfx('strum');
+      }
+      if (B.t === 18) popText(['KUMBAYA, DUDES!', 'THIS ONE GOES OUT TO PURITY!', 'SING ALONG!'][B.qi % 3], B.x + 30, B.y - 10, '#80c8ff', 60);
+      if (B.t > 18 + n * 12 + 16) { B.state = 'idle'; B.t = 0; }
+      break;
+    }
+    case 'luge':
+      // belly-down on a skateboard, straight across the room: jump him
+      if (B.t < 34) { B.pose = 'crouch'; if (B.t === 1) { B.face = B.x + 30 < (LEFT + RIGHT) / 2 + 30 ? 1 : -1; popText('TOTALLY RIGHTEOUS!', B.x + 30, B.y - 10, '#ffd850', 50); } }
+      else {
+        if (B.t === 34) { sfx('charge'); B.pose = 'plank'; }
+        B.x += B.face * (p2 ? 4 : 3.2);
+        if (frame % 3 === 0) parts.push({ x:B.x + 30 - B.face * 30, y:GROUND - 2, vx:-B.face * 0.6, vy:-0.4, life:14, c:'#ffd850', g:0 });
+        if ((B.face > 0 && B.x >= RIGHT) || (B.face < 0 && B.x <= LEFT)) { B.x = Math.max(LEFT, Math.min(RIGHT, B.x)); B.state = 'idle'; B.t = 0; B.pose = 'idle'; shake = 3; sfx('hit'); }
+      }
+      break;
+    case 'slam':
+      // trust fall: leaps at you and lands with a shockwave each way
+      if (B.t < 20) { B.pose = 'crouch'; turn(); if (B.t === 1) popText('TRUST FALL!', B.x + 30, B.y - 10, '#ff88cc', 50); }
+      else if (B.t === 20) { const tx = P.x + P.w / 2 - 30; B.vx = Math.max(-3, Math.min(3, (tx - B.x) / 52)); B.vy = -6.6; B.air = true; B.pose = 'jump'; sfx('jump'); }
+      else if (B.air) {
+        B.vy += 0.26; B.x = Math.max(LEFT, Math.min(RIGHT, B.x + B.vx)); B.y += B.vy;
+        if (B.y >= GROUND - 80) {
+          B.y = GROUND - 80; B.air = false; B.pose = 'crouch'; shake = 10; sfx('boom');
+          for (const d of [-1, 1]) waves.push({ x:B.x + 30 - 7 + d * 22, y:GROUND - 12, w:14, h:12, vx:d * (p2 ? 2.8 : 2.3), life:140 });
+          B.land = B.t;
+        }
+      } else if (B.t - B.land > 24) {
+        if (p2 && !B.again) { B.again = true; B.t = 19; } else { B.again = false; B.state = 'idle'; B.t = 0; }
+      }
+      break;
+    case 'dying':
+      B.pose = 'idle'; shake = 4;
+      if (B.t % 6 === 0) staticPuff(B.x + 18 + Math.random() * 24, B.y + 10 + Math.random() * 60);
+      if (B.t % 18 === 0) sfx('purge');
+      if (B.t === 120) {
+        B.state = 'gone'; sfx('boom');
+        parts.push({ x:B.x + 24, y:B.y + 20, vx:1.4, vy:-4.5, life:90, g:0.15, spr:GUITAR_SPR, spin:true });
+        addScore(7000, B.x + 30, B.y - 16); popText('PASTOR PURGED!', B.x + 30, B.y - 30, '#c8ff3c', 90);
+        playSong('win', () => { doorOpen = true; if (state === 'play') { playSong(L.song); popText('GO UPSTAIRS', DOOR_X + 18, GROUND - 70, '#c8ff3c', 120); } });
+      }
+      break;
+  }
+  if (bossHittable() && overlap(P, bossBox())) hurt(B.x + 30, true);
+}
+function updateNotes() {
+  for (const n of notes) {
+    n.t++; n.x += n.vx;
+    n.by += Math.sign(P.y + 12 - n.by) * 0.35;
+    n.y = n.by + Math.sin(n.t * 0.14) * 10;
+    const box = { x:n.x - 5, y:n.y - 6, w:10, h:12 };
+    if (overlap(P, box)) { hurt(n.x, false); n.dead = true; }
+    for (const b of blobs) if (!b.dead && overlap(b, box)) { b.dead = true; n.dead = true; }
+    for (const s of snots) if (!s.dead && overlap(s, box)) { s.dead = true; n.dead = true; }
+    for (const c of clouds) if (overlap({ x:c.x - c.r, y:c.y - c.r, w:c.r * 2, h:c.r * 2 }, box)) n.dead = true;
+    if (n.dead && !overlap(P, box)) { burst(n.x, n.y, 8, ['#ffd850', '#ff88cc', '#ffffff']); addScore(50, n.x, n.y - 8); sfx('stick'); }
+    if (n.t > 260 || n.x < ARENA_X - 20 || n.x > ARENA_X + W + 20) n.dead = true;
+  }
+  notes = notes.filter(n => !n.dead);
+}
 function damageBoss(n, x, y) {
   boss.hp -= n; boss.flash = 8; shake = 3; sfx('bossHit'); addScore(100);
-  if (boss.hp <= Math.floor(BOSS_HP / 2) && boss.phase === 1) { boss.phase = 2; popText(boss.kind === 'mom' ? 'NOW SHE\'S MAD!' : 'HE IS ENRAGED!', x, 120, '#ff5060'); }
-  if (boss.hp <= 0) { boss.state = 'dying'; boss.t = 0; stopSong(); sticks = []; waves = []; frisbees = []; carts = []; yells = []; }
+  if (boss.hp <= Math.floor(BOSS_HP / 2) && boss.phase === 1) { boss.phase = 2; popText(boss.kind === 'mom' ? 'NOW SHE\'S MAD!' : boss.kind === 'pastor' ? 'NOT COOL, DUDE!' : 'HE IS ENRAGED!', x, 120, '#ff5060'); }
+  if (boss.hp <= 0) { boss.state = 'dying'; boss.t = 0; stopSong(); sticks = []; waves = []; frisbees = []; carts = []; yells = []; notes = []; if (boss.kind === 'pastor') { boss.pose = 'idle'; boss.y = GROUND - 80; boss.air = false; } }
 }
 function updateMomStuff() {
   for (const f of frisbees) {
