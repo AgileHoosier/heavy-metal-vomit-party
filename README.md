@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <img alt="Playable floors: 2 of 5" src="https://img.shields.io/badge/floors-2%20of%205-c8ff3c?style=flat-square&labelColor=1e1026">
+  <img alt="Playable floors: 5 of 5" src="https://img.shields.io/badge/floors-5%20of%205-c8ff3c?style=flat-square&labelColor=1e1026">
   <img alt="No install: one HTML file" src="https://img.shields.io/badge/install-none-ff70c0?style=flat-square&labelColor=1e1026">
   <img alt="Zero image or audio files" src="https://img.shields.io/badge/assets-100%25%20code-80c8ff?style=flat-square&labelColor=1e1026">
 </p>
@@ -47,7 +47,9 @@ Click the game screen once so the sound can start, then press **Enter**.
 | Start | `Enter` | Start | Start and pause |
 | | `M` | | Sound on/off |
 
-On phones and tablets, an on-screen controller appears below the game. On the title screen, press `←` or `→` to pick the starting floor, or open `index.html#1f` to start on Floor 1F.
+On phones and tablets, an on-screen controller appears below the game. On the title screen, press `←` or `→` to pick the starting floor, or open `index.html#1f`, `#2f`, `#3f` or `#roof` to start on that floor.
+
+**Demo mode:** leave the title screen alone for 20 seconds, or open `index.html#demo`, and the game plays itself from the intro to the ending. Press any button to return to the title screen. Demo runs never count toward the high score.
 
 ## Your arsenal
 
@@ -78,9 +80,11 @@ Every power-up is a pure upgrade, with no downside.
 | --- | --- | --- | --- |
 | B1 | **The Basement**: VOMITRON's show, amps, candles, goat banners | The Possessed Drummer | Playable |
 | 1F | **The Party**: kitchen, living room and den | The Concerned Mom | Playable |
-| 2F | **Upstairs**: bedrooms and the bathroom line | The Cool Youth Pastor | Planned |
-| Attic | **The Attic**: dark, cramped, climbs vertically | Sister Mavis, head of the prayer-line phone bank | Planned |
-| Roof | **The Roof**: the satellite truck and the live broadcast | Rev. Dewey Dollarson | Planned |
+| 2F | **The Bedrooms**: hallway, a sleepover, the bathroom and a metalhead's room | The Radical Youth Pastor | Playable |
+| 3F | **The Attic**: rafters, insulation pits and the house's confiscated stash | The Backmasker, a possessed phonograph | Playable |
+| Roof | **The Roof**: a storm, wind gusts and the broadcast mast | Rev. Dewey Dollarson in the Glory One helicopter | Playable |
+
+**2F** adds Bedsheet Ghosts that float overhead and swoop (lob your puke at them) and a waterbed that launches you sky-high if you hold jump. **3F** adds porcelain dolls that sit perfectly still until you get close. On **the Roof**, wind gusts shove you around (watch for the WIND warning), and the helicopter is out of reach from the shingles: climb the antenna platforms and lob. Beat Dollarson, free Roxy, and see the ending.
 
 <table>
   <tr>
@@ -114,6 +118,7 @@ src/
   art.js        Pixel painter, character rig, every sprite, tile and wall
   audio.js      Synth instruments, songs and sound effects
   game.js       Input, level data, physics, enemies, bosses, game state
+  demo.js       The demo-mode autopilot that plays every floor
   render.js     Drawing, lighting, HUD, cutscenes, title screen, main loop
   shell.html    The page around the game canvas
 build.mjs       Inlines src/ into index.html
@@ -129,7 +134,8 @@ The game itself needs nothing but a browser. Node 18 or newer is only needed for
 ```sh
 npm install           # installs the headless canvas used by the tests
 npm run build         # rebuild index.html after editing anything in src/
-npm test              # build, then play both floors and both bosses headless
+npm test              # build, then play all five floors, every boss and the ending headless
+npm run test:demo     # let the demo autopilot play the whole game headless
 npm run screenshots   # recapture the README screenshots and gameplay GIF (needs Python with Pillow)
 ```
 
