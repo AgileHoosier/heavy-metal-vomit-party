@@ -285,15 +285,33 @@ const LEVELS = {
       fill(0, 13, COLS - 1, 14, 1);
       for (const [a, b] of [[30, 32], [68, 71], [106, 108], [138, 140]]) fill(a, 13, b, 14, 0);
       // gables, chimneys, antenna and satellite-dish platforms
-      [[14, 11, 19, 12], [42, 10, 47, 12], [84, 11, 90, 12], [118, 10, 123, 12]].forEach(r => fill(...r, 2));
-      [[24, 10, 25, 12], [58, 10, 59, 12], [98, 10, 99, 12], [130, 10, 131, 12]].forEach(r => fill(...r, 4));
-      [[35, 9, 38, 9], [50, 8, 53, 8], [62, 9, 65, 9], [74, 9, 77, 9], [92, 6, 94, 6], [111, 9, 114, 9], [144, 9, 147, 9],
-       [156, 9, 159, 9], [161, 6, 164, 6], [166, 9, 168, 9]].forEach(r => fill(...r, 3));
+      [[42, 10, 47, 12], [84, 11, 90, 12], [118, 10, 123, 12]].forEach(r => fill(...r, 2));
+      [[58, 10, 59, 12], [98, 10, 99, 12], [130, 10, 131, 12]].forEach(r => fill(...r, 4));
+      [[35, 9, 38, 9], [50, 8, 53, 8], [62, 9, 65, 9], [92, 6, 94, 6], [144, 9, 147, 9]].forEach(r => fill(...r, 3));
+      // the arena's antenna platforms: each one a plain jump above the last
+      [[156, 10, 159, 10], [161, 7, 164, 7], [166, 10, 168, 10]].forEach(r => fill(...r, 3));
     },
-    spawns:[['pusher', 18], ['sheet', 28], ['mosher', 40], ['aerobic', 48], ['sheet', 57], ['airg', 66], ['pusher', 78], ['sheet', 88],
-            ['mosher', 96], ['aerobic', 104], ['sheet', 114], ['airg', 122], ['pusher', 128], ['sheet', 136], ['mosher', 146]],
-    pickups:[['pizza', 37], ['punch', 51.5], ['pizza', 75.5], ['record', 93.5], ['turbo', 112.5], ['pizza', 145.5], ['punch', 150]],
-    tvs:[9, 55, 80, 126], checks:[3, 82, 150], gag:{ col:61, kind:'cat' }, next:null, trashEnd:150,
+    slots:[
+      { cols:[12, 28], variants:[
+        () => { fill(14, 11, 19, 12, 2); fill(24, 10, 25, 12, 4); return { spawns:[['ground', 18], ['air', 28]] }; },
+        () => { fill(14, 10, 15, 12, 4); fill(19, 11, 26, 12, 2); return { spawns:[['ground', 22], ['air', 28]] }; },
+        () => { fill(15, 10, 16, 12, 4); fill(23, 10, 24, 12, 4); fill(18, 9, 21, 9, 3); return { spawns:[['ground', 20], ['air', 27]], pickups:[['pizza', 19.5]] }; },
+      ] },
+      { cols:[72, 78], variants:[
+        () => { fill(74, 9, 77, 9, 3); return { spawns:[['ground', 78]], pickups:[['pizza', 75.5]] }; },
+        () => { fill(73, 10, 75, 10, 3); fill(76, 8, 78, 8, 3); return { spawns:[['ground', 78]], pickups:[['pizza', 77]] }; },
+      ] },
+      { cols:[109, 117], variants:[
+        () => { fill(111, 9, 114, 9, 3); return { spawns:[['air', 114]], pickups:[['turbo', 112.5]] }; },
+        () => { fill(111, 11, 114, 12, 2); return { spawns:[['air', 114]], pickups:[['turbo', 112.5]] }; },
+        () => { fill(112, 10, 113, 12, 4); fill(115, 8, 117, 8, 3); return { spawns:[['air', 110]], pickups:[['turbo', 116]] }; },
+      ] },
+    ],
+    pools:{ ground:['pusher', 'mosher'], air:['sheet'] },
+    spawns:[['mosher', 40], ['aerobic', 48], ['sheet', 57], ['airg', 66], ['sheet', 88],
+            ['mosher', 96], ['aerobic', 104], ['airg', 122], ['pusher', 128], ['sheet', 136], ['mosher', 146]],
+    pickups:[['pizza', 37], ['punch', 51.5], ['record', 93.5], ['pizza', 145.5], ['punch', 150]],
+    tvs:[9, 55, 80, 126], checks:[3, 40, 82, 128, 150], gag:{ col:61, kind:'cat' }, next:null, trashEnd:150,
   },
 };
 const FLOOR_ORDER = Object.keys(LEVELS);
@@ -504,11 +522,25 @@ function respawn() {
 
 function updateWeather() {
   // roof: rain, lightning, and gusts that shove you (telegraphed on the HUD), calm during the boss
-  if (--boltT <= 0) { boltT = 420 + Math.floor(Math.random() * 360); flashT = 10; setTimeout(() => sfx('thunder'), 500); }
+  if (--boltT <= 0) {
+    boltT = 420 + Math.floor(Math.random() * 360);
+    // the storm picks one of the Reverend's own flock: it sparks first, then strikes
+    const onScreen = enemies.filter(e => !e.gone && e.x > cam + 20 && e.x < cam + W - 20);
+    if (!camLock && onScreen.length && !smite) smite = { e:onScreen[Math.floor(Math.random() * onScreen.length)], t:50 };
+    else { flashT = 10; setTimeout(() => sfx('thunder'), 500); }
+  }
+  if (smite) {
+    if (smite.e.gone) smite = null;
+    else if (--smite.t <= 0) {
+      const e = smite.e; flashT = 10; shake = 6; sfx('thunder'); beams.push({ x0:e.x + e.w / 2 + 8, y0:HUD, x1:e.x + e.w / 2, y1:e.y + 4, life:18 });
+      popText('SMITTEN!', e.x + e.w / 2, e.y - 16, '#fff0a0', 70); killEnemy(e); smite = null;
+    }
+  }
   if (flashT > 0) flashT--;
   windT = (windT + 1) % 480;
   if (windT === 300) windDir = Math.random() < 0.5 ? -1 : 1;
-  wind = !camLock && windT >= 360 ? windDir * 0.9 * Math.sin((windT - 360) / 120 * Math.PI) : 0;
+  wind = !camLock && windT >= 360 ? windDir * 0.6 * Math.sin((windT - 360) / 120 * Math.PI) : 0;
+  if (wind && !P.onGround) { const fy = Math.floor((P.y + P.h) / T); let floor = false; for (let ty = fy; ty < ROWS; ty++) { const t = tileT(Math.floor((P.x + 6) / T), ty); if (isSolid(t) || t === 3) { floor = true; break; } } if (!floor) wind = 0; }
   if (windT === 360 && !camLock) sfx('wind');
   if (wind && state === 'play') {
     const v = P.vx; P.vx = wind; P.x += wind; collideX(P); P.vx = v;
@@ -1193,7 +1225,8 @@ function updateHeli() {
   if (B.state === 'gone') { if (frame % 6 === 0) parts.push({ x:ARENA_X + 30 + Math.random() * 30, y:GROUND + 10, vx:0.2, vy:-0.8, life:120, c:'#3a3446', g:-0.002 }); return; }
   B.t++; if (B.flash > 0) B.flash--;
   const p2 = B.phase === 2, pcx = P.x + P.w / 2, L0 = ARENA_X + 50, R0 = ARENA_X + W - 50;
-  const fly = (tx, ty, k = 0.04) => { const dx = tx - B.x; B.x += dx * k; B.y += (ty - B.y) * k; B.tilt = Math.max(-0.25, Math.min(0.25, dx * 0.004)); };
+  // climbs back out of reach fast after a strafe, then drifts
+  const fly = (tx, ty, k = 0.04) => { const dx = tx - B.x; B.x += dx * k; B.y += (ty - B.y) * (B.y > ty + 14 ? Math.max(k, 0.12) : k); B.tilt = Math.max(-0.25, Math.min(0.25, dx * 0.004)); };
   const bob = Math.sin(frame * 0.05) * 4;
   if (B.state !== 'strafe') B.face = pcx < B.x ? -1 : 1;
   if (p2 && frame % 5 === 0 && B.state !== 'dying') parts.push({ x:B.x + 20 * -B.face, y:B.y - 8, vx:(Math.random() - 0.5) * 0.4, vy:-0.6, life:50, c:'#4a4458', g:-0.004 });

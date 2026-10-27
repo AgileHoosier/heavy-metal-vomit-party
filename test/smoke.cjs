@@ -9,7 +9,7 @@ async function bossRun(label, standOff) {
     const k = {};
     if (G.boss.kind === 'heli') {
       // the helicopter is out of reach from the roof: stand on the top antenna platform and lob
-      if (P.y > 120 && P.onGround) { P.x = G.L.arena * 16 + 9 * 16 + 20; P.y = 60; P.vy = 0; }
+      if (P.y > 120 && P.onGround) { P.x = G.L.arena * 16 + 9 * 16 + 20; P.y = 76; P.vy = 0; }
       k.up = 1; k.fire = guard % 14 < 2; if (guard % 50 < 8) k.jump = 1;
     } else {
       const bx = G.boss.kind === 'drummer' ? 2664 : G.boss.kind === 'phono' ? G.boss.x + 36 : G.boss.x + 30, want = bx - standOff;

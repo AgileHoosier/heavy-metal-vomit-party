@@ -51,6 +51,8 @@ On phones and tablets, an on-screen controller appears below the game. On the ti
 
 **Demo mode:** leave the title screen alone for 20 seconds, or open `index.html#demo`, and the game plays itself from the intro to the ending. Press any button to return to the title screen. Demo runs never count toward the high score.
 
+**Every run is different:** each floor has remix slots that pick one of several hand-built layouts, enemy mixes vary, and the jokes on the walls change. To replay one layout, open `index.html#seed=1234`.
+
 ## Your arsenal
 
 | Attack | What it does |
@@ -136,6 +138,7 @@ npm install           # installs the headless canvas used by the tests
 npm run build         # rebuild index.html after editing anything in src/
 npm test              # build, then play all five floors, every boss and the ending headless
 npm run test:demo     # let the demo autopilot play the whole game headless
+npm run test:remix    # slot rules, playability regressions, and the autopilot on every floor across many seeds
 npm run screenshots   # recapture the README screenshots and gameplay GIF (needs Python with Pillow)
 ```
 

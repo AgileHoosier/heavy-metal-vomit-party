@@ -244,8 +244,20 @@ function drawRoofSky(cx) {
     if (h.roof) { ctx.fillStyle = '#120c22'; ctx.beginPath(); ctx.moveTo(x - 4, top); ctx.lineTo(x + h.w / 2, top - 12); ctx.lineTo(x + h.w + 4, top); ctx.fill(); }
     for (let k = 0; k < 2; k++) { const wx = x + 6 + k * (h.w - 16), lit = ((frame >> 4) + h.x + k) % 13 > 1; rect(wx, top + 8, 8, 7, lit ? '#3a5cd0' : '#5a7cf0'); if (lit) light(wx + 4, top + 11, 12, '#4060ff', 0.2); }
   }
+  // the neighbors came out to watch, with signs
+  for (let i = 0; i < 6; i++) {
+    const nx = ((i * 260 + 120 - cx * 0.4) % 1560 + 1560) % 1560 - 100; if (nx < -60 || nx > W + 20) continue;
+    const ny = GROUND - 44, b = ((frame >> 4) + i) & 1;
+    rect(nx - 6, ny + 8, 26, 2, '#7a6a90'); rect(nx - 4, ny + 10, 2, 6, '#7a6a90'); rect(nx + 16, ny + 10, 2, 6, '#7a6a90'); rect(nx - 6, ny + 2, 2, 7, '#7a6a90');
+    disc(nx + 7, ny - 2, 4, '#5a4a6e'); rect(nx + 3, ny + 2, 8, 8, '#5a4a6e'); rect(nx + 10, ny - 16 - b, 1, 14, '#5a5468');
+    const sign = seedPick(SIGNS, i), sw = sign.length * 8 + 4; rect(nx + 10 - sw / 2, ny - 28 - b, sw, 11, '#f4f0e0'); text(sign, nx + 10, ny - 26 - b, '#3a1a2a', { align:'center' });
+  }
+  // a news van's searchlight sweeping the sky
+  const bx = ((900 - cx * 0.3) % 1800 + 1800) % 1800 - 300, ang = Math.sin(frame * 0.012) * 0.5;
+  if (bx > -120 && bx < W + 120) { ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = 0.08; ctx.fillStyle = '#fff0c0'; ctx.beginPath(); ctx.moveTo(bx, GROUND - 26); ctx.lineTo(bx + Math.sin(ang) * 300 - 30, HUD); ctx.lineTo(bx + Math.sin(ang) * 300 + 30, HUD); ctx.fill(); ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over'; }
   bands(0, GROUND - 26, W, 26, ['#0c0818', '#08060f']);
 }
+const SIGNS = ['HONK IF U PUKED', 'GO VOMITRON', 'DEWEY OWES ME $40', 'IS THIS CABLE?', 'KEEP IT DOWN', 'FREE ROXY', 'ENCORE!'];
 function drawBasementWall(cx) {
   const wx = cx * 0.6;
   const off = Math.floor(wx) % 96;
@@ -334,7 +346,7 @@ const PROPS_F3 = [
 ];
 const PROPS_RF = [
   { t:'hatch', x:6 }, { t:'tvantenna', x:300 }, { t:'dish', x:690 }, { t:'tvantenna', x:1040 }, { t:'weathervane', x:1380 }, { t:'tvantenna', x:1700 },
-  { t:'dish', x:2120 }, { t:'mast', x:2700 },
+  { t:'glorydish', x:1560 }, { t:'dish', x:2120 }, { t:'mast', x:2700 },
 ];
 const PROPS = { b1:PROPS_B1, f1:PROPS_F1, f2:PROPS_F2, f3:PROPS_F3, rf:PROPS_RF };
 function drawProps(cx) {
@@ -453,6 +465,12 @@ function drawProps(cx) {
       case 'hatch':
         rect(x, GROUND - 4, 36, 4, '#5a3418'); rect(x + 2, GROUND - 22, 32, 18, '#3a2410'); rect(x + 2, GROUND - 22, 32, 1, '#8a5428'); rect(x + 4, GROUND - 26, 2, 8, '#8a8698');
         text('3F', x + 18, GROUND - 38, '#80c8ff', { align:'center', shadow:'#000' }); break;
+      case 'glorydish':
+        rect(x + 18, GROUND - 26, 4, 26, '#5a5468');
+        ctx.fillStyle = '#e8e4f0'; ctx.beginPath(); ctx.ellipse(x + 20, GROUND - 44, 24, 20, -0.3, 0, 7); ctx.fill();
+        ctx.drawImage(DEWEY_SMALL, 0, 0, 20, 15, x + 10, GROUND - 52, 20, 15);
+        text('GLORY TV', x + 20, GROUND - 32, '#a01828', { align:'center' });
+        if ((frame >> 4) & 1) light(x + 20, GROUND - 44, 30, '#ffd850', 0.2); break;
       case 'tvantenna':
         rect(x, GROUND - 70, 2, 70, '#5a5468');
         for (let i = 0; i < 4; i++) rect(x - 14 + i * 2, GROUND - 66 + i * 8, 30 - i * 4, 1, '#8a8698');
@@ -1134,6 +1152,7 @@ function drawPlayScene() {
   for (const s of sticks) drawStick(s, cx);
   for (const w of waves) drawWave(w, cx);
   drawMomStuff(cx); drawNotes(cx); drawDiscs(cx);
+  if (smite && !smite.e.gone) { const sx = Math.round(smite.e.x + smite.e.w / 2 - cx), sy = Math.round(smite.e.y - 8); for (let k = 0; k < 4; k++) rect(sx + Math.round((Math.random() - 0.5) * 14), sy - Math.random() * 14, 2, 2, (frame & 2) ? '#fff0a0' : '#80c8ff'); light(sx, sy, 24, '#fff0a0', 0.4); if ((frame >> 2) & 1) text('!', sx - 3, sy - 24, '#fff0a0', { shadow:'#000' }); }
   drawParts(cx);
   const inDark = DARK.some(([a, b]) => P.x > a * T - 40 && P.x < b * T + 40);
   drawLighting(flashT > 0 ? 0.08 : inDark ? 0.86 : { house:0.34, upstairs:0.44, attic:0.62, roof:0.46 }[L.theme] || 0.6);

@@ -35,13 +35,13 @@ function slotRules(id) {
 }
 
 async function autopilot(id) {
-  let hits = 0, falls = 0, stalls = 0, frames = 0;
+  let hits = 0, falls = 0, stalls = 0, frames = 0, idleHeliHits = 0;
   for (let s = 0; s < SEEDS; s++) {
     G.goto(id, { seed:1000 + s }); G.setDemo(true);
     let prevInv = 0, prev = 'play', n = 0;
     for (; n < 40000 && (G.state === 'play' || G.state === 'fall'); n++) {
       G.update();
-      if (G.P.inv > prevInv + 50) hits++;
+      if (G.P.inv > prevInv + 50) { hits++; if (G.boss.kind === 'heli' && G.boss.state === 'idle') idleHeliHits++; }
       prevInv = G.P.inv;
       if (G.state === 'fall' && prev !== 'fall') falls++;
       prev = G.state;
@@ -51,10 +51,43 @@ async function autopilot(id) {
     if (n >= 40000) { stalls++; console.log(`  STALL ${id} seed ${1000 + s} picks ${G.L.picks} at x ${G.P.x | 0}`); }
     frames += n;
   }
-  return { hits, falls, stalls, avgSec:Math.round(frames / SEEDS / 60) };
+  return { hits, falls, stalls, avgSec:Math.round(frames / SEEDS / 60), ...(id === 'rf' ? { idleHeliHits } : {}) };
+}
+
+// regression checks for the playability findings
+function regressions() {
+  // a plain jump reaches each roof arena platform, from the roof and from the low platform
+  const jumpFrom = (x, y, run) => { G.goto('rf', { seed:1 }); G.enemies.length = 0; const P = G.P; P.x = x; P.y = y; P.vy = 0; G.cam = G.L.arena * 16; for (let i = 0; i < 12; i++) step(); G.enemies.length = 0; for (let i = 0; i < 70; i++) step({ jump:1, right:run && i < 14 }); return P.y + P.h; };
+  const ax = 152 * 16;
+  assert.strictEqual(jumpFrom(ax + 4 * 16 + 20, 176, false), 160, 'a plain jump from the roof lands on the low arena platform (row 10)');
+  assert.strictEqual(jumpFrom(ax + 7 * 16 + 2, 128, true), 112, 'a plain running jump from the low platform lands on the top platform (row 7)');
+  // a player standing on the top platform never touches the idling helicopter
+  G.goto('rf', { seed:1 }); const P = G.P; P.x = ax + 9 * 16 + 20; P.y = 80; G.cam = ax;
+  for (let i = 0; i < 60; i++) step({ right:1 });
+  P.x = ax + 9 * 16 + 20; P.y = 80; P.inv = 0;
+  for (let i = 0; i < 1400; i++) {
+    step(); P.hearts = 3; P.belly = 100; P.x = ax + 9 * 16 + 20; P.y = 80; P.vy = 0;
+    const B = G.boss;
+    if (['idle', 'plates', 'spot', 'troops'].includes(B.state) && B.t > 30) assert.ok(B.y + 18 < P.y, `hovering helicopter (state ${B.state}, box bottom ${B.y + 18 | 0}) must stay above a player on the top platform (top ${P.y})`);
+  }
+  // every enemy is purged when a boss goes down
+  for (const id of ['b1', 'f1', 'f2', 'f3', 'rf']) {
+    G.goto(id, { seed:1 }); G.P.x = G.L.arena * 16 + 40; G.P.y = 0; for (let i = 0; i < 200; i++) step({ right:1 });
+    G.enemies.push(Object.assign({}, G.enemies[0] || { type:'rat', x:G.P.x + 60, y:200, w:16, h:9, hp:1, vx:0, vy:0, face:-1, mode:'walk', anim:0, flash:0, stun:0, slip:0, slipCd:0, cd:0 }));
+    G.damageBoss(999, G.P.x, 100);
+    assert.strictEqual(G.boss.state, 'dying', `${id} boss should be dying`);
+    assert.strictEqual(G.enemies.length, 0, `${id}: enemies must be purged when the boss goes down`);
+  }
+  // a straight puke from the kitchen counter hits the phone
+  G.goto('f1', { seed:1 }); G.enemies.length = 0; G.P.x = 372; G.P.y = 144; G.P.face = 1; G.cam = 232;
+  for (let i = 0; i < 10; i++) step(); G.enemies.length = 0;
+  for (let i = 0; i < 60; i++) step(i < 2 ? { fire:1 } : {});
+  assert.ok(G.gag.done, 'a straight puke from the counter hits the phone');
+  console.log('Regression checks hold: roof platforms reachable with plain jumps, helicopter clear of the top platform, enemies purged on every boss death, phone hittable.');
 }
 
 (async () => {
+  regressions();
   for (const id of FLOORS) slotRules(id);
   console.log('Slot rules hold for', FLOORS.join(', '));
   const report = {};

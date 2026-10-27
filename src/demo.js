@@ -74,9 +74,8 @@ function makeDemo() {
     if (threat || f % 70 === 0) jump(14);
   }
   function fightHeli() {
-    // climb the antenna platforms (the low one needs a fart double jump), then lob from the top
+    // climb the antenna platforms with plain jumps, then lob from the top
     const B = boss, lowPlat = ARENA_X + 4 * T + 24, highX = ARENA_X + 9 * T + 20, feet = P.y + P.h;
-    if (!P.onGround && P.vy > -0.8 && feet > 140 && !P.fartJumped) k.fart = 1;
     if (feet > 190) {
       if (shootAhead() < 60) { if (P.onGround && f % 50 === 0) jump(18); }
       else if (P.x < lowPlat - 6) k.right = 1; else if (P.x > lowPlat + 6) k.left = 1; else jump(18);
