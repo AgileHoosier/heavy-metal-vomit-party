@@ -49,6 +49,8 @@ Click the game screen once so the sound can start, then press **Enter**.
 
 On phones and tablets, an on-screen controller appears below the game. On the title screen, press `←` or `→` to pick the starting floor, or open `index.html#1f`, `#2f`, `#3f` or `#roof` to start on that floor.
 
+**Demo mode:** leave the title screen alone for 20 seconds, or open `index.html#demo`, and the game plays itself from the intro to the ending. Press any button to return to the title screen. Demo runs never count toward the high score.
+
 ## Your arsenal
 
 | Attack | What it does |
@@ -116,6 +118,7 @@ src/
   art.js        Pixel painter, character rig, every sprite, tile and wall
   audio.js      Synth instruments, songs and sound effects
   game.js       Input, level data, physics, enemies, bosses, game state
+  demo.js       The demo-mode autopilot that plays every floor
   render.js     Drawing, lighting, HUD, cutscenes, title screen, main loop
   shell.html    The page around the game canvas
 build.mjs       Inlines src/ into index.html
@@ -132,6 +135,7 @@ The game itself needs nothing but a browser. Node 18 or newer is only needed for
 npm install           # installs the headless canvas used by the tests
 npm run build         # rebuild index.html after editing anything in src/
 npm test              # build, then play all five floors, every boss and the ending headless
+npm run test:demo     # let the demo autopilot play the whole game headless
 npm run screenshots   # recapture the README screenshots and gameplay GIF (needs Python with Pillow)
 ```
 

@@ -1030,6 +1030,7 @@ function drawPlayScene() {
   if (L.theme === 'basement') drawForeground(cx);
   ctx.restore();
   drawHUD();
+  if (demo && (frame >> 5) & 1) text('DEMO PLAY \u00B7 PRESS ANY BUTTON', 160, H - 12, '#c8ff3c', { align:'center', shadow:'#000' });
   if (boss.state === 'intro' && (boss.t >> 3) % 2 === 0) {
     rect(60, 96, 200, 34, '#0a0410'); rect(60, 96, 200, 1, '#ff5060'); rect(60, 129, 200, 1, '#ff5060');
     text(L.bossName[0], 160, 102, '#ff5060', { align:'center' }); text(L.bossName[1], 160, 116, '#f4f0ff', { align:'center', scale:1 });
@@ -1389,4 +1390,4 @@ function boot(data) {
 try { window.claude && window.claude.hot && window.claude.hot.snapshot && window.claude.hot.snapshot(() => ({ hiscore })); } catch (e) {}
 const hot = window.claude && window.claude.hot;
 if (hot && hot.ready) hot.ready(boot); else boot((hot && hot.data) || {});
-window.__HMVP = { get discs() { return discs; }, get notes() { return notes; }, update, render, kbd, goto(id) { loadLevel(id); startRun(); state = 'play'; stateT = 0; playSong(L.song); }, get L() { return L; }, get pickups() { return pickups; }, get gag() { return gag; }, get state() { return state; }, set state(v) { state = v; }, get P() { return P; }, get boss() { return boss; }, get enemies() { return enemies; }, get dazed() { return dazed; }, get tvs() { return tvs; }, get score() { return score; }, get cam() { return cam; }, set cam(v) { cam = v; } };
+window.__HMVP = { tile:tileT, get demo() { return !!demo; }, startDemo, get tvs() { return tvs; }, get camLock() { return camLock; }, get doorOpen() { return doorOpen; }, get discs() { return discs; }, get notes() { return notes; }, update, render, kbd, goto(id) { loadLevel(id); startRun(); state = 'play'; stateT = 0; playSong(L.song); }, get L() { return L; }, get pickups() { return pickups; }, get gag() { return gag; }, get state() { return state; }, set state(v) { state = v; }, get P() { return P; }, get boss() { return boss; }, get enemies() { return enemies; }, get dazed() { return dazed; }, get score() { return score; }, get cam() { return cam; }, set cam(v) { cam = v; } };

@@ -67,8 +67,16 @@ function pollInput() {
       gp.jump = gp.jump || b(0); gp.fire = gp.fire || b(2); gp.snot = gp.snot || b(3); gp.fart = gp.fart || b(1); gp.start = gp.start || b(9);
     }
   } catch (e) {}
+  if (demo) {
+    // any real button takes the controls back: return to the title
+    if (ACTS.some(a => (kbd[a] || touch[a] || gp[a]) && !prevHeld[a])) { stopDemo(); for (const a of ACTS) { prevHeld[a] = (kbd[a] || touch[a] || gp[a]) ? 1 : 0; pressed[a] = held[a] = 0; } return; }
+    const dk = demo();
+    for (const a of ACTS) { const v = dk[a] ? 1 : 0; pressed[a] = v && !demoPrev[a] ? 1 : 0; held[a] = v; demoPrev[a] = v; prevHeld[a] = (kbd[a] || touch[a] || gp[a]) ? 1 : 0; }
+    return;
+  }
   for (const a of ACTS) { const v = (kbd[a] || touch[a] || gp[a]) ? 1 : 0; pressed[a] = v && !prevHeld[a] ? 1 : 0; held[a] = v; prevHeld[a] = v; }
 }
+const demoPrev = {};
 document.querySelectorAll('#pad .pb').forEach(el => {
   const k = el.dataset.k;
   const on = e => { e.preventDefault(); auInit(); touch[k] = 1; el.classList.add('on'); try { el.setPointerCapture(e.pointerId); } catch (_) {} };
@@ -329,7 +337,7 @@ function hurt(srcX, bite) {
   if (P.hearts <= 0) die();
 }
 function die() { state = 'dying'; stateT = 0; P.vy = -5; P.vx = 0; stopSong(); sfx('die'); }
-function saveHi() { if (score > hiscore) { hiscore = score; try { localStorage.setItem('hmvp_hi', String(hiscore)); } catch (e) {} } }
+function saveHi() { if (!demo && score > hiscore) { hiscore = score; try { localStorage.setItem('hmvp_hi', String(hiscore)); } catch (e) {} } }
 
 /* =========================================================
    UPDATE
@@ -340,7 +348,8 @@ function update() {
   if (shake > 0) shake--;
   switch (state) {
     case 'title':
-      if (pressed.left || pressed.right) { const n = FLOOR_ORDER.length; startFloor = FLOOR_ORDER[(FLOOR_ORDER.indexOf(startFloor) + (pressed.right ? 1 : n - 1)) % n]; sfx('select'); }
+      if (demoHash || stateT > DEMO_IDLE) { demoHash = false; startDemo(); break; }
+      if (pressed.left || pressed.right) { stateT = 0; const n = FLOOR_ORDER.length; startFloor = FLOOR_ORDER[(FLOOR_ORDER.indexOf(startFloor) + (pressed.right ? 1 : n - 1)) % n]; sfx('select'); }
       if (pressed.start || pressed.jump || pressed.fire) {
         auInit(); sfx('select'); loadLevel(startFloor); startRun();
         if (startFloor === 'b1') { runScenes(INTRO, () => toFloorCard()); playSong('title'); } else toFloorCard();
@@ -369,7 +378,7 @@ function update() {
       if (stateT > 120 && tally >= clearBonus && (pressed.start || pressed.jump)) {
         saveHi(); sfx('select'); stopSong();
         if (L.next && LEVELS[L.next]) { loadLevel(L.next); resetLevel(); floorScore = score; toFloorCard(); }
-        else { state = 'title'; stateT = 0; }
+        else { state = 'title'; stateT = 0; demo = null; }
       }
       break;
   }
