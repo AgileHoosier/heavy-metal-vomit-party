@@ -10,7 +10,7 @@ try { demoHash = /^#?demo$/i.test(location.hash || ''); } catch (e) {}
 
 function startDemo() {
   auInit(); demo = makeDemo(); startFloor = 'b1';
-  loadLevel('b1'); startRun();
+  newSeed(); loadLevel('b1'); startRun();
   runScenes(INTRO, () => toFloorCard()); playSong('title');
 }
 function stopDemo() {

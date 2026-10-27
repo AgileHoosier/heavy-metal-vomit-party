@@ -31,6 +31,7 @@ const WALL_DECOR = [
   { t:'banner', x:1360, y:52, str:'DOOM PIZZA', c:'#80c8ff' }, { t:'poster', x:1470, i:1 }, { t:'bigpenta', x:1678, y:64 },
   { t:'banner', x:1678, y:42, str:'BLOOD GOAT', c:'#ff5040', center:true },
 ];
+const GRAFFITI = ['HAIL PUKE', 'MOSH OR DIE', 'DEWEY SUX', 'PIZZA = LIFE', 'NOT A GATEWAY FOOD', 'BARF 4 EVER', 'VOMITRON RULEZ', 'FREE ROXY', 'SEND NO MONEY'];
 const POSTER = [
   { bg:'#ff70c0', inner:'#1a0a20', icon:'skull' }, { bg:'#80c8ff', inner:'#0a1020', icon:'bolt' }, { bg:'#f4f0ff', inner:'#140810', icon:'cross' },
 ];
@@ -242,9 +243,11 @@ function drawBasementWall(cx) {
         for (let i = 0; i < 32; i += 4) rect(x + i, d.y + 48, 4, (i / 4) % 2 ? 4 : 1, '#0c0810');
         rect(x - 4, d.y - 3, 40, 3, '#8a5428'); ctx.drawImage(GOAT, x + 6, d.y + 6);
         rect(x + 15, d.y + 26, 2, 16, '#e02818'); rect(x + 11, d.y + 36, 10, 2, '#e02818'); break;
-      case 'graffiti':
-        text(d.str, x, d.y, d.c, { shadow:'#000' });
-        for (let i = 0; i < d.str.length; i += 2) rect(x + 2 + i * 8, d.y + 8, 1, 2 + (i * 7) % 6, d.c); break;
+      case 'graffiti': {
+        const str = seedPick(GRAFFITI, d.x);
+        text(str, x, d.y, d.c, { shadow:'#000' });
+        for (let i = 0; i < str.length; i += 2) rect(x + 2 + i * 8, d.y + 8, 1, 2 + (i * 7) % 6, d.c); break;
+      }
       case 'poster': {
         const p = POSTER[d.i], y = 70;
         rect(x, y, 30, 40, p.bg); rect(x + 2, y + 2, 26, 36, p.inner); rect(x + 2, y + 2, 26, 1, '#ffffff');
@@ -253,6 +256,14 @@ function drawBasementWall(cx) {
       }
       case 'guitar': rect(x + 8, d.y - 3, 1, 3, '#a8a8b8'); rect(x + 20, d.y - 3, 1, 3, '#a8a8b8'); ctx.drawImage(FLYV, x, d.y); break;
     }
+  }
+  // the crowd behind the stage, still moshing to a show that already ended
+  for (let i = 0; i < 22; i++) {
+    const hx = Math.round(1380 + i * 22 - wx), beat = ((frame >> 3) + i * 3) % 4 < 2 ? 3 : 0;
+    if (hx < -20 || hx > W + 20) continue;
+    disc(hx, 168 - beat, 7, '#0e0812'); rect(hx - 7, 172 - beat, 14, 20, '#0e0812');
+    if (i % 3 === 0) { rect(hx - 9, 156 - beat * 2, 2, 10, '#0e0812'); rect(hx + 7, 156 - beat * 2, 2, 10, '#0e0812'); }
+    if (i % 4 === 1) rect(hx - 2, 166 - beat, 4, 1, '#c8ff3c');
   }
   // ceiling joists, pipe, string lights (parallax 1)
   rect(0, HUD, W, 14, '#24140c'); rect(0, HUD + 13, W, 1, '#140a06');
@@ -273,7 +284,7 @@ function drawBasementWall(cx) {
 
 /* ---------- floor props (parallax 1) ---------- */
 const PROPS_B1 = [
-  { t:'bathdoor', x:4 }, { t:'bulb', x:60 }, { t:'washer', x:110 }, { t:'dryer', x:144 }, { t:'heater', x:290 },
+  { t:'bathdoor', x:4 }, { t:'merch', x:1960 }, { t:'bulb', x:60 }, { t:'washer', x:110 }, { t:'dryer', x:144 }, { t:'heater', x:290 },
   { t:'couch', x:430 }, { t:'candles', x:500 }, { t:'bulb', x:560 }, { t:'boxes', x:600 }, { t:'candles', x:760, y:160 },
   { t:'bulb', x:940 }, { t:'couch', x:1240 }, { t:'candles', x:1310 }, { t:'mirrorball', x:1440 }, { t:'bulb', x:1700 },
   { t:'candles', x:1900 }, { t:'bulb', x:2100 }, { t:'bgamps', x:2300 }, { t:'rug', x:2480 }, { t:'candles', x:2500 },
@@ -323,7 +334,13 @@ function drawProps(cx) {
         disc(x + 16, GROUND - 15, 10, '#8a8a9a'); disc(x + 16, GROUND - 15, 8, d.t === 'washer' ? '#2a58c0' : '#141018');
         if (d.t === 'washer') { const sp = (frame >> 3) % 4; disc(x + 12 + sp, GROUND - 17, 2, '#c0e0ff'); }
         rect(x + 4, GROUND - 35, 5, 2, '#e02838'); rect(x + 22, GROUND - 35, 6, 2, '#141018'); break;
+      case 'merch':
+        rect(x, GROUND - 24, 70, 4, '#8a5428'); rect(x + 4, GROUND - 20, 3, 20, '#5a3418'); rect(x + 63, GROUND - 20, 3, 20, '#5a3418');
+        for (let i = 0; i < 3; i++) { rect(x + 6 + i * 21, GROUND - 40, 16, 16, ['#1e1a28', '#c02848', '#1e1a28'][i]); rect(x + 10 + i * 21, GROUND - 36, 8, 2, '#9ae030'); }
+        rect(x + 4, GROUND - 62, 62, 18, '#f8f4e4'); text('TEES $5', x + 35, GROUND - 60, '#c02848', { align:'center' }); text('XXL ONLY', x + 35, GROUND - 52, '#3a3020', { align:'center' }); break;
       case 'heater':
+        for (let i = 0; i < 2; i++) { const dy = (frame * 1.5 + i * 40) % 60; rect(x + 4, GROUND - 56 + dy, 1, 3, '#80c8ff'); }
+        rect(x - 6, GROUND - 1, 30, 1, '#3a68b8');
         rect(x, GROUND - 54, 22, 54, '#8a8698'); rect(x + 2, GROUND - 54, 4, 54, '#c8c4d4'); rect(x + 18, GROUND - 54, 4, 54, '#5a5668');
         rect(x - 1, GROUND - 56, 24, 3, '#c8c4d4'); rect(x + 9, HUD + 14, 4, GROUND - 70 - HUD, '#7a7486');
         rect(x + 7, GROUND - 14, 8, 5, ((frame >> 3) & 1) ? '#ff5020' : '#ff9030'); light(x + 11, GROUND - 12, 22, '#ff6020', 0.3); break;
@@ -570,6 +587,28 @@ function drawTV(tv, cx) {
     ctx.globalAlpha = 0.25; for (let r = 0; r < sh; r += 2) rect(sx, sy + r, sw, 1, '#000'); ctx.globalAlpha = 1;
   }
   light(x + 14, y + 16, 50 + (frame % 9 < 3 ? 6 : 0), '#4070ff', 0.26);
+  // now and then the Reverend talks through the set
+  const ph = (frame + tv.x * 3) % 420;
+  if (ph < 80) {
+    const say = seedPick(TV_SLOGANS, Math.floor((frame + tv.x * 3) / 420) + (tv.x | 0)), bw = say.length * 8 + 6;
+    rect(x + 16 - bw / 2, y - 16, bw, 12, '#f8f4e4'); rect(x + 13, y - 4, 4, 3, '#f8f4e4');
+    text(say, x + 16, y - 14, '#a01828', { align:'center' });
+  }
+}
+const TV_SLOGANS = ['CALL NOW!', '$19.95!', 'OBEY.', 'TITHE, SON', 'SEND MONEY', 'GLORY!', 'OPERATORS!', 'NO REFUNDS', 'I SEE YOU'];
+function drawToy(t, x) {
+  if (x < -60 || x > W + 60) return;
+  switch (t.kind) {
+    case 'amp': {
+      const y = t.y, ready = !t.cd;
+      rect(x, y, 24, 30, '#1c1820'); rect(x, y, 24, 1, '#5a5468'); rect(x + 2, y + 2, 8, 2, '#e8e0c8'); rect(x + 14, y + 2, 2, 2, ready ? '#ff3030' : '#3a2a2a');
+      for (let yy = 6; yy < 28; yy += 2) for (let xx = 2; xx < 22; xx += 2) rect(x + xx + (yy % 4 ? 1 : 0), y + yy, 1, 1, '#3a3440');
+      disc(x + 12, y + 17, 6 + (t.fired > 0 ? (frame & 1) : 0), '#2a242e'); disc(x + 12, y + 17, 2, '#5a5468');
+      if (ready && (frame % 90) < 20) { text('!', x + 9, y - 12, '#ffd850', { shadow:'#000' }); light(x + 12, y + 10, 24, '#ff3030', 0.3); }
+      if (t.fired > 0) for (let k = 0; k < 3; k++) { const r = (60 - t.fired) * 4 + k * 22; ctx.strokeStyle = k % 2 ? '#ffd850' : '#ffffff'; ctx.globalAlpha = t.fired / 60; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(x + 12, y + 16, r, -1.2, 1.2); ctx.stroke(); ctx.beginPath(); ctx.arc(x + 12, y + 16, r, Math.PI - 1.2, Math.PI + 1.2); ctx.stroke(); ctx.globalAlpha = 1; }
+      break;
+    }
+  }
 }
 function drawGag(cx) {
   const x = Math.round(gag.x - cx), y = gag.y;
@@ -663,6 +702,7 @@ function drawDoor(cx) {
 }
 function drawPuddles(cx) {
   for (const p of puddles) {
+    if (p.perm) { const x = Math.round(p.x - cx); if (x < -20 || x > W) continue; ctx.globalAlpha = 0.7; rect(x, p.y - 4, 16, 4, '#3a68b8'); ctx.globalAlpha = 1; rect(x + ((frame >> 3) + (p.x >> 4)) % 12, p.y - 4, 3, 1, '#a8d8ff'); continue; }
     if (p.life < 60 && (frame >> 2) & 1) continue;
     const x = Math.round(p.x - cx);
     rect(x + 2, p.y - 3, p.w - 4, 1, '#a8e030'); rect(x, p.y - 2, p.w, 2, '#58a010'); rect(x + 4, p.y - 3, 3, 1, '#e8ffa0');
@@ -899,7 +939,9 @@ function drawEnemy(e, cx) {
   if (e.type === 'sheet') {
     const x = Math.round(e.x - 2 - cx), y = Math.round(e.y - 1);
     if (x < -30 || x > W + 30) return;
-    ctx.globalAlpha = e.mode === 'swoop' ? 1 : 0.88; ctx.drawImage(pick((white ? SHEET_W : SHEET)[Math.floor(e.anim) % 2], e.face), x, y); ctx.globalAlpha = 1;
+    if (e.mode === 'warn' || e.mode === 'swoop') { const sw = e.mode === 'warn' ? 6 + (e.mt >> 2) : 12; ctx.globalAlpha = 0.45; rect(x + 9 - sw, groundYAt(e.x + 7, 0) - 2, sw * 2, 2, '#000'); ctx.globalAlpha = 1; }
+    const wob = e.mode === 'warn' ? ((frame >> 1) & 1) : 0;
+    ctx.globalAlpha = e.mode === 'swoop' ? 1 : 0.88; ctx.drawImage(pick((white ? SHEET_W : SHEET)[Math.floor(e.anim) % 2], e.face), x + wob, y); ctx.globalAlpha = 1;
     light(x + 9 + e.face * 3, y + 7, 14, '#c8ff3c', 0.35);
     return;
   }
@@ -912,20 +954,25 @@ function drawEnemy(e, cx) {
   drawHumanoidEntity(SETS[e.type], e, cx, white);
 }
 const SETS = { mosher:MOSHER, pusher:PUSHER, aerobic:AEROBIC, airg:AIRG };
-const DAZED_LINES = { mosher:'WHAT YEAR IS IT?', pusher:'WHY AM I IN A TIE?', aerobic:'MY LEGS HURT', airg:'WHERE\'S MY GUITAR?' };
+const DAZED_LINES = {
+  mosher:['WHAT YEAR IS IT?', 'WHO PUT ME IN A VEST?', 'MY HAIR SMELLS LIKE PUKE', 'DID I MISS THE ENCORE?'],
+  pusher:['WHY AM I IN A TIE?', 'I OWE WHO $500?', 'I SOLD PAMPHLETS?!', 'MY GLASSES ARE FAKE'],
+  aerobic:['MY LEGS HURT', 'HOW MANY JUMPING JACKS?', 'I HATE LEG WARMERS'],
+  airg:['WHERE\'S MY GUITAR?', 'WAS I... AIR PIANO?', 'MY FINGERS ARE TIRED'],
+};
 function drawDazed(d, cx) {
   const set = SETS[d.type];
   if (!d.tv && d.t > 110 && (frame & 2)) return;
   const x = Math.round(d.x + 6 - 15 - cx), y = Math.round(d.y + 32 - 39);
   ctx.drawImage(pick(set.dazed[Math.floor(d.anim) % 4], d.face), x, y);
   if (d.zap && (frame & 2)) { ctx.globalAlpha = 0.6; ctx.globalCompositeOperation = 'lighter'; ctx.drawImage(pick(set.dazed[0], d.face), x, y); ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1; }
-  if (d.t > 10 && d.t < 80 && !d.tv) text(DAZED_LINES[d.type], x + 15, y - 10, '#c8c4d4', { align:'center', shadow:'#000' });
+  if (d.t > 10 && d.t < 80 && !d.tv && DAZED_LINES[d.type]) text(seedPick(DAZED_LINES[d.type], d.x | 0), x + 15, y - 10, '#c8c4d4', { align:'center', shadow:'#000' });
 }
 function heroFrame(face, forceMode) {
   const set = P.punch > 0 && (P.punch > 120 || (frame >> 3) & 1) ? HERO_PUNCH : P.turbo > 0 && (P.turbo > 120 || (frame >> 3) & 1) ? HERO_TURBO : HERO;
   const pk = P.pukeT > 0;
   let fr;
-  if (forceMode === 'hurt' || (P.inv > 80 && state === 'play')) fr = set.hurt;
+  if (forceMode === 'hurt' || (P.inv > 110 && state === 'play')) fr = set.hurt;
   else if (P.fartT > 0) fr = set.fart;
   else if (P.snotT > 0 && P.onGround) fr = set.snot;
   else if (!P.onGround) fr = P.vy < 0 ? (pk ? set.jumpP : set.jump) : (pk ? set.fallP : set.fall);
@@ -934,7 +981,7 @@ function heroFrame(face, forceMode) {
   return pick(fr, face);
 }
 function drawPlayer(cx) {
-  if (P.inv > 0 && P.inv <= 80 && (frame >> 2) & 1) return;
+  if (P.inv > 0 && P.inv <= 110 && (frame >> 2) & 1) return;
   ctx.drawImage(heroFrame(P.face), Math.round(P.x - 9 - cx), Math.round(P.y - 7));
   if (P.punch > 0) light(P.x + 6 - cx, P.y + 14, 34, '#ff60c0', 0.35);
   else light(P.x + 6 - cx, P.y + 14, 30, null);
@@ -1003,7 +1050,7 @@ function drawPlayScene() {
   rect(0, HUD, W, H - HUD, '#0a0610');
   drawWall(cx); drawProps(cx); drawDoor(cx); drawTiles(cx); drawTrash(cx); drawLamps(cx); drawPuddles(cx);
   for (const tv of tvs) drawTV(tv, cx);
-  drawGag(cx); drawPickups(cx); drawBossObj(cx);
+  drawGag(cx); for (const t of toys) drawToy(t, Math.round(t.x - cx)); drawPickups(cx); drawBossObj(cx);
   for (const d of dazed) drawDazed(d, cx);
   for (const e of enemies) drawEnemy(e, cx);
   if (state !== 'dying') drawPlayer(cx);
@@ -1390,4 +1437,4 @@ function boot(data) {
 try { window.claude && window.claude.hot && window.claude.hot.snapshot && window.claude.hot.snapshot(() => ({ hiscore })); } catch (e) {}
 const hot = window.claude && window.claude.hot;
 if (hot && hot.ready) hot.ready(boot); else boot((hot && hot.data) || {});
-window.__HMVP = { tile:tileT, get demo() { return !!demo; }, startDemo, get tvs() { return tvs; }, get camLock() { return camLock; }, get doorOpen() { return doorOpen; }, get discs() { return discs; }, get notes() { return notes; }, update, render, kbd, goto(id) { loadLevel(id); startRun(); state = 'play'; stateT = 0; playSong(L.song); }, get L() { return L; }, get pickups() { return pickups; }, get gag() { return gag; }, get state() { return state; }, set state(v) { state = v; }, get P() { return P; }, get boss() { return boss; }, get enemies() { return enemies; }, get dazed() { return dazed; }, get score() { return score; }, get cam() { return cam; }, set cam(v) { cam = v; } };
+window.__HMVP = { tile:tileT, get demo() { return !!demo; }, startDemo, get tvs() { return tvs; }, get camLock() { return camLock; }, get doorOpen() { return doorOpen; }, get discs() { return discs; }, get notes() { return notes; }, update, render, kbd, goto(id, o = {}) { forcedPick = o.pick || null; if (o.seed !== undefined) { const f = forcedSeed; forcedSeed = o.seed; newSeed(); forcedSeed = f; } else newSeed(); loadLevel(id); forcedPick = null; startRun(); state = 'play'; stateT = 0; playSong(L.song); }, makeDemo, setDemo(on) { demo = on ? makeDemo() : null; }, damageBoss, get toys() { return toys; }, get puddles() { return puddles; }, get hitStop() { return hitStop; }, get L() { return L; }, get pickups() { return pickups; }, get gag() { return gag; }, get state() { return state; }, set state(v) { state = v; }, get P() { return P; }, get boss() { return boss; }, get enemies() { return enemies; }, get dazed() { return dazed; }, get score() { return score; }, get cam() { return cam; }, set cam(v) { cam = v; } };
