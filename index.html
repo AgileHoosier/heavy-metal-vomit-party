@@ -1210,6 +1210,7 @@ const SFX = {
   },
   feedback(){ const t = AU.ctx.currentTime; osc('square', 1760, t, 0.6, AU.sGain, 0.05, 2400); osc('sawtooth', 110, t, 0.5, AU.sGain, 0.12, 55); noiseHit(AU.sGain, t, 0.5, 0.3, 'bandpass', 2000, 400, 2); },
   honk()   { const t = AU.ctx.currentTime; [0, 0.22].forEach(d => { osc('square', 330, t + d, 0.16, AU.sGain, 0.07); osc('square', 415, t + d, 0.16, AU.sGain, 0.05); }); },
+  flush()  { const t = AU.ctx.currentTime; noiseHit(AU.sGain, t, 1.1, 0.35, 'lowpass', 1800, 200, 1); osc('sine', 300, t + 0.2, 0.6, AU.sGain, 0.08, 90); },
   doll()   { const t = AU.ctx.currentTime; [0, 3, 7, 3, 12].forEach((s, i) => osc('triangle', 1046 * Math.pow(2, s / 12), t + i * 0.07, 0.09, AU.sGain, 0.04)); },
   shatter(){ const t = AU.ctx.currentTime; noiseHit(AU.sGain, t, 0.25, 0.3, 'highpass', 5000); [2600, 3400, 2100].forEach((f, i) => osc('triangle', f, t + i * 0.03, 0.06, AU.sGain, 0.05)); },
   scratch(){ const t = AU.ctx.currentTime; noiseHit(AU.sGain, t, 0.18, 0.3, 'bandpass', 800, 2600, 3); noiseHit(AU.sGain, t + 0.18, 0.14, 0.25, 'bandpass', 2600, 700, 3); },
@@ -1427,23 +1428,43 @@ const LEVELS = {
       [[12, 12, 13, 12]].forEach(r => fill(...r, 4));
       [[26, 11, 27, 12], [42, 11, 43, 12]].forEach(r => fill(...r, 2));
       [[18, 10, 21, 10], [44, 9, 47, 9]].forEach(r => fill(...r, 3));
-      // sister's room: bunk beds, toy chest, dollhouse, desk
-      [[56, 11, 61, 11], [56, 8, 61, 8], [80, 10, 83, 10]].forEach(r => fill(...r, 3));
+      // sister's room: desk, toy chest, dollhouse
+      [[80, 10, 83, 10]].forEach(r => fill(...r, 3));
       [[66, 12, 68, 12]].forEach(r => fill(...r, 4));
       [[74, 11, 76, 12]].forEach(r => fill(...r, 2));
-      // bathroom: tub, toilet, vanity, towel shelf, the rotted floor
-      [[104, 11, 108, 12], [114, 12, 115, 12]].forEach(r => fill(...r, 6));
+      // bathroom: the toilet (puke it to flush), a bonus shelf above it, the vanity, the rotted floor
+      fill(114, 12, 115, 12, 6); fill(113, 4, 116, 4, 3);
       [[119, 11, 121, 12]].forEach(r => fill(...r, 2));
-      [[110, 9, 112, 9], [125, 11, 126, 11]].forEach(r => fill(...r, 3));
-      // the teen's room: waterbed, a shelf way above it, speakers, desk, dresser
+      [[125, 11, 126, 11]].forEach(r => fill(...r, 3));
+      // the teen's room: waterbed, a shelf way above it, dresser
       fill(136, 12, 141, 12, 7);
-      [[137, 6, 140, 6], [154, 10, 157, 10]].forEach(r => fill(...r, 3));
-      [[148, 11, 149, 12], [166, 11, 167, 12]].forEach(r => fill(...r, 2));
+      [[137, 6, 140, 6]].forEach(r => fill(...r, 3));
+      [[166, 11, 167, 12]].forEach(r => fill(...r, 2));
     },
-    spawns:[['rat', 16], ['pusher', 24], ['sheet', 31], ['mosher', 46], ['sheet', 54], ['aerobic', 64], ['sheet', 72], ['airg', 82], ['pusher', 96],
-            ['rat', 106], ['sheet', 112], ['mosher', 118], ['airg', 134], ['sheet', 144], ['mosher', 152], ['aerobic', 158], ['sheet', 165], ['pusher', 170]],
-    pickups:[['pizza', 19.5], ['punch', 58.5], ['pizza', 81.5], ['turbo', 111], ['record', 138.5], ['pizza', 155.5], ['punch', 172]],
-    tvs:[9, 63, 101, 131, 168], checks:[3, 99, 172], gag:{ col:70, kind:'board' }, next:'f3', trashEnd:174,
+    slots:[
+      // a ghost comes out of one of three closet doors
+      { cols:[28, 36], variants:[29, 32, 35].map(c => () => ({ spawns:[['sheet', c, { closet:c }]] })) },
+      { cols:[54, 61], variants:[
+        () => { [[56, 11, 61, 11], [56, 8, 61, 8]].forEach(r => fill(...r, 3)); return { spawns:[['sheet', 54]], pickups:[['punch', 58.5]] }; },
+        () => { fill(56, 12, 60, 12, 7); fill(57, 6, 59, 6, 3); return { spawns:[['sheet', 54]], pickups:[['punch', 58]] }; },
+      ] },
+      { cols:[104, 112], variants:[
+        () => { fill(104, 11, 108, 12, 6); fill(110, 9, 112, 9, 3); return { spawns:[['rat', 106], ['sheet', 112]], pickups:[['turbo', 111]] }; },
+        () => { fill(106, 13, 109, 14, 0); fill(106, 10, 108, 10, 3); fill(104, 12, 104, 12, 6); return { spawns:[['rat', 111], ['sheet', 110]], pickups:[['turbo', 107]] }; },
+      ] },
+      { cols:[146, 158], variants:[
+        () => { fill(148, 11, 149, 12, 2); fill(154, 10, 157, 10, 3); return { spawns:[['ground', 152], ['aerobic', 158]], pickups:[['pizza', 155.5]] }; },
+        () => { fill(147, 10, 148, 12, 2); fill(152, 10, 155, 10, 3); return { spawns:[['ground', 151], ['aerobic', 157]], pickups:[['pizza', 153.5]] }; },
+        () => { fill(149, 12, 152, 12, 2); fill(154, 9, 157, 9, 3); return { spawns:[['ground', 151], ['aerobic', 157]], pickups:[['pizza', 155.5]] }; },
+      ] },
+    ],
+    pools:{ ground:['mosher', 'pusher'] },
+    // the toilet geyser: puke into the bowl and the flush launches you to the shelf above
+    toys:() => [{ kind:'toilet', x:114 * T, y:GROUND - 30, w:32, h:30, cd:0, flush:0, onHit:t => { t.flush = 110; t.cd = 150; sfx('flush'); popText('FLUSHED!', t.x + 16, t.y - 10, '#80c8ff', 60); }, update:flushGeyser }],
+    spawns:[['rat', 16], ['pusher', 24], ['mosher', 46], ['aerobic', 64], ['sheet', 72], ['airg', 82], ['pusher', 96],
+            ['mosher', 118], ['airg', 134], ['sheet', 144], ['rat', 165], ['pusher', 170]],
+    pickups:[['pizza', 19.5], ['pizza', 81.5], ['pizza', 114.5], ['record', 138.5], ['punch', 172]],
+    tvs:[9, 63, 101, 131, 168], checks:[3, 50, 99, 130, 172], gag:{ col:70, kind:'board' }, next:'f3', trashEnd:174,
     zone:tx => tx < 48 ? 'carpet' : tx < 100 ? 'pink' : tx < 128 ? 'lino' : tx < 176 ? 'purple' : 'wood', doorSign:['GOD', 'SEES'],
   },
   f3: {
@@ -1622,6 +1643,8 @@ function hurt(srcX, bite) {
   if (P.inv > 0 || state !== 'play') return;
   P.hearts--; sfx(bite ? 'bite' : 'hurt'); shake = 6;
   P.inv = 130; P.vx = P.x + P.w / 2 < srcX ? -2.4 : 2.4; P.vy = -3.2;
+  // knockback never carries you over a pit edge
+  for (let d = 0; d <= 48; d += 8) { const tx = Math.floor((P.x + 6 + Math.sign(P.vx) * (d + 8)) / T); let floor = false; for (let ty = Math.floor((P.y + P.h) / T); ty < ROWS; ty++) { const t = tileT(tx, ty); if (isSolid(t) || t === 3) { floor = true; break; } } if (!floor) { P.vx *= 0.15; break; } }
   if (bite && score > 0) {
     const take = Math.min(score, 50); score -= take;
     popText('-$' + take + ' TITHE', P.x + 6, P.y - 10, '#ffd850');
@@ -1797,7 +1820,7 @@ function makeEnemy(type, x, o) {
   const base = { type, x, vx:0, vy:0, face:-1, flash:0, stun:0, slip:0, slipCd:0, anim:0, onGround:false, mode:'walk', mt:0, cd:40 };
   if (type === 'rat') Object.assign(base, { w:16, h:9, hp:1 });
   else if (type === 'doll') { Object.assign(base, { w:10, h:16, hp:1, mode:'sit', face:-1 }); base.y = groundYAt(x + 5, 16); return base; }
-  else if (type === 'sheet') { Object.assign(base, { w:14, h:20, hp:1, y:GROUND - 74, by:GROUND - 74, mt:0, cd:60 }); return base; }
+  else if (type === 'sheet') { Object.assign(base, { w:14, h:20, hp:1, y:o && o.closet ? GROUND - 30 : GROUND - 74, by:GROUND - 74, mt:0, cd:60 }, o || {}); return base; }
   else Object.assign(base, { w:12, h:32, hp:type === 'mosher' ? 3 : 2, hops:0 });
   if (o) Object.assign(base, o, o.conga ? { mode:'conga' } : {});
   base.y = groundYAt(x + base.w / 2, base.h);
@@ -2260,7 +2283,7 @@ function updatePastor() {
       if (B.t < 34) { B.pose = 'crouch'; if (B.t === 1) { B.face = B.x + 30 < (LEFT + RIGHT) / 2 + 30 ? 1 : -1; popText('TOTALLY RIGHTEOUS!', B.x + 30, B.y - 10, '#ffd850', 50); } }
       else {
         if (B.t === 34) { sfx('charge'); B.pose = 'plank'; }
-        B.x += B.face * (p2 ? 4 : 3.2);
+        B.x += B.face * (p2 ? 3.3 : 2.7);
         if (frame % 3 === 0) parts.push({ x:B.x + 30 - B.face * 30, y:GROUND - 2, vx:-B.face * 0.6, vy:-0.4, life:14, c:'#ffd850', g:0 });
         if ((B.face > 0 && B.x >= RIGHT) || (B.face < 0 && B.x <= LEFT)) { B.x = Math.max(LEFT, Math.min(RIGHT, B.x)); B.state = 'idle'; B.t = 0; B.pose = 'idle'; shake = 3; sfx('hit'); }
       }
@@ -2445,6 +2468,13 @@ function updateHeli() {
   if (B.state === 'strafe' && overlap(P, bossBox())) hurt(B.x, false);
 }
 /* ---------- toys: per-floor interactive set pieces ---------- */
+function flushGeyser(t) {
+  if (t.flush <= 0) { t.launched = false; return; }
+  t.flush--;
+  if (frame % 2 === 0) parts.push({ x:t.x + 8 + Math.random() * 16, y:t.y, vx:(Math.random() - 0.5) * 0.8, vy:-4 - Math.random() * 3, life:30, c:Math.random() < 0.5 ? '#80c8ff' : '#ffffff', g:0.1 });
+  // the spout carries you up to the bonus shelf
+  if (t.flush < 96 && !t.launched && overlap(P, { x:t.x - 10, y:GROUND - 48, w:52, h:48 })) { t.launched = true; P.vy = -9.2; P.bounceT = 30; P.onGround = false; sfx('boing'); }
+}
 function ampBlast(t) {
   t.cd = 420; t.fired = 60; shake = 8; sfx('feedback'); popText('FEEDBACK!', t.x + 12, t.y - 12, '#ffd850', 60);
   for (const e of enemies) {
@@ -2760,11 +2790,11 @@ const DECOR_F1 = [
   { t:'trophies', x:2290 }, { t:'pure', x:2420 }, { t:'banned', x:2560 }, { t:'portrait', x:2760 }, { t:'window', x:2860 },
 ];
 const DECOR_F2 = [
-  { t:'photos', x:110 }, { t:'window', x:250 }, { t:'stitch', x:420 }, { t:'portrait', x:560 }, { t:'window', x:660 },
-  { t:'stars', x:780, w:820 }, { t:'unicorn', x:860 }, { t:'list', x:1020, title:'CHORES', items:['PRAY', 'TITHE', 'NO MTV', 'NO FUN', 'PRAY'], c:'#3048c0' },
+  { t:'photos', x:110 }, { t:'window', x:250 }, { t:'closets', x:470 }, { t:'stitch', x:600 }, { t:'window', x:700 },
+  { t:'stars', x:780, w:820 }, { t:'starword', x:1000 }, { t:'unicorn', x:860 }, { t:'list', x:1020, title:'CHORES', items:['PRAY', 'TITHE', 'NO MTV', 'NO FUN', 'PRAY'], c:'#3048c0' },
   { t:'window', x:1200 }, { t:'boyband', x:1330 }, { t:'unicorn', x:1480 },
   { t:'mirror', x:1700 }, { t:'mirror', x:1880 },
-  { t:'keepout', x:2080 }, { t:'banner', x:2130, str:'VOMITRON', c:'#ff70c0' }, { t:'poster', x:2300, i:0 }, { t:'window', x:2380 }, { t:'banner', x:2470, str:'SKULLDRIFT', c:'#ffd850' },
+  { t:'keepout', x:2080 }, { t:'banner', x:2130, pool:true, c:'#ff70c0' }, { t:'poster', x:2300, i:0 }, { t:'window', x:2380 }, { t:'banner', x:2470, pool:true, c:'#ffd850' },
   { t:'poster', x:2640, i:1 }, { t:'poster', x:2700, i:2 },
   { t:'portrait', x:2860 }, { t:'pure', x:2940 }, { t:'portrait', x:3040 },
 ];
@@ -2773,6 +2803,8 @@ const DECOR_F3 = [
   { t:'stencil', x:1240, str:'CONFISCATED' }, { t:'roundwin', x:1450 }, { t:'stencil', x:1620, str:'CONFISCATED' }, { t:'stencil', x:1900, str:'BURN LATER' },
   { t:'pure', x:2180 }, { t:'roundwin', x:2440 }, { t:'stencil', x:2560, str:'PLEDGES' }, { t:'stencil', x:2760, str:'DO NOT PLAY' }, { t:'roundwin', x:2960 },
 ];
+const BANDS = ['VOMITRON', 'SKULLDRIFT', 'DOOM PIZZA', 'BLOOD GOAT', 'MOSHZILLA', 'GRAVY TRAIN', 'HELLMOUTH', 'CHORE WAR'];
+const MIRRORS = [['YENOM', 'DNES'], ['YEWED', 'YEBO'], ['EKUP', 'SELUR'], ['HSULF', 'EM'], ['TI SI', 'GNOL']];
 const HOUSE_CFG = {
   f1:{ walls:[[960, KITCHEN_WALL], [2240, LIVING_WALL], [1e9, DEN_WALL]], decor:DECOR_F1, fixtures:[180, 560, 900, 1300, 1700, 2100, 2500, 2860], fix:'#fff0c0', molding:['#f0e8d8', '#c8b898', '#8a7a5a'] },
   f2:{ walls:[[768, HALL_WALL], [1600, SIS_WALL], [2048, BATH_WALL], [2816, TEEN_WALL], [1e9, MASTER_WALL]], decor:DECOR_F2,
@@ -2861,11 +2893,23 @@ function drawHouseWall(cx) {
         text('THE GOOD', x + 30, 112, '#c02848', { align:'center' }); text('BOYS', x + 30, 121, '#c02848', { align:'center' }); break;
       case 'mirror':
         rect(x, 70, 56, 50, '#c8c4d4'); rect(x + 3, 73, 50, 44, '#90b0c8'); rect(x + 6, 76, 10, 2, '#ffffff'); rect(x + 6, 80, 4, 2, '#ffffff');
-        text(d.x < 1800 ? 'YENOM' : 'YEWED', x + 28, 86, '#e02838', { align:'center' }); text(d.x < 1800 ? 'DNES' : 'YEBO', x + 28, 98, '#e02838', { align:'center' });
+        { const m = seedShuffle(MIRRORS, 3)[d.x < 1800 ? 0 : 1]; text(m[0], x + 28, 86, '#e02838', { align:'center' }); text(m[1], x + 28, 98, '#e02838', { align:'center' }); }
         light(x + 28, 96, 30, '#c0e0ff', 0.12); break;
       case 'keepout':
         rect(x, 80, 40, 28, '#ffd850'); rect(x + 2, 82, 36, 24, '#141018'); text('KEEP', x + 20, 85, '#ffd850', { align:'center' }); text('OUT', x + 20, 96, '#ff5060', { align:'center' }); break;
-      case 'banner': drawBanner(x, 52, d.str, d.c); break;
+      case 'banner': drawBanner(x, 52, d.pool ? seedShuffle(BANDS, 7)[d.x > 2300 ? 1 : 0] : d.str, d.c); break;
+      case 'closets':
+        for (const c of [29, 32, 35]) {
+          const dx = Math.round(c * T - 4 - cx), open = spawns.some(s => s.o && s.o.closet === c && s.done);
+          rect(dx - 2, GROUND - 66, 28, 66, '#c8b898'); rect(dx, GROUND - 64, 24, 64, open ? '#0a0610' : '#e8dcc0');
+          if (!open) { rect(dx + 2, GROUND - 60, 20, 26, '#d8ccb0'); rect(dx + 2, GROUND - 30, 20, 26, '#d8ccb0'); rect(dx + 19, GROUND - 34, 2, 3, '#c8a040'); }
+          else { rect(dx + 7, GROUND - 46, 2, 1, '#c8ff3c'); rect(dx + 13, GROUND - 46, 2, 1, '#c8ff3c'); }
+        }
+        break;
+      case 'starword': {
+        // the glow stars on the ceiling spell it out, if you look
+        ctx.globalAlpha = (frame >> 5) & 1 ? 0.5 : 0.35; text('VOMITRON', x, 44, '#c8ffb0'); ctx.globalAlpha = 1; break;
+      }
       case 'roundwin':
         disc(x, 80, 20, '#5a3a20'); disc(x, 80, 17, '#0e1440'); rect(x - 17, 79, 34, 2, '#5a3a20'); rect(x - 1, 63, 2, 34, '#5a3a20');
         rect(x + 6, 70, 2, 2, '#f4ecd0'); rect(x - 9, 86, 1, 1, '#ffffff');
@@ -2994,7 +3038,7 @@ const PROPS_F1 = [
   { t:'floorlamp', x:2380 }, { t:'plant', x:2700 }, { t:'stairs', x:2996 },
 ];
 const PROPS_F2 = [
-  { t:'basedoor', x:2, label:'1F' }, { t:'nightlight', x:150 }, { t:'nightlight', x:690 }, { t:'bunk', x:896 }, { t:'teddy', x:1150 }, { t:'nightlight', x:1270 },
+  { t:'basedoor', x:2, label:'1F' }, { t:'nightlight', x:150 }, { t:'nightlight', x:690 }, { t:'bunk', x:896, when:[1, 0] }, { t:'teddy', x:1150 }, { t:'nightlight', x:1270 },
   { t:'tank', x:1824 }, { t:'towels', x:1960 }, { t:'lavalamp', x:2240 }, { t:'blacklight', x:2420 }, { t:'lavalamp', x:2560 }, { t:'bgamps', x:2600 },
   { t:'nightstand', x:2846 }, { t:'nightstand', x:3010 },
 ];
@@ -3010,6 +3054,7 @@ const PROPS_RF = [
 const PROPS = { b1:PROPS_B1, f1:PROPS_F1, f2:PROPS_F2, f3:PROPS_F3, rf:PROPS_RF };
 function drawProps(cx) {
   for (const d of PROPS[L.id]) {
+    if (d.when && !slotIs(d.when[0], d.when[1])) continue;
     const x = Math.round(d.x - cx);
     if (x < -120 || x > W + 120) continue;
     switch (d.t) {
@@ -3249,7 +3294,7 @@ function drawTiles(cx) {
         if (below !== 6) { rect(x, y, T, 3, '#ffffff'); rect(x, y + 3, T, 1, '#b8b8c8'); }
         if (tileT(tx - 1, ty) !== 6) rect(x, y, 2, T, '#ffffff'); if (tileT(tx + 1, ty) !== 6) rect(x + T - 2, y, 2, T, '#b8b8c8');
       } else if (t === 7) {
-        rect(x, y, T, T, '#3a6ec8'); rect(x, y + 12, T, 4, '#5a3418'); rect(x, y + 12, T, 1, '#8a5428');
+        rect(x, y, T, T, tx < 100 ? '#e060a0' : '#3a6ec8'); rect(x, y + 12, T, 4, '#5a3418'); rect(x, y + 12, T, 1, '#8a5428');
         const ph = Math.sin(frame * 0.1 + tx * 1.3), hy = Math.round(1 + ph);
         rect(x, y + hy, T, 2, '#80c8ff'); rect(x + ((tx * 5 + (frame >> 2)) % 12), y + 5 + hy, 4, 1, '#a8d8ff');
         if (tileT(tx - 1, ty) !== 7) rect(x, y - 4, 3, T + 4, '#5a3418'); if (tileT(tx + 1, ty) !== 7) rect(x + T - 3, y - 4, 3, T + 4, '#5a3418');
@@ -3314,6 +3359,13 @@ const TV_SLOGANS = ['CALL NOW!', '$19.95!', 'OBEY.', 'TITHE, SON', 'SEND MONEY',
 function drawToy(t, x) {
   if (x < -60 || x > W + 60) return;
   switch (t.kind) {
+    case 'toilet':
+      if (t.flush > 0) {
+        const base = GROUND - 16, h = Math.min(140, (110 - t.flush) * 6), sway = Math.round(Math.sin(frame * 0.4) * 2);
+        ctx.globalAlpha = 0.75; rect(x + 8 + sway, base - h, 16, h, '#80c8ff'); rect(x + 12 + sway, base - h, 4, h, '#ffffff'); ctx.globalAlpha = 1;
+        disc(x + 16 + sway, base - h, 10, '#c0e8ff'); light(x + 16, base - h / 2, 50, '#80c8ff', 0.3);
+      } else if ((frame % 150) < 30) text('?', x + 12, t.y - 4, '#80c8ff', { shadow:'#000' });
+      break;
     case 'amp': {
       const y = t.y, ready = !t.cd;
       rect(x, y, 24, 30, '#1c1820'); rect(x, y, 24, 1, '#5a5468'); rect(x + 2, y + 2, 8, 2, '#e8e0c8'); rect(x + 14, y + 2, 2, 2, ready ? '#ff3030' : '#3a2a2a');
@@ -4153,7 +4205,7 @@ function boot(data) {
 try { window.claude && window.claude.hot && window.claude.hot.snapshot && window.claude.hot.snapshot(() => ({ hiscore })); } catch (e) {}
 const hot = window.claude && window.claude.hot;
 if (hot && hot.ready) hot.ready(boot); else boot((hot && hot.data) || {});
-window.__HMVP = { tile:tileT, get demo() { return !!demo; }, startDemo, get tvs() { return tvs; }, get camLock() { return camLock; }, get doorOpen() { return doorOpen; }, get discs() { return discs; }, get notes() { return notes; }, update, render, kbd, goto(id, o = {}) { forcedPick = o.pick || null; if (o.seed !== undefined) { const f = forcedSeed; forcedSeed = o.seed; newSeed(); forcedSeed = f; } else newSeed(); loadLevel(id); forcedPick = null; startRun(); state = 'play'; stateT = 0; playSong(L.song); }, makeDemo, setDemo(on) { demo = on ? makeDemo() : null; }, damageBoss, get toys() { return toys; }, get puddles() { return puddles; }, get hitStop() { return hitStop; }, get L() { return L; }, get pickups() { return pickups; }, get gag() { return gag; }, get state() { return state; }, set state(v) { state = v; }, get P() { return P; }, get boss() { return boss; }, get enemies() { return enemies; }, get dazed() { return dazed; }, get score() { return score; }, get cam() { return cam; }, set cam(v) { cam = v; } };
+window.__HMVP = { tile:tileT, get demo() { return !!demo; }, startDemo, get tvs() { return tvs; }, get camLock() { return camLock; }, get doorOpen() { return doorOpen; }, get discs() { return discs; }, get notes() { return notes; }, update, render, kbd, goto(id, o = {}) { forcedPick = o.pick || null; if (o.seed !== undefined) { const f = forcedSeed; forcedSeed = o.seed; newSeed(); forcedSeed = f; } else newSeed(); loadLevel(id); forcedPick = null; startRun(); state = 'play'; stateT = 0; playSong(L.song); }, makeDemo, setDemo(on) { demo = on ? makeDemo() : null; }, damageBoss, get toys() { return toys; }, get blobs() { return blobs; }, get puddles() { return puddles; }, get hitStop() { return hitStop; }, get L() { return L; }, get pickups() { return pickups; }, get gag() { return gag; }, get state() { return state; }, set state(v) { state = v; }, get P() { return P; }, get boss() { return boss; }, get enemies() { return enemies; }, get dazed() { return dazed; }, get score() { return score; }, get cam() { return cam; }, set cam(v) { cam = v; } };
 
 })();
 </script>

@@ -200,23 +200,43 @@ const LEVELS = {
       [[12, 12, 13, 12]].forEach(r => fill(...r, 4));
       [[26, 11, 27, 12], [42, 11, 43, 12]].forEach(r => fill(...r, 2));
       [[18, 10, 21, 10], [44, 9, 47, 9]].forEach(r => fill(...r, 3));
-      // sister's room: bunk beds, toy chest, dollhouse, desk
-      [[56, 11, 61, 11], [56, 8, 61, 8], [80, 10, 83, 10]].forEach(r => fill(...r, 3));
+      // sister's room: desk, toy chest, dollhouse
+      [[80, 10, 83, 10]].forEach(r => fill(...r, 3));
       [[66, 12, 68, 12]].forEach(r => fill(...r, 4));
       [[74, 11, 76, 12]].forEach(r => fill(...r, 2));
-      // bathroom: tub, toilet, vanity, towel shelf, the rotted floor
-      [[104, 11, 108, 12], [114, 12, 115, 12]].forEach(r => fill(...r, 6));
+      // bathroom: the toilet (puke it to flush), a bonus shelf above it, the vanity, the rotted floor
+      fill(114, 12, 115, 12, 6); fill(113, 4, 116, 4, 3);
       [[119, 11, 121, 12]].forEach(r => fill(...r, 2));
-      [[110, 9, 112, 9], [125, 11, 126, 11]].forEach(r => fill(...r, 3));
-      // the teen's room: waterbed, a shelf way above it, speakers, desk, dresser
+      [[125, 11, 126, 11]].forEach(r => fill(...r, 3));
+      // the teen's room: waterbed, a shelf way above it, dresser
       fill(136, 12, 141, 12, 7);
-      [[137, 6, 140, 6], [154, 10, 157, 10]].forEach(r => fill(...r, 3));
-      [[148, 11, 149, 12], [166, 11, 167, 12]].forEach(r => fill(...r, 2));
+      [[137, 6, 140, 6]].forEach(r => fill(...r, 3));
+      [[166, 11, 167, 12]].forEach(r => fill(...r, 2));
     },
-    spawns:[['rat', 16], ['pusher', 24], ['sheet', 31], ['mosher', 46], ['sheet', 54], ['aerobic', 64], ['sheet', 72], ['airg', 82], ['pusher', 96],
-            ['rat', 106], ['sheet', 112], ['mosher', 118], ['airg', 134], ['sheet', 144], ['mosher', 152], ['aerobic', 158], ['sheet', 165], ['pusher', 170]],
-    pickups:[['pizza', 19.5], ['punch', 58.5], ['pizza', 81.5], ['turbo', 111], ['record', 138.5], ['pizza', 155.5], ['punch', 172]],
-    tvs:[9, 63, 101, 131, 168], checks:[3, 99, 172], gag:{ col:70, kind:'board' }, next:'f3', trashEnd:174,
+    slots:[
+      // a ghost comes out of one of three closet doors
+      { cols:[28, 36], variants:[29, 32, 35].map(c => () => ({ spawns:[['sheet', c, { closet:c }]] })) },
+      { cols:[54, 61], variants:[
+        () => { [[56, 11, 61, 11], [56, 8, 61, 8]].forEach(r => fill(...r, 3)); return { spawns:[['sheet', 54]], pickups:[['punch', 58.5]] }; },
+        () => { fill(56, 12, 60, 12, 7); fill(57, 6, 59, 6, 3); return { spawns:[['sheet', 54]], pickups:[['punch', 58]] }; },
+      ] },
+      { cols:[104, 112], variants:[
+        () => { fill(104, 11, 108, 12, 6); fill(110, 9, 112, 9, 3); return { spawns:[['rat', 106], ['sheet', 112]], pickups:[['turbo', 111]] }; },
+        () => { fill(106, 13, 109, 14, 0); fill(106, 10, 108, 10, 3); fill(104, 12, 104, 12, 6); return { spawns:[['rat', 111], ['sheet', 110]], pickups:[['turbo', 107]] }; },
+      ] },
+      { cols:[146, 158], variants:[
+        () => { fill(148, 11, 149, 12, 2); fill(154, 10, 157, 10, 3); return { spawns:[['ground', 152], ['aerobic', 158]], pickups:[['pizza', 155.5]] }; },
+        () => { fill(147, 10, 148, 12, 2); fill(152, 10, 155, 10, 3); return { spawns:[['ground', 151], ['aerobic', 157]], pickups:[['pizza', 153.5]] }; },
+        () => { fill(149, 12, 152, 12, 2); fill(154, 9, 157, 9, 3); return { spawns:[['ground', 151], ['aerobic', 157]], pickups:[['pizza', 155.5]] }; },
+      ] },
+    ],
+    pools:{ ground:['mosher', 'pusher'] },
+    // the toilet geyser: puke into the bowl and the flush launches you to the shelf above
+    toys:() => [{ kind:'toilet', x:114 * T, y:GROUND - 30, w:32, h:30, cd:0, flush:0, onHit:t => { t.flush = 110; t.cd = 150; sfx('flush'); popText('FLUSHED!', t.x + 16, t.y - 10, '#80c8ff', 60); }, update:flushGeyser }],
+    spawns:[['rat', 16], ['pusher', 24], ['mosher', 46], ['aerobic', 64], ['sheet', 72], ['airg', 82], ['pusher', 96],
+            ['mosher', 118], ['airg', 134], ['sheet', 144], ['rat', 165], ['pusher', 170]],
+    pickups:[['pizza', 19.5], ['pizza', 81.5], ['pizza', 114.5], ['record', 138.5], ['punch', 172]],
+    tvs:[9, 63, 101, 131, 168], checks:[3, 50, 99, 130, 172], gag:{ col:70, kind:'board' }, next:'f3', trashEnd:174,
     zone:tx => tx < 48 ? 'carpet' : tx < 100 ? 'pink' : tx < 128 ? 'lino' : tx < 176 ? 'purple' : 'wood', doorSign:['GOD', 'SEES'],
   },
   f3: {
@@ -395,6 +415,8 @@ function hurt(srcX, bite) {
   if (P.inv > 0 || state !== 'play') return;
   P.hearts--; sfx(bite ? 'bite' : 'hurt'); shake = 6;
   P.inv = 130; P.vx = P.x + P.w / 2 < srcX ? -2.4 : 2.4; P.vy = -3.2;
+  // knockback never carries you over a pit edge
+  for (let d = 0; d <= 48; d += 8) { const tx = Math.floor((P.x + 6 + Math.sign(P.vx) * (d + 8)) / T); let floor = false; for (let ty = Math.floor((P.y + P.h) / T); ty < ROWS; ty++) { const t = tileT(tx, ty); if (isSolid(t) || t === 3) { floor = true; break; } } if (!floor) { P.vx *= 0.15; break; } }
   if (bite && score > 0) {
     const take = Math.min(score, 50); score -= take;
     popText('-$' + take + ' TITHE', P.x + 6, P.y - 10, '#ffd850');
@@ -570,7 +592,7 @@ function makeEnemy(type, x, o) {
   const base = { type, x, vx:0, vy:0, face:-1, flash:0, stun:0, slip:0, slipCd:0, anim:0, onGround:false, mode:'walk', mt:0, cd:40 };
   if (type === 'rat') Object.assign(base, { w:16, h:9, hp:1 });
   else if (type === 'doll') { Object.assign(base, { w:10, h:16, hp:1, mode:'sit', face:-1 }); base.y = groundYAt(x + 5, 16); return base; }
-  else if (type === 'sheet') { Object.assign(base, { w:14, h:20, hp:1, y:GROUND - 74, by:GROUND - 74, mt:0, cd:60 }); return base; }
+  else if (type === 'sheet') { Object.assign(base, { w:14, h:20, hp:1, y:o && o.closet ? GROUND - 30 : GROUND - 74, by:GROUND - 74, mt:0, cd:60 }, o || {}); return base; }
   else Object.assign(base, { w:12, h:32, hp:type === 'mosher' ? 3 : 2, hops:0 });
   if (o) Object.assign(base, o, o.conga ? { mode:'conga' } : {});
   base.y = groundYAt(x + base.w / 2, base.h);
@@ -1033,7 +1055,7 @@ function updatePastor() {
       if (B.t < 34) { B.pose = 'crouch'; if (B.t === 1) { B.face = B.x + 30 < (LEFT + RIGHT) / 2 + 30 ? 1 : -1; popText('TOTALLY RIGHTEOUS!', B.x + 30, B.y - 10, '#ffd850', 50); } }
       else {
         if (B.t === 34) { sfx('charge'); B.pose = 'plank'; }
-        B.x += B.face * (p2 ? 4 : 3.2);
+        B.x += B.face * (p2 ? 3.3 : 2.7);
         if (frame % 3 === 0) parts.push({ x:B.x + 30 - B.face * 30, y:GROUND - 2, vx:-B.face * 0.6, vy:-0.4, life:14, c:'#ffd850', g:0 });
         if ((B.face > 0 && B.x >= RIGHT) || (B.face < 0 && B.x <= LEFT)) { B.x = Math.max(LEFT, Math.min(RIGHT, B.x)); B.state = 'idle'; B.t = 0; B.pose = 'idle'; shake = 3; sfx('hit'); }
       }
@@ -1218,6 +1240,13 @@ function updateHeli() {
   if (B.state === 'strafe' && overlap(P, bossBox())) hurt(B.x, false);
 }
 /* ---------- toys: per-floor interactive set pieces ---------- */
+function flushGeyser(t) {
+  if (t.flush <= 0) { t.launched = false; return; }
+  t.flush--;
+  if (frame % 2 === 0) parts.push({ x:t.x + 8 + Math.random() * 16, y:t.y, vx:(Math.random() - 0.5) * 0.8, vy:-4 - Math.random() * 3, life:30, c:Math.random() < 0.5 ? '#80c8ff' : '#ffffff', g:0.1 });
+  // the spout carries you up to the bonus shelf
+  if (t.flush < 96 && !t.launched && overlap(P, { x:t.x - 10, y:GROUND - 48, w:52, h:48 })) { t.launched = true; P.vy = -9.2; P.bounceT = 30; P.onGround = false; sfx('boing'); }
+}
 function ampBlast(t) {
   t.cd = 420; t.fired = 60; shake = 8; sfx('feedback'); popText('FEEDBACK!', t.x + 12, t.y - 12, '#ffd850', 60);
   for (const e of enemies) {
