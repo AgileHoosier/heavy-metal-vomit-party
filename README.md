@@ -1,10 +1,6 @@
 <h1 align="center">Heavy Metal Vomit Party</h1>
 
 <p align="center">
-  <img src="docs/screenshots/gameplay.gif" alt="The hero pukes on a Born-Again Undead in the basement, knocking off its sweater vest" width="640">
-</p>
-
-<p align="center">
   <b>A 16-bit style side-scroller that runs in your browser.</b><br>
   One metalhead. Five floors. A house full of televangelist-possessed party guests. One weapon: his stomach.
 </p>
@@ -27,11 +23,6 @@ He also runs **P.U.R.E.**, Parents United for Righteous Entertainment, and VOMIT
 
 Crosses and holy water don't work on them. Only one thing does. Fight five floors up.
 
-<p align="center">
-  <img src="docs/screenshots/broadcast.png" alt="Rev. Dewey Dollarson on TV: A Whole Hour of Glory" width="400">
-  <img src="docs/screenshots/filth-list.png" alt="The P.U.R.E. Filth List, with VOMITRON at number one" width="400">
-</p>
-
 ## Play
 
 Download or clone the repo and open **`index.html`** in any modern browser. There's nothing to install and no server to run. If GitHub Pages is turned on for this repo, you can also play it straight from the Pages URL.
@@ -40,30 +31,35 @@ Click the game screen once so the sound can start, then press **Enter**.
 
 | Button | Keyboard | Gamepad | Action |
 | --- | --- | --- | --- |
-| A | `Z` or `Space` | Bottom | Jump |
-| B | `X` | Left | Puke. Hold `↑` to lob it over obstacles. |
-| X | `C` | Top | Snot rocket |
-| Y | `V` | Right | Fart |
-| Start | `Enter` | Start | Start and pause |
+| Move | Arrow keys or `WASD` | D-pad or left stick | Walk. Hold `↑` while puking to lob. |
+| A | `Z`, `Space` or `K` | Bottom | Jump |
+| B | `X` or `J` | Left | Puke |
+| X | `C` or `I` | Top | Snot rocket |
+| Y | `V` or `L` | Right | Fart |
+| Start | `Enter`, `P` or `Esc` | Start | Start and pause |
 | | `M` | | Sound on/off |
 
-On phones and tablets, an on-screen controller appears below the game. On the title screen, press `←` or `→` to pick the starting floor, or open `index.html#1f`, `#2f`, `#3f` or `#roof` to start on that floor.
+On phones and tablets, an on-screen controller appears below the game. Buttons under the screen toggle the sound, the CRT filter and fullscreen.
+
+**Picking a floor:** on the title screen, press `←` or `→` to choose the starting floor, or open `index.html#1f`, `#2f`, `#3f` or `#roof`.
 
 **Demo mode:** leave the title screen alone for 20 seconds, or open `index.html#demo`, and the game plays itself from the intro to the ending. Press any button to return to the title screen. Demo runs never count toward the high score.
 
-**Every run is different:** each floor has remix slots that pick one of several hand-built layouts, enemy mixes vary, and the jokes on the walls change. To replay one layout, open `index.html#seed=1234`.
+**Every run is different:** each floor has remix slots that each pick one of several hand-built layouts, the enemy mix changes, and so do the jokes on the walls, posters and TVs. To replay a layout, open `index.html#seed=1234` (any number). Enemies still behave randomly, so only the layout repeats.
 
 ## Your arsenal
 
 | Attack | What it does |
 | --- | --- |
 | **Puke** | An arcing splash that costs belly. The belly meter refills slowly on its own. Puke left on the floor makes the Undead slip. |
-| **Snot rocket** | A fast, straight shot that costs nothing. Slimes enemies so they move at half speed. |
+| **Snot rocket** | A fast, straight shot that costs nothing. It slimes enemies so they move at half speed. |
 | **Fart** | On the ground, it leaves a stink cloud behind you that gasses anything walking into it. In the air, it's a double jump. |
 
-Puke an Undead enough and it **purges**: the sweater vest flies off and a confused party guest stumbles away. Purge one near a working TV, though, and Dollarson's signal turns it right back. Puke the TVs until they go off the air.
+Puke an Undead enough and it **purges**: the sweater vest flies off and a confused party guest stumbles away. Purges within two seconds of each other chain into combos (DOUBLE BARF, TRIPLE CHUNDER, MEGA HURL) for bonus points. Purge one near a working TV, though, and Dollarson's signal turns it right back. Puke the TVs until they go off the air.
 
-When the Undead bite you, it's the **Tithe Bite**: you lose a heart, and your score floats off as dollar signs toward the nearest TV.
+When the Undead bite you, it's the **Tithe Bite**: you lose a heart, and up to $50 of your score floats off as dollar signs toward the nearest TV.
+
+Fall into a pit and you lose a heart, then come back on the last solid ground you stood on. Lose all three hearts and you restart the floor.
 
 ### Power-ups
 
@@ -71,46 +67,37 @@ Every power-up is a pure upgrade, with no downside.
 
 | Pickup | Effect |
 | --- | --- |
-| Pizza | +1 heart and a belly refill |
-| Party Punch | 10 seconds of 3-way puke spray |
+| Pizza | +1 heart and some belly back |
+| Party Punch | 10 seconds of 3-way puke spray at a lower belly cost, starting from a full belly |
 | Turbo Cola | 10 seconds of speed and rapid fire |
-| VOMITRON record | A hidden collectible on every floor, worth 3,000 points |
+| VOMITRON record | A hidden collectible on every floor: 1,000 points when you grab it and 3,000 more when you clear the floor |
+
+Clearing a floor pays a bonus: 2,000 points, plus 1,000 for every heart you have left, 500 for every TV you knocked off the air, and the record bonus.
 
 ## The floors
 
-| Floor | Setting | Boss | Status |
-| --- | --- | --- | --- |
-| B1 | **The Basement**: VOMITRON's show, amps, candles, goat banners | The Possessed Drummer | Playable |
-| 1F | **The Party**: kitchen, living room and den | The Concerned Mom | Playable |
-| 2F | **The Bedrooms**: hallway, a sleepover, the bathroom and a metalhead's room | The Radical Youth Pastor | Playable |
-| 3F | **The Attic**: rafters, insulation pits and the house's confiscated stash | The Backmasker, a possessed phonograph | Playable |
-| Roof | **The Roof**: a storm, wind gusts and the broadcast mast | Rev. Dewey Dollarson in the Glory One helicopter | Playable |
+| Floor | Setting | Boss |
+| --- | --- | --- |
+| B1 | **The Basement**: VOMITRON's show, amps, candles, goat banners | The Possessed Drummer |
+| 1F | **The Party**: kitchen, living room and den | The Concerned Mom |
+| 2F | **The Bedrooms**: hallway, a sleepover, the bathroom and a metalhead's room | The Radical Youth Pastor |
+| 3F | **The Attic**: rafters, insulation pits and the house's confiscated stash | The Backmasker, a possessed phonograph |
+| Roof | **The Roof**: a storm, wind gusts and the broadcast mast | Rev. Dewey Dollarson in the Glory One helicopter |
 
-**2F** adds Bedsheet Ghosts that float overhead and swoop (lob your puke at them) and a waterbed that launches you sky-high if you hold jump. **3F** adds porcelain dolls that sit perfectly still until you get close. On **the Roof**, wind gusts shove you around (watch for the WIND warning), and the helicopter is out of reach from the shingles: climb the antenna platforms and lob. Beat Dollarson, free Roxy, and see the ending.
+Every floor has its own tricks:
 
-<table>
-  <tr>
-    <td><img src="docs/screenshots/basement.png" alt="Floor B1: the basement show, under string lights and a pentagram"></td>
-    <td><img src="docs/screenshots/drummer.png" alt="Boss: the Possessed Drummer behind his kit under the BLOOD GOAT banner"></td>
-  </tr>
-  <tr>
-    <td align="center"><b>B1: The Basement.</b> Undead Moshers, Pamphlet Pushers and possessed rats.</td>
-    <td align="center"><b>The Possessed Drummer.</b> Sticks of righteousness and cymbal shockwaves.</td>
-  </tr>
-  <tr>
-    <td><img src="docs/screenshots/kitchen.png" alt="Floor 1F: the kitchen, with checkered linoleum and an Aerobics Undead mid-hop"></td>
-    <td><img src="docs/screenshots/concerned-mom.png" alt="Boss: the Concerned Mom in curlers and a bathrobe, holding her clipboard"></td>
-  </tr>
-  <tr>
-    <td align="center"><b>1F: The Party.</b> Aerobics Undead, Air Guitar Undead, and a fireplace full of burning records.</td>
-    <td align="center"><b>The Concerned Mom.</b> Confiscated-record frisbees, a runaway TV cart, and GROUNDED.</td>
-  </tr>
-</table>
+- **B1:** some amp stacks are live. Puke one and its feedback blasts every Undead nearby.
+- **1F:** a conga line of Aerobics Undead. Purge one and the whole line goes down like dominoes.
+- **2F:** Bedsheet Ghosts float overhead, shout BOO! and swoop (lob your puke at them). The waterbed launches you sky-high if you hold jump, and puking into the toilet flushes a geyser that shoots you up to a bonus shelf.
+- **3F:** porcelain dolls sit perfectly still until you get close. On some runs, jack-in-the-box springs bounce you over the gaps, and one stretch of the attic has no lights.
+- **Roof:** wind gusts shove you around (watch for the WIND warning). Lightning picks off the Reverend's own flock, never you. The helicopter is out of reach from the shingles, so climb the antenna platforms and lob. Beat Dollarson, free Roxy, and see the ending.
+
+Each floor also hides a gag to puke for points. The one in the attic gives you a heart and a full belly too.
 
 ## How it's made
 
 - **No image or audio files.** Every sprite is painted pixel by pixel in code, then given a dark outline. All the music and sound effects are synthesized live with the Web Audio API: distorted guitar, bass, a vibrato lead, a cheesy church organ and drums.
-- **16-bit era look.** It renders at 320×240 with shaded sprites, parallax layers, and colored light from party bulbs, candles and TV screens. An optional CRT filter adds scanlines.
+- **16-bit era look.** It renders at 320×240 with shaded sprites, parallax layers, and colored light from party bulbs, candles and TV screens. A CRT filter, on by default, adds scanlines.
 - **One file to ship.** The source lives in `src/`, and a small build script inlines it into a single playable `index.html`.
 
 ### Project layout
@@ -119,14 +106,17 @@ Every power-up is a pure upgrade, with no downside.
 src/
   art.js        Pixel painter, character rig, every sprite, tile and wall
   audio.js      Synth instruments, songs and sound effects
-  game.js       Input, level data, physics, enemies, bosses, game state
+  game.js       Input, level data and remix slots, physics, enemies, bosses, game state
   demo.js       The demo-mode autopilot that plays every floor
-  render.js     Drawing, lighting, HUD, cutscenes, title screen, main loop
+  render.js     Drawing, scenery and joke text, lighting, HUD, cutscenes, title screen, main loop
   shell.html    The page around the game canvas
 build.mjs       Inlines src/ into index.html
 index.html      The built game (committed so GitHub Pages can serve it)
-test/           Headless harness, smoke test, and screenshot capture
-docs/           README screenshots
+test/
+  headless.cjs  Runs the game in Node on a real canvas
+  smoke.cjs     Plays all five floors, every boss and the ending
+  demo.cjs      Lets the demo autopilot play the whole game
+  remix.cjs     Checks slot rules and fairness fixes, then runs the autopilot across many seeds
 ```
 
 ### Develop
@@ -138,11 +128,12 @@ npm install           # installs the headless canvas used by the tests
 npm run build         # rebuild index.html after editing anything in src/
 npm test              # build, then play all five floors, every boss and the ending headless
 npm run test:demo     # let the demo autopilot play the whole game headless
-npm run test:remix    # slot rules, playability regressions, and the autopilot on every floor across many seeds
-npm run screenshots   # recapture the README screenshots and gameplay GIF (needs Python with Pillow)
+npm run test:remix    # slot rules, playability regressions, and the autopilot on every floor across 12 seeds
 ```
 
-To add a floor, add an entry to `LEVELS` in `src/game.js` with its map, spawns, pickups, TVs, checkpoints and boss. Then add its wall decor and end-of-floor broadcast in `src/render.js`.
+To narrow the remix run, pass a comma-separated list of floors and a seed count, for example `node test/remix.cjs rf,f2 5`.
+
+To add a floor, add an entry to `LEVELS` in `src/game.js` with its map, remix slots, spawns, pickups, TVs, checkpoints and boss. Then add its wall decor and end-of-floor broadcast in `src/render.js`.
 
 ### Publish on GitHub Pages
 
