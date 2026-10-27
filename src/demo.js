@@ -89,6 +89,7 @@ function makeDemo() {
     }
   }
   return function tick() {
+    if (hitStop > 0 && state === 'play') return k;   // the game is frozen for a beat: hold the same buttons
     f++; for (const a of ACTS) k[a] = 0;
     if (cool > 0) cool--;
     if (state !== lastState) { wait = 0; lastState = state; }

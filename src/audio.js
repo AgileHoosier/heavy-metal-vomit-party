@@ -316,6 +316,7 @@ const SFX = {
     noiseHit(AU.sGain, t, 0.3, 0.12, 'bandpass', 300, 120, 1.5);
   },
   feedback(){ const t = AU.ctx.currentTime; osc('square', 1760, t, 0.6, AU.sGain, 0.05, 2400); osc('sawtooth', 110, t, 0.5, AU.sGain, 0.12, 55); noiseHit(AU.sGain, t, 0.5, 0.3, 'bandpass', 2000, 400, 2); },
+  honk()   { const t = AU.ctx.currentTime; [0, 0.22].forEach(d => { osc('square', 330, t + d, 0.16, AU.sGain, 0.07); osc('square', 415, t + d, 0.16, AU.sGain, 0.05); }); },
   doll()   { const t = AU.ctx.currentTime; [0, 3, 7, 3, 12].forEach((s, i) => osc('triangle', 1046 * Math.pow(2, s / 12), t + i * 0.07, 0.09, AU.sGain, 0.04)); },
   shatter(){ const t = AU.ctx.currentTime; noiseHit(AU.sGain, t, 0.25, 0.3, 'highpass', 5000); [2600, 3400, 2100].forEach((f, i) => osc('triangle', f, t + i * 0.03, 0.06, AU.sGain, 0.05)); },
   scratch(){ const t = AU.ctx.currentTime; noiseHit(AU.sGain, t, 0.18, 0.3, 'bandpass', 800, 2600, 3); noiseHit(AU.sGain, t + 0.18, 0.14, 0.25, 'bandpass', 2600, 700, 3); },

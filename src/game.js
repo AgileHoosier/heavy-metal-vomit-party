@@ -153,21 +153,41 @@ const LEVELS = {
     cols:190, arena:170, lock:172, bossCx:2950, door:2996, boss:'mom', bossHp:22, bossName:['THE CONCERNED', 'MOM'],
     build() {
       fill(0, 13, COLS - 1, 14, 1);
-      for (const [a, b] of [[44, 46], [96, 98], [128, 132]]) fill(a, 13, b, 14, 0);
-      // kitchen: counters, island, fridge
+      for (const [a, b] of [[44, 46], [96, 98]]) fill(a, 13, b, 14, 0);
+      // kitchen: counters, fridge
       [[7, 11, 10, 12], [23, 11, 27, 12], [31, 12, 33, 12], [54, 11, 57, 12]].forEach(r => fill(...r, 2));
       fill(34, 9, 35, 12, 6);
       [[15, 11, 19, 11], [48, 9, 51, 9]].forEach(r => fill(...r, 3));
-      // living room: couches, coffee tables, bookshelf, stereo
-      [[66, 11, 66, 12], [67, 12, 70, 12], [104, 12, 108, 12], [108, 11, 108, 11]].forEach(r => fill(...r, 4));
-      [[74, 11, 76, 11], [84, 10, 86, 10], [84, 8, 86, 8], [84, 6, 86, 6], [129, 11, 131, 11], [120, 9, 123, 9]].forEach(r => fill(...r, 3));
+      // living room: second couch, coffee table, bookshelf, stereo
+      [[104, 12, 108, 12], [108, 11, 108, 11]].forEach(r => fill(...r, 4));
+      [[74, 11, 76, 11], [84, 10, 86, 10], [84, 8, 86, 8], [84, 6, 86, 6], [120, 9, 123, 9]].forEach(r => fill(...r, 3));
       [[114, 11, 115, 12], [140, 12, 141, 12], [150, 11, 152, 12]].forEach(r => fill(...r, 2));
       [[158, 10, 161, 10]].forEach(r => fill(...r, 3));
     },
-    spawns:[['pusher', 20], ['aerobic', 30], ['mosher', 40], ['airg', 52], ['aerobic', 63], ['pusher', 72], ['airg', 80], ['mosher', 92],
-            ['aerobic', 102], ['pusher', 110], ['airg', 118], ['mosher', 126], ['aerobic', 136], ['airg', 146], ['pusher', 154], ['mosher', 162]],
-    pickups:[['pizza', 17], ['record', 34.5], ['punch', 75], ['turbo', 85], ['pizza', 112], ['turbo', 130], ['pizza', 159.5]],
-    tvs:[8, 60, 89, 121, 156], checks:[3, 100, 166], gag:{ col:25, kind:'phone' }, next:'f2',
+    slots:[
+      { cols:[37, 43], variants:[
+        () => { fill(39, 11, 41, 12, 2); return { spawns:[['ground', 40]] }; },
+        () => { fill(38, 10, 42, 10, 3); return { spawns:[['ground', 42]], pickups:[['pizza', 40]] }; },
+        () => ({ flood:[37, 43], spawns:[['aerobic', 40]] }),
+      ] },
+      { cols:[64, 72], variants:[
+        () => { fill(66, 11, 66, 12, 4); fill(67, 12, 70, 12, 4); return { spawns:[['pusher', 72]] }; },
+        () => { fill(66, 12, 70, 12, 7); fill(67, 7, 69, 7, 3); return { spawns:[['pusher', 72]], pickups:[['pizza', 68]] }; },
+        () => { fill(65, 11, 66, 12, 4); fill(70, 11, 71, 12, 4); fill(67, 11, 69, 11, 3); return { spawns:[['ground', 68]] }; },
+      ] },
+      { cols:[126, 134], variants:[
+        () => { fill(128, 13, 132, 14, 0); fill(129, 11, 131, 11, 3); return { spawns:[['ground', 126]], pickups:[['turbo', 130]] }; },
+        () => { fill(127, 11, 128, 11, 3); fill(129, 12, 130, 12, 4); fill(131, 10, 133, 10, 3); return { spawns:[['ground', 126]], pickups:[['turbo', 132]] }; },
+        () => { fill(127, 13, 132, 14, 0); fill(129, 11, 130, 11, 3); return { spawns:[['ground', 134]], pickups:[['turbo', 129.5]] }; },
+      ] },
+    ],
+    pools:{ ground:['mosher', 'pusher'] },
+    spawns:[['pusher', 20], ['aerobic', 30], ['airg', 52], ['aerobic', 63],
+            // the conga line: puke one and they all go down
+            ['aerobic', 88, { conga:'A', idx:0 }], ['aerobic', 89.3, { conga:'A', idx:1 }], ['aerobic', 90.6, { conga:'A', idx:2 }], ['aerobic', 91.9, { conga:'A', idx:3 }],
+            ['ground', 102], ['airg', 118], ['aerobic', 137], ['airg', 146], ['pusher', 154], ['mosher', 162]],
+    pickups:[['pizza', 17], ['record', 34.5], ['punch', 75], ['turbo', 85], ['pizza', 112], ['pizza', 159.5]],
+    tvs:[8, 60, 89, 121, 156], checks:[3, 52, 100, 136, 166], gag:{ col:25, kind:'phone' }, next:'f2',
     zone:tx => tx < 60 ? 'lino' : tx < 140 ? 'shag' : 'wood', doorSign:['NO', 'ENTRY'],
   },
   f2: {
@@ -241,12 +261,14 @@ const FLOOR_ORDER = Object.keys(LEVELS);
 /* ---------- run seed: each run remixes the floors ---------- */
 let runSeed = 1, forcedSeed = null, forcedPick = null, R = Math.random;
 try { const m = /seed=(\d+)/i.exec(location.hash || ''); if (m) forcedSeed = +m[1]; } catch (e) {}
+// spread nearby seeds apart before they reach the linear generator
+function mixSeed(n) { n = Math.imul((n >>> 0) ^ 0x9e3779b9, 0x85ebca6b) >>> 0; n = Math.imul(n ^ (n >>> 13), 0xc2b2ae35) >>> 0; return (n ^ (n >>> 16)) >>> 0; }
 function newSeed() { runSeed = forcedSeed !== null ? forcedSeed : 1 + Math.floor(Math.random() * 1e9); }
 // stable per-run choice from a pool, keyed by where it is used (so jokes stay put while you play)
 function seedPick(pool, key) { let h = (runSeed ^ Math.imul(key | 0, 2654435761)) >>> 0; h = Math.imul(h ^ (h >>> 15), 2246822507) >>> 0; return pool[((h ^ (h >>> 13)) >>> 0) % pool.length]; }
 function loadLevel(id) {
   L = LEVELS[id]; COLS = L.cols; map = new Uint8Array(COLS * ROWS); L.build();
-  R = rng(runSeed + FLOOR_ORDER.indexOf(id) * 7919);
+  R = rng(mixSeed(runSeed * 31 + FLOOR_ORDER.indexOf(id)));
   SPAWNS = L.spawns.slice(); PICKUPS = L.pickups.slice(); TV_COLS = L.tvs; CHECKS = L.checks; FLOODS = [];
   // remix slots: each picks one hand-built variant; the variant owns everything in its columns
   L.picks = (L.slots || []).map((sl, i) => {
@@ -260,6 +282,8 @@ function loadLevel(id) {
   SPAWNS = SPAWNS.map(([t, x, o]) => [L.pools && L.pools[t] ? L.pools[t][Math.floor(R() * L.pools[t].length)] : t, x, o]).sort((a, b) => a[1] - b[1]);
   ARENA_X = L.arena * T; LOCK_X = L.lock * T; BOSS_CX = L.bossCx; DOOR_X = L.door; BOSS_HP = L.bossHp;
 }
+// a per-run shuffle of a pool, for lists that must not repeat
+function seedShuffle(pool, key) { const r = rng(mixSeed(runSeed + key * 131)), a = pool.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
 const slotIs = (i, v) => L.picks && L.picks[i] === v;
 let FLOODS = [];
 newSeed(); loadLevel('b1');
@@ -311,6 +335,7 @@ try { if (localStorage.getItem('hmvp_sound') === '0') AU.on = false; } catch (e)
 let score = 0, shake = 0, cam = 0, camLock = false, doorOpen = false, cpIndex = 0;
 let frisbees = [], carts = [], yells = [], startFloor = 'b1', floorScore = 0;
 try { const h = location.hash || ''; if (/^#?(1f|f1|floor2|level2)$/i.test(h)) startFloor = 'f1'; else if (/^#?(2f|f2|floor3|level3)$/i.test(h)) startFloor = 'f2'; else if (/^#?(3f|f3|attic)$/i.test(h)) startFloor = 'f3'; else if (/^#?(rf|roof)$/i.test(h)) startFloor = 'rf'; } catch (e) {}
+const frozenPress = {};
 let toys = [], combo = 0, comboT = 0, hitStop = 0, smite = null, lastLine = 0, wind = 0, windT = 0, windDir = 1, flashT = 0, boltT = 400, discs = [], notes = [], clouds = [], snots = [], P, enemies, dazed, blobs, puddles, parts, pops, pickups, sticks, waves, boss, spawns, lamps, tvs, tracts, trash, beams, gag;
 let sceneList = null, sceneIdx = 0, afterScene = null, tally = 0, clearBonus = 0;
 
@@ -319,7 +344,7 @@ function newPlayer(x) {
     hearts:3, belly:100, cool:0, inv:0, turbo:0, bounceT:0, snotCd:0, snotT:0, fartT:0, fartCd:0, fartJumped:false, punch:0, anim:0, pukeT:0, emptyCd:0, record:false };
 }
 function makeTrash() {
-  const Rt = rng(runSeed * 3 + 4242), out = [];
+  const Rt = rng(mixSeed(runSeed * 3 + 4242)), out = [];
   for (let tx = 2; tx < (L.trashEnd || 162); tx++) {
     if (!isSolid(tileT(tx, 13)) || tileT(tx, 12) !== 0) continue;
     if (Rt() > 0.55) continue;
@@ -450,14 +475,16 @@ function updateWeather() {
   }
 }
 function updatePlay() {
+  // hit-stop freezes everything for a beat, player included; presses made during it are kept, not dropped
+  if (hitStop > 0) { hitStop--; for (const k of ACTS) if (pressed[k]) frozenPress[k] = 1; return; }
+  for (const k of ACTS) if (frozenPress[k]) { pressed[k] = 1; frozenPress[k] = 0; }
   updatePlayer();
   if (state !== 'play') return;
   if (L.wind) updateWeather();
-  if (hitStop > 0) { hitStop--; return; }
   if (!camLock && P.x > LOCK_X) { camLock = true; boss.state = 'intro'; boss.t = 0; playSong(L.bossSong || 'boss'); enemies = enemies.filter(e => e.x > ARENA_X - 40); }
   if (camLock) { cam += (ARENA_X - cam) * 0.1; if (Math.abs(cam - ARENA_X) < 0.5) cam = ARENA_X; }
   else { cam += ((P.x - 140 + P.face * 24) - cam) * 0.12; cam = Math.max(0, Math.min(cam, COLS * T - W)); }
-  for (const s of spawns) if (!s.done && s.x < cam + W + 24 && s.x > cam - 24) { s.done = true; enemies.push(makeEnemy(s.type, s.x)); }
+  for (const s of spawns) if (!s.done && s.x < cam + W + 24 && s.x > cam - 24) { s.done = true; enemies.push(makeEnemy(s.type, s.x, s.o)); }
   lamps.forEach((l, i) => { if (!l.on && P.x > l.x) { l.on = true; cpIndex = i; sfx('check'); popText('CHECKPOINT', l.x + 6, GROUND - 40, '#ff88cc'); } });
   for (const e of enemies) updateEnemy(e);
   enemies = enemies.filter(e => !e.gone);
@@ -539,12 +566,13 @@ function updatePlayer() {
   if (p.y > H + 24) { p.hearts--; sfx('hurt'); if (p.hearts <= 0) die(); else { state = 'fall'; stateT = 0; stopSong(); } }
 }
 
-function makeEnemy(type, x) {
+function makeEnemy(type, x, o) {
   const base = { type, x, vx:0, vy:0, face:-1, flash:0, stun:0, slip:0, slipCd:0, anim:0, onGround:false, mode:'walk', mt:0, cd:40 };
   if (type === 'rat') Object.assign(base, { w:16, h:9, hp:1 });
   else if (type === 'doll') { Object.assign(base, { w:10, h:16, hp:1, mode:'sit', face:-1 }); base.y = groundYAt(x + 5, 16); return base; }
   else if (type === 'sheet') { Object.assign(base, { w:14, h:20, hp:1, y:GROUND - 74, by:GROUND - 74, mt:0, cd:60 }); return base; }
   else Object.assign(base, { w:12, h:32, hp:type === 'mosher' ? 3 : 2, hops:0 });
+  if (o) Object.assign(base, o, o.conga ? { mode:'conga' } : {});
   base.y = groundYAt(x + base.w / 2, base.h);
   return base;
 }
@@ -555,6 +583,12 @@ function killEnemy(e) {
   // purges within two seconds chain into a combo
   combo = comboT > 0 ? combo + 1 : 1; comboT = 120; hitStop = Math.max(hitStop, 3);
   if (combo >= 2) { popText(COMBO_NAMES[Math.min(combo, 5)] + (combo > 5 ? ' x' + combo : ''), P.x + 6, P.y - 26, '#ffd850', 70); addScore(combo * 100); sfx('power'); }
+  // the conga line goes down like dominoes
+  if (e.conga) {
+    const line = enemies.filter(o => o.conga === e.conga && !o.gone && !o.domino);
+    line.forEach((o, i) => { o.domino = 12 + i * 12; });
+    if (line.length) { popText('CONGA-RATULATIONS!', cx, e.y - 34, '#ff88cc', 90); addScore(500); }
+  }
   if (e.type === 'rat') { burst(cx, e.y + 4, 10, ['#c8ff3c', '#58a010', '#ffffff']); addScore(100, cx, e.y - 10); sfx('hit'); return; }
   if (e.type === 'doll') {
     burst(cx, e.y + 6, 14, ['#f8f0f0', '#ffffff', '#d8b8c8', '#c8ff3c'], 2); sfx('shatter');
@@ -588,6 +622,14 @@ function enemyLine(e) {
 }
 function updateEnemy(e) {
   enemyLine(e);
+  if (e.domino > 0 && --e.domino === 0) { e.flash = 8; killEnemy(e); return; }
+  if (e.mode === 'conga') {
+    const dx = (P.x + P.w / 2) - (e.x + e.w / 2);
+    e.face = dx >= 0 ? 1 : -1; e.vx = e.face * 0.45; e.anim += 0.05; moveBody(e);
+    if (Math.abs(dx) < 46) for (const o of enemies) if (o.conga === e.conga && o.mode === 'conga') { o.mode = 'walk'; o.cd = 40; }
+    if (overlap(e, P)) hurt(e.x + e.w / 2, true);
+    return;
+  }
   if (e.flash > 0) e.flash--; if (e.slipCd > 0) e.slipCd--; if (e.cd > 0) e.cd--;
   if (e.type === 'sheet') { updateSheet(e); return; }
   if (e.slip > 0) { e.slip--; e.vx *= 0.975; }
@@ -937,6 +979,7 @@ function updateMom() {
     }
     case 'cart':
       B.pose = B.t < 20 ? 'wind' : 'toss';
+      if (B.t === 1) { sfx('honk'); popText('HONK HONK!', B.x + 30, B.y - 22, '#ffd850', 40); }
       if (B.t === 20) { carts.push({ x:B.x + 30 + B.face * 10 - 19, y:GROUND - 36, w:38, h:36, vx:B.face * (p2 ? 3.4 : 2.7), hp:3 }); sfx('charge'); popText('TV TIME!', B.x + 30, B.y - 10, '#80c8ff', 50); }
       if (B.t > 50) { B.state = 'idle'; B.t = 0; }
       break;
@@ -956,7 +999,7 @@ function updateMom() {
       }
       break;
   }
-  if (bossHittable() && overlap(P, bossBox())) hurt(B.x + 30, true);
+  if ((B.state === 'walk' || B.state === 'idle') && overlap(P, bossBox())) hurt(B.x + 30, true);
 }
 function updatePastor() {
   const B = boss;

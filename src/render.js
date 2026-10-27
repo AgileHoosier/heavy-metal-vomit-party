@@ -60,10 +60,11 @@ function drawBanner(x, y, str, col) {
 }
 const HERO_TURBO = tintSet(HERO, '#40e0ff', 0.3);
 const FLOOR_ZONE = tx => L.zone ? L.zone(tx) : null;
+const BANNED = ['ROCK', 'DICE', 'LAVA', 'SKATES', 'BLACK', 'MTV', 'MULLETS', 'FUN', 'SODA', 'PINBALL', 'SMILES', 'POGS', 'NOISE'];
 const DECOR_F1 = [
   { t:'cabinets', x:96, w:90 }, { t:'clock', x:205 }, { t:'cabinets', x:300, w:120 }, { t:'window', x:470 }, { t:'banned', x:600 },
   { t:'cabinets', x:780, w:110 }, { t:'streamers', x:900, w:160 },
-  { t:'partybanner', x:1060 }, { t:'window', x:1180 }, { t:'portrait', x:1240 }, { t:'photos', x:1420 }, { t:'streamers', x:1500, w:220 },
+  { t:'partybanner', x:1060 }, { t:'dancers', x:1120, w:180 }, { t:'dancers', x:1980, w:140 }, { t:'window', x:1180 }, { t:'portrait', x:1240 }, { t:'photos', x:1420 }, { t:'streamers', x:1500, w:220 },
   { t:'window', x:1700 }, { t:'portrait', x:1840 }, { t:'partybanner', x:1990 }, { t:'streamers', x:2100, w:140 },
   { t:'trophies', x:2290 }, { t:'pure', x:2420 }, { t:'banned', x:2560 }, { t:'portrait', x:2760 }, { t:'window', x:2860 },
 ];
@@ -114,12 +115,18 @@ function drawHouseWall(cx) {
       case 'banned': {
         rect(x, 66, 64, 76, '#f8f4e4'); rect(x, 66, 64, 12, '#c02030');
         text('BANNED', x + 32, 68, '#ffffff', { align:'center' });
-        ['ROCK', 'DICE', 'LAVA LAMPS', 'SKATES', 'BLACK'].forEach((w, i) => { text(w, x + 6, 84 + i * 11, '#3a3020'); rect(x + 4, 87 + i * 11, w.length * 8 + 4, 1, '#c02030'); });
+        seedShuffle(BANNED, d.x).slice(0, 5).forEach((w, i) => { text(w, x + 6, 84 + i * 11, '#3a3020'); rect(x + 4, 87 + i * 11, w.length * 8 + 4, 1, '#c02030'); });
         break;
       }
       case 'streamers':
         for (let i = 0; i < d.w; i += 4) { const y = HUD + 10 + Math.round(Math.sin(i / d.w * Math.PI) * 14); rect(x + i, y, 4, 2, ['#ff60c0', '#60e8ff', '#ffd850'][(i / 4) % 3]); }
         for (let i = 10; i < d.w; i += 40) { disc(x + i, HUD + 30 + (i % 3) * 4, 5, ['#e02838', '#40c0ff', '#ffd850'][(i / 40 | 0) % 3]); rect(x + i, HUD + 36 + (i % 3) * 4, 1, 12, '#c8c4d4'); }
+        break;
+      case 'dancers':
+        for (let i = 0; i < d.w; i += 26) {
+          const bx = x + i, hop = ((frame >> 3) + i) % 4 < 2 ? 2 : 0, arm = ((frame >> 4) + i) & 1;
+          ctx.globalAlpha = 0.35; disc(bx + 6, 126 - hop, 5, '#2a1408'); rect(bx + 2, 131 - hop, 9, 18, '#2a1408'); rect(bx + (arm ? -3 : 10), 120 - hop, 2, 12, '#2a1408'); rect(bx + 3, 149 - hop, 3, 10, '#2a1408'); rect(bx + 8, 149, 3, 10, '#2a1408'); ctx.globalAlpha = 1;
+        }
         break;
       case 'partybanner':
         for (let i = 0; i < 8; i++) { const bx = x + i * 14, by = 54 + Math.round(Math.sin(i / 7 * Math.PI) * 6); ctx.fillStyle = ['#ff60c0', '#60e8ff', '#ffd850', '#c8ff3c'][i % 4]; ctx.beginPath(); ctx.moveTo(bx, by); ctx.lineTo(bx + 12, by); ctx.lineTo(bx + 6, by + 12); ctx.fill(); }
@@ -291,7 +298,7 @@ const PROPS_B1 = [
   { t:'candles', x:2700 }, { t:'mic', x:2560 }, { t:'spot', x:2664 },
 ];
 const PROPS_F1 = [
-  { t:'basedoor', x:2 }, { t:'sink', x:390 }, { t:'stove', x:440 }, { t:'chairs', x:236 }, { t:'archway', x:924 },
+  { t:'basedoor', x:2 }, { t:'fan', x:620 }, { t:'mirrorball', x:1500 }, { t:'sink', x:390 }, { t:'stove', x:440 }, { t:'chairs', x:236 }, { t:'archway', x:924 },
   { t:'fireplace', x:1596 }, { t:'floorlamp', x:1010 }, { t:'floorlamp', x:1760 }, { t:'plant', x:1262 }, { t:'archway', x:2230 },
   { t:'floorlamp', x:2380 }, { t:'plant', x:2700 }, { t:'stairs', x:2996 },
 ];
@@ -334,6 +341,12 @@ function drawProps(cx) {
         disc(x + 16, GROUND - 15, 10, '#8a8a9a'); disc(x + 16, GROUND - 15, 8, d.t === 'washer' ? '#2a58c0' : '#141018');
         if (d.t === 'washer') { const sp = (frame >> 3) % 4; disc(x + 12 + sp, GROUND - 17, 2, '#c0e0ff'); }
         rect(x + 4, GROUND - 35, 5, 2, '#e02838'); rect(x + 22, GROUND - 35, 6, 2, '#141018'); break;
+      case 'fan': {
+        rect(x, HUD + 9, 2, 8, '#8a8698'); rect(x - 4, HUD + 17, 10, 4, '#c8a040');
+        const a = frame * 0.25;
+        for (let k = 0; k < 4; k++) { const ex = Math.round(Math.cos(a + k * Math.PI / 2) * 22); rect(Math.min(x + 1, x + 1 + ex), HUD + 19, Math.abs(ex) || 2, 2, '#7a4a22'); }
+        break;
+      }
       case 'merch':
         rect(x, GROUND - 24, 70, 4, '#8a5428'); rect(x + 4, GROUND - 20, 3, 20, '#5a3418'); rect(x + 63, GROUND - 20, 3, 20, '#5a3418');
         for (let i = 0; i < 3; i++) { rect(x + 6 + i * 21, GROUND - 40, 16, 16, ['#1e1a28', '#c02848', '#1e1a28'][i]); rect(x + 10 + i * 21, GROUND - 36, 8, 2, '#9ae030'); }
@@ -507,11 +520,22 @@ function drawTiles(cx) {
       else if (t === 2) ctx.drawImage(HOUSE.counter[below === 2 ? 1 : 0], x, y);
       else if (t === 3) ctx.drawImage(HOUSE.table, x, y);
       else if (t === 4) ctx.drawImage(HOUSE.couch[below === 4 ? 1 : 0], x, y);
+      else if (t === 7) {
+        const hy = Math.round(1 + Math.sin(frame * 0.12 + tx));
+        rect(x, y + hy, T, T - hy, '#c03890'); rect(x, y + hy, T, 3, '#f070c0'); rect(x + 3, y + 8, 2, 2, '#801860'); rect(x + 11, y + 8, 2, 2, '#801860');
+        if (tileT(tx - 1, ty) !== 7) rect(x, y - 6, 4, T + 6, '#a02878'); if (tileT(tx + 1, ty) !== 7) rect(x + T - 4, y - 6, 4, T + 6, '#a02878');
+        if (tx % 2) { ctx.strokeStyle = '#c8c4d4'; ctx.lineWidth = 1; ctx.beginPath(); for (let k = 0; k < 4; k++) ctx.lineTo(x + 8 + (k % 2 ? 3 : -3), y - 1 - k * 2 + hy); ctx.stroke(); }
+      }
       else if (t === 6) {
         rect(x, y, T, T, '#f4f4fa'); rect(x, y, 1, T, '#ffffff'); rect(x + T - 1, y, 1, T, '#b8b8c8');
         if (below !== 6) { rect(x, y, T, 2, '#ffffff'); rect(x, y + 14, T, 1, '#b8b8c8'); }
         if (ty === 10) rect(x + (tx % 2 ? 2 : 12), y + 4, 2, 10, '#c8c4d4');
         if (ty === 11 && tx % 2 === 0) { rect(x + 4, y + 3, 3, 3, '#ff4060'); rect(x + 9, y + 7, 3, 3, '#40c0ff'); }
+        if (ty === 10 && tileT(tx + 1, ty) === 6 && (frame % 600) < 110) {
+          rect(x - 14, y - 16, 14, 46, '#e8e8f0'); rect(x + 1, y - 15, 30, 44, '#fff8e0');
+          const wob = Math.round(Math.sin(frame * 0.4) * 1.5); rect(x + 6 - wob, y + 6, 20 + wob * 2, 10, '#40c040'); rect(x + 8, y + 7, 3, 2, '#a0ffa0'); rect(x + 15, y + 10, 2, 2, '#ff6060'); rect(x + 4, y + 16, 24, 2, '#f4f4fa');
+          if ((frame % 600) > 30) text('JELL-O SALAD', x + 16, y - 26, '#40c040', { align:'center', shadow:'#000' });
+        }
       }
       continue;
     }
@@ -952,6 +976,7 @@ function drawEnemy(e, cx) {
     return;
   }
   drawHumanoidEntity(SETS[e.type], e, cx, white);
+  if (e.mode === 'conga' && e.idx === 0) { const nx = Math.round(e.x + 6 - cx), ny = Math.round(e.y - 14 + Math.sin(frame * 0.15) * 3), c = (frame >> 4) & 1 ? '#ffd850' : '#ff88cc'; disc(nx - 2, ny + 3, 2, c); rect(nx, ny - 4, 1, 7, c); rect(nx + 1, ny - 4, 3, 1, c); }
 }
 const SETS = { mosher:MOSHER, pusher:PUSHER, aerobic:AEROBIC, airg:AIRG };
 const DAZED_LINES = {
