@@ -77,10 +77,11 @@ const DECOR_F2 = [
   { t:'poster', x:2640, i:1 }, { t:'poster', x:2700, i:2 },
   { t:'portrait', x:2860 }, { t:'pure', x:2940 }, { t:'portrait', x:3040 },
 ];
+const LABELS = ['XMAS', 'BABY CLOTHES', 'CONFISCATED', 'BURN LATER', 'PLEDGES', 'DO NOT PLAY', 'DAD\'S MULLET WIG', 'TAX RETURNS 1979', 'SATANIC? (CHECK)', 'MOM\'S PERM KIT', 'CASSETTES (EVIL)', 'BELL BOTTOMS'];
 const DECOR_F3 = [
-  { t:'roundwin', x:200 }, { t:'stencil', x:330, str:'XMAS' }, { t:'roundwin', x:700 }, { t:'stencil', x:880, str:'BABY CLOTHES' },
-  { t:'stencil', x:1240, str:'CONFISCATED' }, { t:'roundwin', x:1450 }, { t:'stencil', x:1620, str:'CONFISCATED' }, { t:'stencil', x:1900, str:'BURN LATER' },
-  { t:'pure', x:2180 }, { t:'roundwin', x:2440 }, { t:'stencil', x:2560, str:'PLEDGES' }, { t:'stencil', x:2760, str:'DO NOT PLAY' }, { t:'roundwin', x:2960 },
+  { t:'cobweb', x:20 }, { t:'roundwin', x:200 }, { t:'stencil', x:330, i:0 }, { t:'cobweb', x:520 }, { t:'roundwin', x:700 }, { t:'stencil', x:880, i:1 },
+  { t:'stencil', x:1240, i:2 }, { t:'cobweb', x:1300 }, { t:'roundwin', x:1450 }, { t:'stencil', x:1620, i:3 }, { t:'stencil', x:1900, i:4 }, { t:'cobweb', x:2050 },
+  { t:'pure', x:2180 }, { t:'roundwin', x:2440 }, { t:'stencil', x:2560, i:5 }, { t:'cobweb', x:2700 }, { t:'stencil', x:2760, i:6 }, { t:'roundwin', x:2960 },
 ];
 const BANDS = ['VOMITRON', 'SKULLDRIFT', 'DOOM PIZZA', 'BLOOD GOAT', 'MOSHZILLA', 'GRAVY TRAIN', 'HELLMOUTH', 'CHORE WAR'];
 const MIRRORS = [['YENOM', 'DNES'], ['YEWED', 'YEBO'], ['EKUP', 'SELUR'], ['HSULF', 'EM'], ['TI SI', 'GNOL']];
@@ -192,8 +193,12 @@ function drawHouseWall(cx) {
       case 'roundwin':
         disc(x, 80, 20, '#5a3a20'); disc(x, 80, 17, '#0e1440'); rect(x - 17, 79, 34, 2, '#5a3a20'); rect(x - 1, 63, 2, 34, '#5a3a20');
         rect(x + 6, 70, 2, 2, '#f4ecd0'); rect(x - 9, 86, 1, 1, '#ffffff');
+        // moonbeam with dust motes drifting through it
+        ctx.globalAlpha = 0.07; ctx.fillStyle = '#c0d0ff'; ctx.beginPath(); ctx.moveTo(x - 14, 90); ctx.lineTo(x + 14, 90); ctx.lineTo(x + 60, GROUND); ctx.lineTo(x + 10, GROUND); ctx.fill(); ctx.globalAlpha = 1;
+        for (let k = 0; k < 9; k++) { const t = (frame * 0.2 + k * 37) % 100, mx = x + 4 + t * 0.45 + Math.sin((frame + k * 50) * 0.02) * 6, my = 96 + t * 1.05; rect(mx + (my - 96) * 0.25, my, 1, 1, '#e8e4ff'); }
         light(x, 80, 40, '#4060d0', 0.16); break;
-      case 'stencil': text(d.str, x, 132, '#8a6a42'); break;
+      case 'stencil': text(seedShuffle(LABELS, 11)[d.i], x, 132, '#8a6a42'); break;
+      case 'cobweb': ctx.strokeStyle = '#8a8698'; ctx.globalAlpha = 0.5; ctx.lineWidth = 1; for (let k = 0; k < 4; k++) { ctx.beginPath(); ctx.moveTo(x, HUD + 9); ctx.lineTo(x + 30 - k * 8, HUD + 9 + k * 9); ctx.stroke(); } for (let k = 1; k < 4; k++) { ctx.beginPath(); ctx.arc(x, HUD + 9, k * 9, 0, Math.PI / 2); ctx.stroke(); } ctx.globalAlpha = 1; break;
       case 'poster': {
         const p = POSTER[d.i], y = 70;
         rect(x, y, 30, 40, p.bg); rect(x + 2, y + 2, 26, 36, p.inner); rect(x + 2, y + 2, 26, 1, '#ffffff');
@@ -207,7 +212,8 @@ function drawHouseWall(cx) {
     const x = fx - cx; if (x < -80 || x > W + 80) continue;
     if (cfg.bulbs) {
       // bare bulbs on pull chains; some flicker
-      const sw = Math.round(Math.sin(frame * 0.03 + fx) * 2), on = (fx % 7 !== 3) || Math.random() > 0.08;
+      const dead = DARK.some(([a, b]) => fx >= a * T - 60 && fx <= b * T + 60);
+      const sw = Math.round(Math.sin(frame * 0.03 + fx) * 2), on = !dead && ((fx % 7 !== 3) || Math.random() > 0.08);
       rect(x, HUD + 9, 1, 26, '#5a5468'); rect(x - 3 + sw, HUD + 35, 7, 3, '#8a8698'); rect(x - 2 + sw, HUD + 38, 5, 6, on ? '#fff0b0' : '#5a5040'); rect(x + 4 + sw, HUD + 38, 1, 12, '#c8c4d4');
       if (on) { light(x + sw, HUD + 44, 80, cfg.fix, 0.2); light(x + sw, GROUND - 30, 70, null); }
       continue;
@@ -322,7 +328,7 @@ const PROPS_F2 = [
   { t:'nightstand', x:2846 }, { t:'nightstand', x:3010 },
 ];
 const PROPS_F3 = [
-  { t:'basedoor', x:2, label:'2F' }, { t:'dressform', x:230 }, { t:'xmastree', x:560 }, { t:'rocker', x:800 }, { t:'crib', x:990 },
+  { t:'basedoor', x:2, label:'2F' }, { t:'dressform', x:230 }, { t:'mannequins', x:660 }, { t:'mannequins', x:2440 }, { t:'xmastree', x:560 }, { t:'rocker', x:800 }, { t:'crib', x:990 },
   { t:'dressform', x:1320 }, { t:'recordpile', x:1500 }, { t:'recordpile', x:1760 }, { t:'cashbags', x:2290 }, { t:'cashbags', x:2600 },
   { t:'recordpile', x:2860 },
 ];
@@ -417,6 +423,11 @@ function drawProps(cx) {
         rect(x, GROUND - 56, 40, 56, '#5a3418'); rect(x + 3, GROUND - 53, 34, 53, '#0a0610');
         for (let i = 0; i < 5; i++) rect(x + 4, GROUND - 10 - i * 10, 32, 2, '#3a2a30');
         text(d.label || 'B1', x + 20, GROUND - 66, '#80c8ff', { align:'center', shadow:'#000' }); break;
+      case 'mannequins':
+        // a shelf of mannequin heads; their eyes follow you
+        rect(x, GROUND - 58, 70, 3, '#5a3418'); rect(x + 4, GROUND - 55, 3, 55, '#3a2210'); rect(x + 63, GROUND - 55, 3, 55, '#3a2210');
+        for (let k = 0; k < 3; k++) { const hx = x + 12 + k * 22, look = Math.sign(P.x + 6 - (hx + cx)); disc(hx, GROUND - 68, 8, '#d8c8b8'); rect(hx - 4, GROUND - 61, 8, 3, '#c8b8a8'); rect(hx - 4 + look, GROUND - 70, 2, 2, '#140b1a'); rect(hx + 2 + look, GROUND - 70, 2, 2, '#140b1a'); if (k === 1) rect(hx - 5, GROUND - 77, 10, 3, '#5a3418'); }
+        break;
       case 'dressform':
         rect(x + 7, GROUND - 14, 2, 14, '#5a3418'); rect(x + 1, GROUND - 2, 14, 2, '#5a3418');
         disc(x + 8, GROUND - 34, 8, '#c8a890'); rect(x + 2, GROUND - 34, 13, 18, '#c8a890'); rect(x + 6, GROUND - 46, 4, 6, '#8a6a50');
@@ -560,6 +571,11 @@ function drawTiles(cx) {
       else if (t === 2) ctx.drawImage(roof ? (below === 2 ? HOUSE.shingle.fill : HOUSE.shingle.top) : HOUSE.box[below === 2 ? 1 : 0], x, y);
       else if (t === 3) ctx.drawImage(roof ? HOUSE.grate : HOUSE.beam, x, y);
       else if (t === 4) ctx.drawImage(roof ? HOUSE.chimney[below === 4 ? 1 : 0] : TILE.crate, x, y);
+      else if (t === 7) {
+        // jack-in-the-box: a crank box with a clown on a spring
+        rect(x, y + 4, T, 12, (tx & 1) ? '#c02838' : '#3048c0'); rect(x, y + 4, T, 2, '#ffd850'); rect(x + 6, y + 9, 4, 4, '#ffd850');
+        if (tx & 1) { const up = Math.round(Math.abs(Math.sin(frame * 0.08)) * 6); ctx.strokeStyle = '#c8c4d4'; ctx.lineWidth = 1; ctx.beginPath(); for (let k = 0; k < 4; k++) ctx.lineTo(x + (k % 2 ? 2 : -2), y + 4 - k * (2 + up / 4)); ctx.stroke(); disc(x, y - 6 - up, 4, '#f8f0f0'); rect(x - 1, y - 7 - up, 1, 1, '#140b1a'); rect(x + 1, y - 7 - up, 1, 1, '#140b1a'); rect(x - 1, y - 4 - up, 3, 1, '#c02838'); rect(x - 2, y - 12 - up, 5, 3, '#ff60c0'); }
+      }
       if (roof && t === 4 && below !== 4 && frame % 12 === tx % 12) parts.push({ x:tx * T + 8, y:y - 2, vx:0.3 + wind * 0.8, vy:-0.5, life:60, c:'#4a4458', g:-0.003 });
       continue;
     }
@@ -805,7 +821,7 @@ function drawPhono(cx) {
     ctx.strokeStyle = '#c8c4d4'; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(px0, py0 - 2); ctx.quadraticCurveTo((px0 + ax) / 2, Math.min(py0, ay) - 40, ax, ay - 10); ctx.stroke();
     ctx.strokeStyle = '#8a8698'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(px0, py0 - 3); ctx.quadraticCurveTo((px0 + ax) / 2, Math.min(py0, ay) - 41, ax, ay - 11); ctx.stroke();
     rect(ax - 5, ay - 14, 10, 8, '#e8e4f0'); rect(ax - 1, ay - 6, 2, 6, '#ffffff');
-    if (B.state === 'needle' && B.t >= 30 && B.t < 52 && (frame & 4)) { rect(Math.round(B.tx - cx) - 8, GROUND - 2, 16, 2, '#ff4040'); text('X', Math.round(B.tx - cx), GROUND - 14, '#ff4040', { align:'center' }); }
+    if (B.state === 'needle' && B.t >= 30 && B.t < 68 && (frame & 4)) { rect(Math.round(B.tx - cx) - 8, GROUND - 2, 16, 2, '#ff4040'); text('X', Math.round(B.tx - cx), GROUND - 14, '#ff4040', { align:'center' }); }
   }
 }
 function drawGloryOne(cx) {
@@ -1119,7 +1135,9 @@ function drawPlayScene() {
   for (const w of waves) drawWave(w, cx);
   drawMomStuff(cx); drawNotes(cx); drawDiscs(cx);
   drawParts(cx);
-  drawLighting(flashT > 0 ? 0.08 : { house:0.34, upstairs:0.44, attic:0.62, roof:0.46 }[L.theme] || 0.6);
+  const inDark = DARK.some(([a, b]) => P.x > a * T - 40 && P.x < b * T + 40);
+  drawLighting(flashT > 0 ? 0.08 : inDark ? 0.86 : { house:0.34, upstairs:0.44, attic:0.62, roof:0.46 }[L.theme] || 0.6);
+  if (inDark && (frame >> 5) & 1) text('LIGHTS OUT', 160, HUD + 6, '#a8a4b8', { align:'center', shadow:'#000' });
   if (L.theme === 'roof') drawRain();
   if (L.theme === 'basement') drawForeground(cx);
   ctx.restore();

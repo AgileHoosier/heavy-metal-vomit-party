@@ -245,19 +245,38 @@ const LEVELS = {
     build() {
       fill(0, 13, COLS - 1, 14, 1);
       // gaps between the joists: step on the insulation and you go through
-      for (const [a, b] of [[40, 42], [66, 68], [96, 98], [128, 131], [160, 162]]) fill(a, 13, b, 14, 0);
+      for (const [a, b] of [[40, 42], [66, 68], [128, 131], [160, 162]]) fill(a, 13, b, 14, 0);
       // cardboard boxes and filing cabinets
       [[10, 11, 12, 12], [30, 12, 31, 12], [52, 10, 53, 12], [76, 11, 78, 12], [110, 11, 111, 12], [146, 10, 147, 12], [150, 10, 151, 12], [170, 11, 172, 12]].forEach(r => fill(...r, 2));
       // crates of confiscated records
-      [[20, 12, 22, 12], [58, 12, 59, 12], [86, 12, 88, 12], [118, 12, 120, 12], [138, 12, 139, 12]].forEach(r => fill(...r, 4));
+      [[118, 12, 120, 12], [138, 12, 139, 12]].forEach(r => fill(...r, 4));
       // rafters and plank catwalks, plus one high beam with the record on it
-      [[16, 9, 19, 9], [34, 8, 38, 8], [44, 10, 47, 10], [62, 9, 65, 9], [70, 9, 73, 9], [90, 8, 93, 8], [102, 10, 105, 10], [104, 5, 106, 5],
+      [[34, 8, 38, 8], [44, 10, 47, 10], [70, 9, 73, 9], [102, 10, 105, 10], [104, 5, 106, 5],
        [128, 10, 131, 10], [134, 8, 137, 8], [154, 9, 157, 9], [164, 10, 167, 10]].forEach(r => fill(...r, 3));
     },
-    spawns:[['doll', 14], ['rat', 24], ['mosher', 33], ['doll', 46], ['sheet', 50], ['pusher', 60], ['doll', 74], ['airg', 82], ['sheet', 92], ['doll', 100],
+    slots:[
+      { cols:[14, 24], variants:[
+        () => { fill(20, 12, 22, 12, 4); fill(16, 9, 19, 9, 3); return { spawns:[['doll', 14], ['rat', 24]], pickups:[['pizza', 17.5]] }; },
+        () => { [[15, 12, 16, 12], [17, 11, 18, 12], [19, 10, 20, 12]].forEach(r => fill(...r, 2)); return { spawns:[['doll', 14], ['rat', 23]], pickups:[['pizza', 19.5]] }; },
+        () => { fill(18, 12, 19, 12, 7); fill(16, 6, 20, 6, 3); return { spawns:[['doll', 14], ['rat', 23]], pickups:[['pizza', 18]] }; },
+      ] },
+      { cols:[54, 65], variants:[
+        () => { fill(58, 12, 59, 12, 4); fill(62, 9, 65, 9, 3); return { spawns:[['ground', 60]] }; },
+        () => { fill(58, 12, 59, 12, 4); fill(55, 9, 58, 9, 3); fill(60, 7, 64, 7, 3); return { spawns:[['ground', 60]], pickups:[['pizza', 62]] }; },
+        () => { fill(56, 12, 56, 12, 2); return { spawns:[['air', 60]] }; },
+      ] },
+      { cols:[84, 98], variants:[
+        () => { fill(96, 13, 98, 14, 0); fill(86, 12, 88, 12, 4); fill(90, 8, 93, 8, 3); return { spawns:[['air', 92]], pickups:[['turbo', 91.5]] }; },
+        () => { fill(86, 13, 88, 14, 0); fill(94, 12, 95, 12, 4); fill(90, 8, 93, 8, 3); return { spawns:[['air', 92]], pickups:[['turbo', 91.5]] }; },
+        // lights out: the bulbs here are dead, and a jack-in-the-box spring is the way over
+        () => { fill(88, 13, 89, 14, 0); fill(95, 13, 96, 14, 0); fill(91, 12, 92, 12, 7); fill(90, 7, 93, 7, 3); return { dark:[84, 98], spawns:[['doll', 93]], pickups:[['turbo', 91.5]] }; },
+      ] },
+    ],
+    pools:{ ground:['mosher', 'pusher'], air:['sheet'] },
+    spawns:[['mosher', 33], ['doll', 46], ['sheet', 50], ['doll', 74], ['airg', 82], ['doll', 100],
             ['aerobic', 108], ['mosher', 116], ['doll', 124], ['sheet', 134], ['pusher', 142], ['doll', 152], ['airg', 158], ['mosher', 166], ['doll', 172]],
-    pickups:[['pizza', 17.5], ['punch', 36], ['pizza', 71.5], ['turbo', 91.5], ['record', 105], ['pizza', 135.5], ['punch', 155.5], ['pizza', 174]],
-    tvs:[7, 48, 81, 113, 143], checks:[3, 100, 176], gag:{ col:26, kind:'dice' }, next:'rf', trashEnd:178, doorSign:['TO', 'ROOF'],
+    pickups:[['punch', 36], ['pizza', 71.5], ['record', 105], ['pizza', 135.5], ['punch', 155.5], ['pizza', 174]],
+    tvs:[7, 48, 81, 113, 143], checks:[3, 50, 100, 140, 176], gag:{ col:26, kind:'dice' }, next:'rf', trashEnd:178, doorSign:['TO', 'ROOF'],
   },
   rf: {
     id:'rf', label:'RF', name:'THE ROOF', tagline:'STORM. HELICOPTER. ROXY. LIVE ON AIR.', theme:'roof', song:'roof', bossSong:'final', wind:true,
@@ -289,7 +308,7 @@ function seedPick(pool, key) { let h = (runSeed ^ Math.imul(key | 0, 2654435761)
 function loadLevel(id) {
   L = LEVELS[id]; COLS = L.cols; map = new Uint8Array(COLS * ROWS); L.build();
   R = rng(mixSeed(runSeed * 31 + FLOOR_ORDER.indexOf(id)));
-  SPAWNS = L.spawns.slice(); PICKUPS = L.pickups.slice(); TV_COLS = L.tvs; CHECKS = L.checks; FLOODS = [];
+  SPAWNS = L.spawns.slice(); PICKUPS = L.pickups.slice(); TV_COLS = L.tvs; CHECKS = L.checks; FLOODS = []; DARK = [];
   // remix slots: each picks one hand-built variant; the variant owns everything in its columns
   L.picks = (L.slots || []).map((sl, i) => {
     const v = forcedPick && forcedPick[i] != null ? forcedPick[i] % sl.variants.length : Math.floor(R() * sl.variants.length);
@@ -297,6 +316,7 @@ function loadLevel(id) {
     if (add.spawns) SPAWNS.push(...add.spawns);
     if (add.pickups) PICKUPS.push(...add.pickups);
     if (add.flood) FLOODS.push(add.flood);
+    if (add.dark) DARK.push(add.dark);
     return v;
   });
   SPAWNS = SPAWNS.map(([t, x, o]) => [L.pools && L.pools[t] ? L.pools[t][Math.floor(R() * L.pools[t].length)] : t, x, o]).sort((a, b) => a[1] - b[1]);
@@ -305,7 +325,7 @@ function loadLevel(id) {
 // a per-run shuffle of a pool, for lists that must not repeat
 function seedShuffle(pool, key) { const r = rng(mixSeed(runSeed + key * 131)), a = pool.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
 const slotIs = (i, v) => L.picks && L.picks[i] === v;
-let FLOODS = [];
+let FLOODS = [], DARK = [];
 newSeed(); loadLevel('b1');
 
 const tileT = (tx, ty) => (tx < 0 || tx >= COLS) ? 1 : (ty < 0 || ty >= ROWS) ? 0 : map[ty * COLS + tx];
@@ -718,11 +738,12 @@ function updateSheet(e) {
   e.anim += 0.12;
   if (overlap(e, P)) hurt(e.x + e.w / 2, true);
 }
+const LINES_DOLL = ['PLAY WITH ME', 'TEA PARTY? FOREVER?', 'MOMMY SAYS NO METAL', 'HEE HEE HEE'];
 // porcelain doll: sits like decor until you get close, then sprints at you in little hops
 function updateDoll(e) {
   const dx = (P.x + P.w / 2) - (e.x + e.w / 2);
-  if (e.mode === 'sit') { e.vx = 0; if (Math.abs(dx) < 84 && Math.abs(P.y + P.h - e.y - e.h) < 48) { e.mode = 'wake'; e.mt = 22; e.face = dx >= 0 ? 1 : -1; sfx('doll'); popText('PLAY WITH ME', e.x + 5, e.y - 10, '#ff88cc', 40); } }
-  else if (e.mode === 'wake') { e.vx = 0; if (--e.mt <= 0) e.mode = 'run'; }
+  if (e.mode === 'sit') { e.vx = 0; if (Math.abs(dx) < 84 && Math.abs(P.y + P.h - e.y - e.h) < 48) { e.mode = 'wake'; e.mt = 46; e.face = dx >= 0 ? -1 : 1; sfx('doll'); popText(LINES_DOLL[Math.floor(Math.random() * LINES_DOLL.length)], e.x + 5, e.y - 10, '#ff88cc', 50); } }
+  else if (e.mode === 'wake') { e.vx = 0; if (e.mt === 24) e.face = -e.face; if (--e.mt <= 0) e.mode = 'run'; }
   else {
     if (frame % 24 === 0) e.face = dx >= 0 ? 1 : -1;
     e.vx = e.face * 1.9;
@@ -1116,11 +1137,11 @@ function updatePhono() {
       // the tonearm swings out, locks on, and drops the needle like a pickaxe
       if (B.t === 1) { B.tx = pcx; popText('SCRATCH!', B.x + 36, B.y - 40, '#ff5060', 50); }
       if (B.t < 34) { B.tx += (pcx - B.tx) * 0.12; armTo(B.tx, GROUND - 120, 0.12); }
-      else if (B.t < 50) armTo(B.tx, GROUND - 120, 0.3);
-      else if (B.t < 58) { armTo(B.tx, GROUND - 4, 0.45); if (B.t === 57) { shake = 9; sfx('boom'); for (const d of [-1, 1]) waves.push({ x:B.tx - 7 + d * 12, y:GROUND - 12, w:14, h:12, vx:d * (p2 ? 2.8 : 2.2), life:140 }); } }
-      else if (B.t > 80) armTo(rest.x, rest.y, 0.12);
-      if (B.t >= 50 && B.t < 80 && overlap(P, { x:B.arm.x - 5, y:B.arm.y - 16, w:10, h:20 })) hurt(B.arm.x, false);
-      if (B.t > 104) { if (p2 && !B.again) { B.again = true; B.t = 0; } else { B.again = false; B.state = 'idle'; B.t = 0; } }
+      else if (B.t < 66) armTo(B.tx, GROUND - 120, 0.3);
+      else if (B.t < 74) { armTo(B.tx, GROUND - 4, 0.45); if (B.t === 73) { shake = 9; sfx('boom'); for (const d of [-1, 1]) waves.push({ x:B.tx - 7 + d * 12, y:GROUND - 12, w:14, h:12, vx:d * (p2 ? 2.8 : 2.2), life:140 }); } }
+      else if (B.t > 96) armTo(rest.x, rest.y, 0.12);
+      if (B.t >= 66 && B.t < 96 && overlap(P, { x:B.arm.x - 5, y:B.arm.y - 16, w:10, h:20 })) hurt(B.arm.x, false);
+      if (B.t > 120) { if (p2 && !B.again) { B.again = true; B.t = 0; } else { B.again = false; B.state = 'idle'; B.t = 0; } }
       break;
     }
     case 'backmask': {
@@ -1151,7 +1172,7 @@ function updatePhono() {
 function updateDiscs() {
   for (const d of discs) {
     d.vy += 0.2; d.x += d.vx; d.y += d.vy; d.r++;
-    if (d.y > GROUND - 8) { d.y = GROUND - 8; d.vy = -2.8; }
+    if (d.y > GROUND - 8) { d.y = GROUND - 8; d.vy = -2.2; }
     const box = { x:d.x - 7, y:d.y - 7, w:14, h:14 };
     if (overlap(P, box)) { hurt(d.x, false); d.dead = true; }
     for (const b of blobs) if (!b.dead && overlap(b, box)) { b.dead = true; d.dead = true; }
