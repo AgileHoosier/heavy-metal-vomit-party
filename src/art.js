@@ -696,3 +696,70 @@ const MASTER_WALL = paint(64, 184, g => {
   for (let y = 10; y < 130; y += 24) for (let x = (y / 24 % 2) * 16 + 8; x < 64; x += 32) { g.rect(x, y - 3, 1, 7, '#c8a040'); g.rect(x - 3, y, 7, 1, '#c8a040'); g.px(x, y, '#fff0a0'); }
   g.rect(0, 130, 64, 3, '#c8a040'); for (let x = 0; x < 64; x += 16) { g.rect(x, 133, 16, 51, '#1a1e48'); g.rect(x + 2, 136, 12, 45, '#22285a'); }
 }, null);
+
+/* =========================================================
+   FLOOR 3F: THE ATTIC  +  ROOF — dolls, the cat, the Glory One, attic + roof tiles
+   ========================================================= */
+function dollFrame(pose) {
+  // pose: 0 sitting, 1/2 running
+  return paint(16, 20, g => {
+    const by = pose ? 0 : 3;
+    g.ell(8, 5 + by, 5, 5, '#f8ecec'); g.rect(4, 4 + by, 9, 6, '#f8ecec');
+    g.ell(8, 2 + by, 6, 3, '#e8a830'); g.rect(2, 2 + by, 3, 7, '#e8a830'); g.px(3, 9 + by, '#e8a830'); g.px(13, 4 + by, '#e8a830');
+    g.rect(9, 5 + by, 2, 2, '#140b1a'); g.rect(12, 5 + by, 1, 2, '#140b1a'); g.px(9, 5 + by, '#c8ff3c'); g.px(12, 5 + by, '#c8ff3c');
+    g.px(11, 8 + by, '#c02848'); g.px(7, 7 + by, '#ffb0c0');
+    g.rect(4, 10 + by, 9, 6, '#a8d0f0'); g.rect(3, 14 + by, 11, 2, '#ffffff'); g.rect(4, 10 + by, 9, 1, '#ffffff');
+    if (pose === 0) { g.rect(3, 18, 4, 2, '#f8ecec'); g.rect(10, 18, 4, 2, '#f8ecec'); g.rect(13, 12, 2, 4, '#f8ecec'); }
+    else { const f = pose === 1 ? 2 : -2; g.rect(6 + f, 16, 2, 3, '#f8ecec'); g.rect(9 - f, 16, 2, 3, '#f8ecec'); g.rect(5 + f, 19, 3, 1, '#c02848'); g.rect(9 - f, 19, 3, 1, '#c02848'); g.line(12, 11, 15, 9 + pose, '#f8ecec'); }
+  });
+}
+const DOLL = [0, 1, 2].map(i => pair(dollFrame(i)));
+const DOLL_W = DOLL.map(p => [tintC(p[0], '#ffffff', 0.85), tintC(p[1], '#ffffff', 0.85)]);
+const CAT = [0, 1].map(f => paint(20, 16, g => {
+  g.ell(9, 11, 6, 4, '#1a1420'); g.ell(15, 7, 3, 3, '#1a1420'); g.px(13, 3, '#1a1420'); g.px(17, 3, '#1a1420'); g.px(13, 4, '#1a1420'); g.px(17, 4, '#1a1420');
+  g.px(14, 7, '#ffd850'); g.px(16, 7, '#ffd850');
+  g.line(3, 11, 1, 5 - f, '#1a1420', 2); g.rect(5, 14, 2, 2, '#1a1420'); g.rect(12, 14, 2, 2, '#1a1420');
+}, '#3a3050'));
+const DICEBOX = paint(24, 20, g => {
+  g.rect(0, 8, 24, 12, '#3a2878'); g.rect(0, 8, 24, 2, '#6a50b8'); g.rect(2, 11, 20, 3, '#c02838'); g.rect(3, 15, 9, 1, '#ffd850');
+  for (let i = 0; i < 4; i++) g.px(4 + i * 4, 12, '#ffd850');
+  g.ell(16, 4, 4, 4, '#e83860'); g.ell(15, 3, 2, 2, '#ff88a8'); g.px(16, 4, '#ffffff');
+});
+const ROXY_FREE = pair(humanoid(ROXY_S, { footF:[19, 38], footB:[11, 38], handF:[23, 6], handB:[7, 6], mouth:'open' }));
+// the Glory One: white ministry helicopter, gold trim, the Reverend in the open door
+const HELI = (() => {
+  const body = (dent) => paint(96, 46, g => {
+    g.rect(44, 0, 6, 6, '#5a5468'); g.rect(42, 4, 10, 2, '#8a8698');
+    g.ell(46, 22, 26, 15, '#f4f4fa'); g.ell(44, 18, 22, 10, '#ffffff'); g.ell(68, 22, 6, 9, '#f4f4fa');
+    g.rect(4, 18, 30, 6, '#e8e8f0'); g.rect(4, 18, 30, 1, '#ffffff'); g.rect(0, 10, 6, 16, '#e8e8f0'); g.rect(1, 12, 3, 12, '#ffd850');
+    g.ell(66, 18, 8, 7, '#80c8ff'); g.ell(68, 16, 4, 3, '#c0e8ff');
+    g.rect(30, 14, 20, 16, '#3a2a58'); g.rect(30, 14, 20, 1, '#ffd850');
+    g.rect(20, 30, 50, 3, '#ffd850'); g.rect(26, 36, 44, 2, '#8a8698'); g.rect(32, 33, 2, 4, '#8a8698'); g.rect(60, 33, 2, 4, '#8a8698');
+    if (dent) { g.rect(52, 26, 6, 3, '#3a3446'); g.px(24, 20, '#3a3446'); g.rect(12, 21, 4, 2, '#3a3446'); }
+  });
+  return { ok:pair(body(false)), hurt:pair(body(true)) };
+})();
+HELI.flash = pair(tintC(HELI.ok[0], '#ffffff', 0.85));
+
+// attic tiles
+{
+  const r = rng(515);
+  HOUSE.plank = tileSet(paint(16, 16, g => { g.rect(0, 0, 16, 16, '#6a4628'); g.rect(0, 0, 16, 1, '#a87848'); g.rect(0, 1, 16, 1, '#8a5a32'); for (let i = 0; i < 6; i++) g.px(r() * 16, 2 + r() * 3, '#4a2e18'); g.rect(7, 0, 1, 5, '#3a2210'); g.rect(0, 5, 16, 1, '#3a2210'); g.rect(0, 6, 16, 10, '#f090a8'); for (let i = 0; i < 26; i++) g.px(r() * 16, 6 + r() * 10, r() < 0.5 ? '#d87090' : '#ffb0c8'); }, null),
+                        paint(16, 16, g => { g.rect(0, 0, 16, 16, '#d87090'); for (let i = 0; i < 26; i++) g.px(r() * 16, r() * 16, r() < 0.5 ? '#b85878' : '#f090a8'); }, null));
+  HOUSE.box = [paint(16, 16, g => { g.rect(0, 0, 16, 16, '#b8864a'); g.rect(0, 0, 16, 2, '#d8a868'); g.rect(7, 0, 2, 16, '#e0c088'); g.rect(0, 15, 16, 1, '#7a5428'); g.rect(0, 0, 1, 16, '#7a5428'); g.px(3, 6, '#5a3418'); g.px(4, 6, '#5a3418'); g.px(11, 9, '#5a3418'); }, null),
+               paint(16, 16, g => { g.rect(0, 0, 16, 16, '#a87840'); g.rect(0, 0, 16, 1, '#7a5428'); g.rect(0, 0, 1, 16, '#7a5428'); g.rect(2, 5, 12, 5, '#f4f0e0'); g.rect(3, 7, 10, 1, '#c02838'); }, null)];
+  HOUSE.beam = paint(16, 16, g => { g.rect(0, 0, 16, 5, '#7a5030'); g.rect(0, 0, 16, 1, '#b08050'); g.rect(0, 4, 16, 1, '#3a2210'); g.px(5, 2, '#4a2e18'); g.px(12, 1, '#4a2e18'); g.px(14, 3, '#c8c4d4'); }, null);
+  // roof tiles
+  HOUSE.shingle = tileSet(paint(16, 16, g => { g.rect(0, 0, 16, 16, '#3a3448'); g.rect(0, 0, 16, 2, '#6a6480'); for (let y = 2; y < 16; y += 5) for (let x = (y % 2) * 4 - 4; x < 16; x += 8) { g.rect(x, y, 7, 4, '#4a4458'); g.rect(x, y + 4, 7, 1, '#24202e'); } g.rect(0, 0, 16, 1, '#9a94b0'); }, null),
+                          paint(16, 16, g => { g.rect(0, 0, 16, 16, '#2a2436'); for (let y = 0; y < 16; y += 5) for (let x = (y % 2) * 4 - 4; x < 16; x += 8) { g.rect(x, y, 7, 4, '#3a3448'); g.rect(x, y + 4, 7, 1, '#1a1622'); } }, null));
+  HOUSE.chimney = [paint(16, 16, g => { g.rect(0, 0, 16, 16, '#8a3a28'); g.rect(0, 0, 16, 3, '#a8a4b8'); g.rect(0, 0, 16, 1, '#e0dcf0'); for (let y = 3; y < 16; y += 4) for (let x = (y % 8 ? 0 : 4) - 4; x < 16; x += 8) { g.rect(x, y, 7, 3, '#9a4a30'); } }, null),
+                   paint(16, 16, g => { g.rect(0, 0, 16, 16, '#7a3020'); for (let y = 0; y < 16; y += 4) for (let x = (y % 8 ? 0 : 4) - 4; x < 16; x += 8) g.rect(x, y, 7, 3, '#8a3a28'); }, null)];
+  HOUSE.grate = paint(16, 16, g => { g.rect(0, 0, 16, 3, '#8a8698'); g.rect(0, 0, 16, 1, '#e0dcf0'); for (let x = 1; x < 16; x += 3) g.px(x, 1, '#4a4458'); g.rect(3, 3, 1, 6, '#6a6478'); g.rect(12, 3, 1, 6, '#6a6478'); g.line(3, 8, 12, 3, '#6a6478'); }, null);
+}
+const ATTIC_WALL = paint(64, 184, g => {
+  const r = rng(616);
+  for (let x = 0; x < 64; x += 8) { g.rect(x, 0, 8, 184, (x / 8) % 2 ? '#3a2614' : '#42301a'); g.rect(x, 0, 1, 184, '#24160a'); for (let i = 0; i < 8; i++) g.px(x + 2 + r() * 5, r() * 184, '#2a1a0c'); }
+  g.line(0, 120, 64, 56, '#5a3a20', 6); g.line(0, 117, 64, 53, '#7a5030', 1);
+  g.rect(28, 0, 8, 184, '#5a3a20'); g.rect(28, 0, 1, 184, '#7a5030'); g.rect(35, 0, 1, 184, '#2a1a0c');
+  for (let i = 0; i < 18; i++) g.px(r() * 64, r() * 184, '#5a4a3a');
+}, null);

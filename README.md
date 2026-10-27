@@ -2,7 +2,7 @@
 
 A 16-bit style side-scroller that runs in the browser. It's 1987. Rev. Dewey Dollarson's TV broadcast, *A Whole Hour of Glory*, has turned every guest at VOMITRON's basement show into the Born-Again Undead and carried the band's singer, Roxy, to the roof for a live on-air exorcism. You were in the bathroom throwing up when it happened. Fight up five floors of the house and puke on every one of them.
 
-**Playable now:** Floor B1 (The Basement), Floor 1F (The Party) and Floor 2F (The Bedrooms). The Attic and the Roof are next.
+**All five floors are playable:** B1 (The Basement), 1F (The Party), 2F (The Bedrooms), 3F (The Attic) and the Roof, with five bosses and an ending.
 
 ## Play
 
@@ -17,9 +17,9 @@ Open `index.html` in any modern browser. No server or install needed.
 | Start | Enter | Start / pause |
 |  | M | Sound on/off |
 
-Gamepads and touch screens work too. On the title screen, press ← or → to choose the starting floor, or open `index.html#1f` or `index.html#2f` to start on that floor.
+Gamepads and touch screens work too. On the title screen, press ← or → to choose the starting floor, or open `index.html#1f`, `#2f`, `#3f` or `#roof` to start on that floor.
 
-On 2F, hold jump on the waterbed to launch yourself high, and lob your puke (↑ + puke) at the bedsheet ghosts.
+On 2F, hold jump on the waterbed to launch yourself high, and lob your puke (↑ + puke) at the bedsheet ghosts. On the roof, the helicopter is out of reach from the shingles: climb the antenna platforms and lob.
 
 ## Project layout
 

@@ -60,9 +60,9 @@ kbd{font-family:var(--f-pixel);font-size:8px;color:var(--ink);background:#0d0a12
 
 <div class="wrap">
   <div class="top">
-    <div class="eyebrow">16-bit prototype · Floors B1–2F of 5</div>
+    <div class="eyebrow">16-bit · All 5 floors</div>
     <div class="floors" aria-label="Floor progress">
-      <span class="floor on">B1 BASEMENT</span><span class="floor on">1F PARTY</span><span class="floor on">2F BEDROOMS</span><span class="floor">ATTIC</span><span class="floor">ROOF</span>
+      <span class="floor on">B1 BASEMENT</span><span class="floor on">1F PARTY</span><span class="floor on">2F BEDROOMS</span><span class="floor on">3F ATTIC</span><span class="floor on">ROOF</span>
     </div>
   </div>
   <div class="cab">
@@ -103,8 +103,10 @@ kbd{font-family:var(--f-pixel);font-size:8px;color:var(--ink);background:#0d0a12
         <li><b>Floor B1, The Basement:</b> Undead Moshers, Pamphlet Pushers, possessed rats, and the Possessed Drummer.</li>
         <li><b>Floor 1F, The Party:</b> kitchen, living room and den. New Aerobics Undead (jumping-jack hops) and Air Guitar Undead (power-chord shockwaves), Turbo Cola, holes in the floor, and the Concerned Mom, who throws confiscated records, rolls a TV cart at you and yells GROUNDED.</li>
         <li><b>Floor 2F, The Bedrooms:</b> hallway, a sleepover, the bathroom and a metalhead's room. New Bedsheet Ghosts float overhead and swoop at you (lob your puke with ↑), a waterbed launches you sky-high if you hold jump, and the Radical Youth Pastor strums homing music notes, skateboards across the room and trust-falls onto you.</li>
-        <li><b>Secrets:</b> a VOMITRON record on each floor, plus a record player, a ringing phone and a spirit board worth a puke.</li>
-        <li><b>Floor select:</b> press ← or → on the title screen to start on 1F or 2F.</li>
+        <li><b>Floor 3F, The Attic:</b> dark rafters, insulation you can fall through, and the house's confiscated stash. Porcelain dolls sit perfectly still until you get close. The Backmasker, a possessed phonograph, flings rolling records, stabs its tonearm down at you and sings backwards lyrics that home in.</li>
+        <li><b>The Roof:</b> a storm, with wind gusts that shove you (watch for the WIND warning). Rev. Dewey Dollarson arrives in his Glory One helicopter: climb the antenna platforms to lob puke at him while he throws collection plates, sweeps a smiting spotlight, strafes the roof and drops in reinforcements. Then free Roxy.</li>
+        <li><b>Secrets:</b> a VOMITRON record on each floor, plus a record player, a ringing phone, a spirit board, a dice game and a black cat worth a puke.</li>
+        <li><b>Floor select:</b> press ← or → on the title screen to start on any floor.</li>
       </ul>
     </section>
     <section>
@@ -822,6 +824,73 @@ const MASTER_WALL = paint(64, 184, g => {
 }, null);
 
 /* =========================================================
+   FLOOR 3F: THE ATTIC  +  ROOF — dolls, the cat, the Glory One, attic + roof tiles
+   ========================================================= */
+function dollFrame(pose) {
+  // pose: 0 sitting, 1/2 running
+  return paint(16, 20, g => {
+    const by = pose ? 0 : 3;
+    g.ell(8, 5 + by, 5, 5, '#f8ecec'); g.rect(4, 4 + by, 9, 6, '#f8ecec');
+    g.ell(8, 2 + by, 6, 3, '#e8a830'); g.rect(2, 2 + by, 3, 7, '#e8a830'); g.px(3, 9 + by, '#e8a830'); g.px(13, 4 + by, '#e8a830');
+    g.rect(9, 5 + by, 2, 2, '#140b1a'); g.rect(12, 5 + by, 1, 2, '#140b1a'); g.px(9, 5 + by, '#c8ff3c'); g.px(12, 5 + by, '#c8ff3c');
+    g.px(11, 8 + by, '#c02848'); g.px(7, 7 + by, '#ffb0c0');
+    g.rect(4, 10 + by, 9, 6, '#a8d0f0'); g.rect(3, 14 + by, 11, 2, '#ffffff'); g.rect(4, 10 + by, 9, 1, '#ffffff');
+    if (pose === 0) { g.rect(3, 18, 4, 2, '#f8ecec'); g.rect(10, 18, 4, 2, '#f8ecec'); g.rect(13, 12, 2, 4, '#f8ecec'); }
+    else { const f = pose === 1 ? 2 : -2; g.rect(6 + f, 16, 2, 3, '#f8ecec'); g.rect(9 - f, 16, 2, 3, '#f8ecec'); g.rect(5 + f, 19, 3, 1, '#c02848'); g.rect(9 - f, 19, 3, 1, '#c02848'); g.line(12, 11, 15, 9 + pose, '#f8ecec'); }
+  });
+}
+const DOLL = [0, 1, 2].map(i => pair(dollFrame(i)));
+const DOLL_W = DOLL.map(p => [tintC(p[0], '#ffffff', 0.85), tintC(p[1], '#ffffff', 0.85)]);
+const CAT = [0, 1].map(f => paint(20, 16, g => {
+  g.ell(9, 11, 6, 4, '#1a1420'); g.ell(15, 7, 3, 3, '#1a1420'); g.px(13, 3, '#1a1420'); g.px(17, 3, '#1a1420'); g.px(13, 4, '#1a1420'); g.px(17, 4, '#1a1420');
+  g.px(14, 7, '#ffd850'); g.px(16, 7, '#ffd850');
+  g.line(3, 11, 1, 5 - f, '#1a1420', 2); g.rect(5, 14, 2, 2, '#1a1420'); g.rect(12, 14, 2, 2, '#1a1420');
+}, '#3a3050'));
+const DICEBOX = paint(24, 20, g => {
+  g.rect(0, 8, 24, 12, '#3a2878'); g.rect(0, 8, 24, 2, '#6a50b8'); g.rect(2, 11, 20, 3, '#c02838'); g.rect(3, 15, 9, 1, '#ffd850');
+  for (let i = 0; i < 4; i++) g.px(4 + i * 4, 12, '#ffd850');
+  g.ell(16, 4, 4, 4, '#e83860'); g.ell(15, 3, 2, 2, '#ff88a8'); g.px(16, 4, '#ffffff');
+});
+const ROXY_FREE = pair(humanoid(ROXY_S, { footF:[19, 38], footB:[11, 38], handF:[23, 6], handB:[7, 6], mouth:'open' }));
+// the Glory One: white ministry helicopter, gold trim, the Reverend in the open door
+const HELI = (() => {
+  const body = (dent) => paint(96, 46, g => {
+    g.rect(44, 0, 6, 6, '#5a5468'); g.rect(42, 4, 10, 2, '#8a8698');
+    g.ell(46, 22, 26, 15, '#f4f4fa'); g.ell(44, 18, 22, 10, '#ffffff'); g.ell(68, 22, 6, 9, '#f4f4fa');
+    g.rect(4, 18, 30, 6, '#e8e8f0'); g.rect(4, 18, 30, 1, '#ffffff'); g.rect(0, 10, 6, 16, '#e8e8f0'); g.rect(1, 12, 3, 12, '#ffd850');
+    g.ell(66, 18, 8, 7, '#80c8ff'); g.ell(68, 16, 4, 3, '#c0e8ff');
+    g.rect(30, 14, 20, 16, '#3a2a58'); g.rect(30, 14, 20, 1, '#ffd850');
+    g.rect(20, 30, 50, 3, '#ffd850'); g.rect(26, 36, 44, 2, '#8a8698'); g.rect(32, 33, 2, 4, '#8a8698'); g.rect(60, 33, 2, 4, '#8a8698');
+    if (dent) { g.rect(52, 26, 6, 3, '#3a3446'); g.px(24, 20, '#3a3446'); g.rect(12, 21, 4, 2, '#3a3446'); }
+  });
+  return { ok:pair(body(false)), hurt:pair(body(true)) };
+})();
+HELI.flash = pair(tintC(HELI.ok[0], '#ffffff', 0.85));
+
+// attic tiles
+{
+  const r = rng(515);
+  HOUSE.plank = tileSet(paint(16, 16, g => { g.rect(0, 0, 16, 16, '#6a4628'); g.rect(0, 0, 16, 1, '#a87848'); g.rect(0, 1, 16, 1, '#8a5a32'); for (let i = 0; i < 6; i++) g.px(r() * 16, 2 + r() * 3, '#4a2e18'); g.rect(7, 0, 1, 5, '#3a2210'); g.rect(0, 5, 16, 1, '#3a2210'); g.rect(0, 6, 16, 10, '#f090a8'); for (let i = 0; i < 26; i++) g.px(r() * 16, 6 + r() * 10, r() < 0.5 ? '#d87090' : '#ffb0c8'); }, null),
+                        paint(16, 16, g => { g.rect(0, 0, 16, 16, '#d87090'); for (let i = 0; i < 26; i++) g.px(r() * 16, r() * 16, r() < 0.5 ? '#b85878' : '#f090a8'); }, null));
+  HOUSE.box = [paint(16, 16, g => { g.rect(0, 0, 16, 16, '#b8864a'); g.rect(0, 0, 16, 2, '#d8a868'); g.rect(7, 0, 2, 16, '#e0c088'); g.rect(0, 15, 16, 1, '#7a5428'); g.rect(0, 0, 1, 16, '#7a5428'); g.px(3, 6, '#5a3418'); g.px(4, 6, '#5a3418'); g.px(11, 9, '#5a3418'); }, null),
+               paint(16, 16, g => { g.rect(0, 0, 16, 16, '#a87840'); g.rect(0, 0, 16, 1, '#7a5428'); g.rect(0, 0, 1, 16, '#7a5428'); g.rect(2, 5, 12, 5, '#f4f0e0'); g.rect(3, 7, 10, 1, '#c02838'); }, null)];
+  HOUSE.beam = paint(16, 16, g => { g.rect(0, 0, 16, 5, '#7a5030'); g.rect(0, 0, 16, 1, '#b08050'); g.rect(0, 4, 16, 1, '#3a2210'); g.px(5, 2, '#4a2e18'); g.px(12, 1, '#4a2e18'); g.px(14, 3, '#c8c4d4'); }, null);
+  // roof tiles
+  HOUSE.shingle = tileSet(paint(16, 16, g => { g.rect(0, 0, 16, 16, '#3a3448'); g.rect(0, 0, 16, 2, '#6a6480'); for (let y = 2; y < 16; y += 5) for (let x = (y % 2) * 4 - 4; x < 16; x += 8) { g.rect(x, y, 7, 4, '#4a4458'); g.rect(x, y + 4, 7, 1, '#24202e'); } g.rect(0, 0, 16, 1, '#9a94b0'); }, null),
+                          paint(16, 16, g => { g.rect(0, 0, 16, 16, '#2a2436'); for (let y = 0; y < 16; y += 5) for (let x = (y % 2) * 4 - 4; x < 16; x += 8) { g.rect(x, y, 7, 4, '#3a3448'); g.rect(x, y + 4, 7, 1, '#1a1622'); } }, null));
+  HOUSE.chimney = [paint(16, 16, g => { g.rect(0, 0, 16, 16, '#8a3a28'); g.rect(0, 0, 16, 3, '#a8a4b8'); g.rect(0, 0, 16, 1, '#e0dcf0'); for (let y = 3; y < 16; y += 4) for (let x = (y % 8 ? 0 : 4) - 4; x < 16; x += 8) { g.rect(x, y, 7, 3, '#9a4a30'); } }, null),
+                   paint(16, 16, g => { g.rect(0, 0, 16, 16, '#7a3020'); for (let y = 0; y < 16; y += 4) for (let x = (y % 8 ? 0 : 4) - 4; x < 16; x += 8) g.rect(x, y, 7, 3, '#8a3a28'); }, null)];
+  HOUSE.grate = paint(16, 16, g => { g.rect(0, 0, 16, 3, '#8a8698'); g.rect(0, 0, 16, 1, '#e0dcf0'); for (let x = 1; x < 16; x += 3) g.px(x, 1, '#4a4458'); g.rect(3, 3, 1, 6, '#6a6478'); g.rect(12, 3, 1, 6, '#6a6478'); g.line(3, 8, 12, 3, '#6a6478'); }, null);
+}
+const ATTIC_WALL = paint(64, 184, g => {
+  const r = rng(616);
+  for (let x = 0; x < 64; x += 8) { g.rect(x, 0, 8, 184, (x / 8) % 2 ? '#3a2614' : '#42301a'); g.rect(x, 0, 1, 184, '#24160a'); for (let i = 0; i < 8; i++) g.px(x + 2 + r() * 5, r() * 184, '#2a1a0c'); }
+  g.line(0, 120, 64, 56, '#5a3a20', 6); g.line(0, 117, 64, 53, '#7a5030', 1);
+  g.rect(28, 0, 8, 184, '#5a3a20'); g.rect(28, 0, 1, 184, '#7a5030'); g.rect(35, 0, 1, 184, '#2a1a0c');
+  for (let i = 0; i < 18; i++) g.px(r() * 64, r() * 184, '#5a4a3a');
+}, null);
+
+/* =========================================================
    AUDIO: distorted guitar, bass, lead, church organ, drums
    ========================================================= */
 const AU = { ctx:null, on:true, song:null, step:0, next:0, pending:null, onEnd:null };
@@ -950,6 +1019,16 @@ const UP_RIFF =
   "D2 D2 D2 . D2 D2 F2! ~ D2 D2 C3! ~ A#2! ~ A2! ~ " +
   "A#1! ~ A#1 A#1 A#1 . A#1 A#1 C2! ~ C2 C2 C2 . C2 C2 " +
   "D2 D2 D2 . D2 D2 F2! ~ D2 D2 A2! ~ G#2! ~ G2! ~";
+const ATTIC_RIFF =
+  "C2! ~ ~ ~ C2 . C2 . D#2! ~ ~ ~ D2! ~ C#2! ~ " +
+  "C2! ~ ~ ~ C2 . C2 . F#2! ~ ~ ~ F2! ~ D#2! ~ " +
+  "G#1! ~ ~ ~ G#1 . G#1 . A#1! ~ ~ ~ A#1 . A#1 . " +
+  "C2! ~ ~ ~ C2 . C2 . G2! ~ F#2! ~ F2! ~ D#2! ~";
+const ROOF_RIFF =
+  "E2 E2 B2! ~ E2 E2 A2! ~ E2 E2 G2! ~ F#2! ~ G2! ~ " +
+  "E2 E2 B2! ~ E2 E2 D3! ~ C3! ~ B2! ~ A2! ~ G2! ~ " +
+  "C2! ~ C2 C2 G2! ~ C2 C2 D2! ~ D2 D2 A2! ~ D2 D2 " +
+  "E2 E2 B2! ~ E2 E2 A2! ~ G2! ~ A2! ~ B2! ~ ~ ~";
 const BOSS_RIFF =
   "E2 E2 E2 E2 F2! ~ E2 . E2 E2 E2 E2 A#2! ~ A2! ~ " +
   "E2 E2 E2 E2 F2! ~ E2 . G2! ~ F#2! ~ F2! ~ E2! ~ " +
@@ -1003,6 +1082,39 @@ const SONGS = {
       "F5 ~ ~ ~ E5 ~ D5 ~ C5 ~ D5 ~ E5 ~ ~ ~ " +
       "D5 ~ F5 ~ A5 ~ G#5 ~ G5 ~ F5 ~ D5 ~ ~ ~") },
     drum:{ steps:parse("C . h . S . h h K . K h S . h . " + rep("K . h . S . h h K . K h S . h .", 6) + " S . S . S S K . S S S S C . . .") },
+  }},
+  attic: { bpm:112, loop:true, ch:{
+    gtr:{ inst:'gtr', vol:0.55, steps:parse(ATTIC_RIFF) },
+    bass:{ inst:'bass', vol:0.32, steps:parse(ATTIC_RIFF) },
+    organ:{ inst:'organ', vol:0.05, steps:parse(
+      "C4 ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ C4 ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ " +
+      "G#3 ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ G3 ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~") },
+    lead:{ inst:'lead', vol:0.045, steps:parse(
+      rep(". . . . . . . . . . . . . . . .", 4) +
+      "C5 ~ ~ ~ D#5 ~ ~ ~ D5 ~ C#5 ~ C5 ~ ~ ~ " +
+      "G4 ~ ~ ~ F#4 ~ ~ ~ G4 ~ ~ ~ ~ ~ ~ ~ " +
+      "G#4 ~ ~ ~ A#4 ~ ~ ~ C5 ~ ~ ~ D5 ~ ~ ~ " +
+      "D#5 ~ D5 ~ C5 ~ A#4 ~ G4 ~ ~ ~ ~ ~ ~ ~") },
+    drum:{ steps:parse("C . . . S . . . K . K . S . . . " + rep("K . . . S . . h K . K . S . . h", 6) + " S . S . S . S S K K K K C . . .") },
+  }},
+  roof: { bpm:176, loop:true, ch:{
+    gtr:{ inst:'gtr', vol:0.55, steps:parse(ROOF_RIFF) },
+    bass:{ inst:'bass', vol:0.3, steps:parse(ROOF_RIFF) },
+    lead:{ inst:'lead', vol:0.05, steps:parse(
+      rep(". . . . . . . . . . . . . . . .", 4) +
+      "B4 ~ ~ ~ E5 ~ ~ ~ G5 ~ F#5 ~ E5 ~ D5 ~ " +
+      "E5 ~ ~ ~ B4 ~ ~ ~ D5 ~ C5 ~ B4 ~ A4 ~ " +
+      "C5 ~ ~ ~ G5 ~ ~ ~ D5 ~ ~ ~ A5 ~ ~ ~ " +
+      "B5 ~ A5 ~ G5 ~ F#5 ~ E5 ~ ~ ~ ~ ~ ~ ~") },
+    drum:{ steps:parse("C . h h S . h h K K h h S . h h " + rep("K . h h S . h h K K h h S . h K", 6) + " S S S S K K S S S S K K C . C .") },
+  }},
+  final: { bpm:184, loop:true, ch:{
+    gtr:{ inst:'gtr', vol:0.55, steps:parse(BOSS_RIFF) },
+    bass:{ inst:'bass', vol:0.3, steps:parse(BOSS_RIFF) },
+    organ:{ inst:'organ', vol:0.06, steps:parse(
+      "E5 ~ ~ ~ ~ ~ ~ ~ F5 ~ ~ ~ ~ ~ ~ ~ E5 ~ ~ ~ ~ ~ ~ ~ A#4 ~ ~ ~ ~ ~ ~ ~ " +
+      "E5 ~ ~ ~ ~ ~ ~ ~ F5 ~ ~ ~ ~ ~ ~ ~ G5 ~ ~ ~ F5 ~ ~ ~ E5 ~ ~ ~ D5 ~ ~ ~") },
+    drum:{ steps:parse(rep("K h S h K K S h K h S h K K S S", 4)) },
   }},
   boss: { bpm:172, loop:true, ch:{
     gtr:{ inst:'gtr', vol:0.55, steps:parse(BOSS_RIFF) },
@@ -1095,6 +1207,13 @@ const SFX = {
     o.connect(fl); fl.connect(g); g.connect(AU.sGain); o.start(t); o.stop(t + 0.5); lfo.start(t); lfo.stop(t + 0.5);
     noiseHit(AU.sGain, t, 0.3, 0.12, 'bandpass', 300, 120, 1.5);
   },
+  doll()   { const t = AU.ctx.currentTime; [0, 3, 7, 3, 12].forEach((s, i) => osc('triangle', 1046 * Math.pow(2, s / 12), t + i * 0.07, 0.09, AU.sGain, 0.04)); },
+  shatter(){ const t = AU.ctx.currentTime; noiseHit(AU.sGain, t, 0.25, 0.3, 'highpass', 5000); [2600, 3400, 2100].forEach((f, i) => osc('triangle', f, t + i * 0.03, 0.06, AU.sGain, 0.05)); },
+  scratch(){ const t = AU.ctx.currentTime; noiseHit(AU.sGain, t, 0.18, 0.3, 'bandpass', 800, 2600, 3); noiseHit(AU.sGain, t + 0.18, 0.14, 0.25, 'bandpass', 2600, 700, 3); },
+  dice()   { const t = AU.ctx.currentTime; for (let i = 0; i < 6; i++) noiseHit(AU.sGain, t + i * 0.06, 0.03, 0.25, 'bandpass', 3000 + i * 300); [0, 4, 7, 12, 16].forEach((s, i) => osc('square', 523 * Math.pow(2, s / 12), t + 0.4 + i * 0.06, 0.1, AU.sGain, 0.05)); },
+  meow()   { const t = AU.ctx.currentTime; osc('sawtooth', 600, t, 0.35, AU.sGain, 0.05, 900); osc('sawtooth', 900, t + 0.15, 0.3, AU.sGain, 0.04, 500); },
+  wind()   { const t = AU.ctx.currentTime; noiseHit(AU.sGain, t, 2.2, 0.18, 'bandpass', 400, 1200, 1); },
+  thunder(){ const t = AU.ctx.currentTime; noiseHit(AU.sGain, t, 1.6, 0.4, 'lowpass', 600, 60); osc('sine', 50, t, 1.2, AU.sGain, 0.15, 30); },
   boing()  { const t = AU.ctx.currentTime; osc('sine', 140, t, 0.28, AU.sGain, 0.14, 420); osc('triangle', 280, t + 0.02, 0.2, AU.sGain, 0.05, 700); },
   strum()  { const t = AU.ctx.currentTime; [0, 4, 7, 12].forEach((s, i) => osc('triangle', 392 * Math.pow(2, s / 12), t + i * 0.025, 0.3, AU.sGain, 0.05)); },
   whip()   { const t = AU.ctx.currentTime; noiseHit(AU.sGain, t, 0.16, 0.3, 'bandpass', 600, 3500, 1.2); },
@@ -1272,8 +1391,45 @@ const LEVELS = {
     spawns:[['rat', 16], ['pusher', 24], ['sheet', 31], ['mosher', 46], ['sheet', 54], ['aerobic', 64], ['sheet', 72], ['airg', 82], ['pusher', 96],
             ['rat', 106], ['sheet', 112], ['mosher', 118], ['airg', 134], ['sheet', 144], ['mosher', 152], ['aerobic', 158], ['sheet', 165], ['pusher', 170]],
     pickups:[['pizza', 19.5], ['punch', 58.5], ['pizza', 81.5], ['turbo', 111], ['record', 138.5], ['pizza', 155.5], ['punch', 172]],
-    tvs:[9, 63, 101, 131, 168], checks:[3, 99, 172], gag:{ col:70, kind:'board' }, next:null, trashEnd:174,
+    tvs:[9, 63, 101, 131, 168], checks:[3, 99, 172], gag:{ col:70, kind:'board' }, next:'f3', trashEnd:174,
     zone:tx => tx < 48 ? 'carpet' : tx < 100 ? 'pink' : tx < 128 ? 'lino' : tx < 176 ? 'purple' : 'wood', doorSign:['GOD', 'SEES'],
+  },
+  f3: {
+    id:'f3', label:'3F', name:'THE ATTIC', tagline:'WHERE THIS HOUSE KEEPS WHAT IT\'S ASHAMED OF.', theme:'attic', song:'attic',
+    cols:200, arena:180, lock:182, bossCx:3056, door:3150, boss:'phono', bossHp:34, bossName:['THE', 'BACKMASKER'],
+    build() {
+      fill(0, 13, COLS - 1, 14, 1);
+      // gaps between the joists: step on the insulation and you go through
+      for (const [a, b] of [[40, 42], [66, 68], [96, 98], [128, 131], [160, 162]]) fill(a, 13, b, 14, 0);
+      // cardboard boxes and filing cabinets
+      [[10, 11, 12, 12], [30, 12, 31, 12], [52, 10, 53, 12], [76, 11, 78, 12], [110, 11, 111, 12], [146, 10, 147, 12], [150, 10, 151, 12], [170, 11, 172, 12]].forEach(r => fill(...r, 2));
+      // crates of confiscated records
+      [[20, 12, 22, 12], [58, 12, 59, 12], [86, 12, 88, 12], [118, 12, 120, 12], [138, 12, 139, 12]].forEach(r => fill(...r, 4));
+      // rafters and plank catwalks, plus one high beam with the record on it
+      [[16, 9, 19, 9], [34, 8, 38, 8], [44, 10, 47, 10], [62, 9, 65, 9], [70, 9, 73, 9], [90, 8, 93, 8], [102, 10, 105, 10], [104, 5, 106, 5],
+       [128, 10, 131, 10], [134, 8, 137, 8], [154, 9, 157, 9], [164, 10, 167, 10]].forEach(r => fill(...r, 3));
+    },
+    spawns:[['doll', 14], ['rat', 24], ['mosher', 33], ['doll', 46], ['sheet', 50], ['pusher', 60], ['doll', 74], ['airg', 82], ['sheet', 92], ['doll', 100],
+            ['aerobic', 108], ['mosher', 116], ['doll', 124], ['sheet', 134], ['pusher', 142], ['doll', 152], ['airg', 158], ['mosher', 166], ['doll', 172]],
+    pickups:[['pizza', 17.5], ['punch', 36], ['pizza', 71.5], ['turbo', 91.5], ['record', 105], ['pizza', 135.5], ['punch', 155.5], ['pizza', 174]],
+    tvs:[7, 48, 81, 113, 143], checks:[3, 100, 176], gag:{ col:26, kind:'dice' }, next:'rf', trashEnd:178, doorSign:['TO', 'ROOF'],
+  },
+  rf: {
+    id:'rf', label:'RF', name:'THE ROOF', tagline:'STORM. HELICOPTER. ROXY. LIVE ON AIR.', theme:'roof', song:'roof', bossSong:'final', wind:true,
+    cols:172, arena:152, lock:154, bossCx:2600, door:2708, boss:'heli', bossHp:40, bossName:['REV. DEWEY', 'DOLLARSON'],
+    build() {
+      fill(0, 13, COLS - 1, 14, 1);
+      for (const [a, b] of [[30, 32], [68, 71], [106, 108], [138, 140]]) fill(a, 13, b, 14, 0);
+      // gables, chimneys, antenna and satellite-dish platforms
+      [[14, 11, 19, 12], [42, 10, 47, 12], [84, 11, 90, 12], [118, 10, 123, 12]].forEach(r => fill(...r, 2));
+      [[24, 10, 25, 12], [58, 10, 59, 12], [98, 10, 99, 12], [130, 10, 131, 12]].forEach(r => fill(...r, 4));
+      [[35, 9, 38, 9], [50, 8, 53, 8], [62, 9, 65, 9], [74, 9, 77, 9], [92, 6, 94, 6], [111, 9, 114, 9], [144, 9, 147, 9],
+       [156, 9, 159, 9], [161, 6, 164, 6], [166, 9, 168, 9]].forEach(r => fill(...r, 3));
+    },
+    spawns:[['pusher', 18], ['sheet', 28], ['mosher', 40], ['aerobic', 48], ['sheet', 57], ['airg', 66], ['pusher', 78], ['sheet', 88],
+            ['mosher', 96], ['aerobic', 104], ['sheet', 114], ['airg', 122], ['pusher', 128], ['sheet', 136], ['mosher', 146]],
+    pickups:[['pizza', 37], ['punch', 51.5], ['pizza', 75.5], ['record', 93.5], ['turbo', 112.5], ['pizza', 145.5], ['punch', 150]],
+    tvs:[9, 55, 80, 126], checks:[3, 82, 150], gag:{ col:61, kind:'cat' }, next:null, trashEnd:150,
   },
 };
 const FLOOR_ORDER = Object.keys(LEVELS);
@@ -1330,8 +1486,8 @@ try { hiscore = +localStorage.getItem('hmvp_hi') || 0; } catch (e) {}
 try { if (localStorage.getItem('hmvp_sound') === '0') AU.on = false; } catch (e) {}
 let score = 0, shake = 0, cam = 0, camLock = false, doorOpen = false, cpIndex = 0;
 let frisbees = [], carts = [], yells = [], startFloor = 'b1', floorScore = 0;
-try { const h = location.hash || ''; if (/^#?(1f|f1|floor2|level2)$/i.test(h)) startFloor = 'f1'; else if (/^#?(2f|f2|floor3|level3)$/i.test(h)) startFloor = 'f2'; } catch (e) {}
-let notes = [], clouds = [], snots = [], P, enemies, dazed, blobs, puddles, parts, pops, pickups, sticks, waves, boss, spawns, lamps, tvs, tracts, trash, beams, gag;
+try { const h = location.hash || ''; if (/^#?(1f|f1|floor2|level2)$/i.test(h)) startFloor = 'f1'; else if (/^#?(2f|f2|floor3|level3)$/i.test(h)) startFloor = 'f2'; else if (/^#?(3f|f3|attic)$/i.test(h)) startFloor = 'f3'; else if (/^#?(rf|roof)$/i.test(h)) startFloor = 'rf'; } catch (e) {}
+let wind = 0, windT = 0, windDir = 1, flashT = 0, boltT = 400, discs = [], notes = [], clouds = [], snots = [], P, enemies, dazed, blobs, puddles, parts, pops, pickups, sticks, waves, boss, spawns, lamps, tvs, tracts, trash, beams, gag;
 let sceneList = null, sceneIdx = 0, afterScene = null, tally = 0, clearBonus = 0;
 
 function newPlayer(x) {
@@ -1350,7 +1506,7 @@ function makeTrash() {
   return out;
 }
 function resetLevel() {
-  frisbees = []; carts = []; yells = []; notes = [];
+  frisbees = []; carts = []; yells = []; notes = []; discs = []; wind = 0; windT = 0; flashT = 0;
   clouds = []; snots = []; enemies = []; dazed = []; blobs = []; puddles = []; parts = []; pops = []; sticks = []; waves = []; tracts = []; beams = [];
   trash = makeTrash();
   spawns = SPAWNS.map(([type, x]) => ({ type, x:x * T, done:false }));
@@ -1361,8 +1517,10 @@ function resetLevel() {
   lamps = CHECKS.map((c, i) => ({ x:c * T, on:i === 0 }));
   tvs = TV_COLS.map(c => { const x = c * T; return { x, y:groundYAt(x + 16, 28), w:32, h:28, hp:5, on:true, flash:0 }; });
   if (L.gag.kind === 'record') gag = { kind:'record', x:L.gag.col * T + 2, y:GROUND - 30, w:26, h:30, done:false, t:0 };
-  else { const gx = L.gag.col * T, gw = L.gag.kind === 'board' ? 26 : 22, gh = L.gag.kind === 'board' ? 20 : 18; gag = { kind:L.gag.kind, x:gx, y:groundYAt(gx + gw / 2, gh), w:gw, h:gh, done:false, t:0 }; }
+  else { const gx = L.gag.col * T, gw = { board:26, dice:24, cat:20 }[L.gag.kind] || 22, gh = { board:20, dice:20, cat:24 }[L.gag.kind] || 18; gag = { kind:L.gag.kind, x:gx, y:groundYAt(gx + gw / 2, gh), w:gw, h:gh, done:false, t:0 }; }
   if (L.boss === 'drummer') boss = { kind:'drummer', x:BOSS_CX - 20, y:144, w:40, h:34, hp:BOSS_HP, state:'wait', t:0, flash:0, arms:0, phase:1, qi:0, crashFlash:0 };
+  else if (L.boss === 'phono') boss = { kind:'phono', x:BOSS_CX - 36, y:GROUND - 64, w:72, h:64, hp:BOSS_HP, state:'wait', t:0, flash:0, phase:1, qi:0, face:-1, arm:null };
+  else if (L.boss === 'heli') boss = { kind:'heli', x:BOSS_CX + 200, y:-40, hp:BOSS_HP, state:'wait', t:0, flash:0, phase:1, qi:0, face:-1, tx:BOSS_CX, ty:66, spot:null, tilt:0 };
   else if (L.boss === 'pastor') boss = { kind:'pastor', x:BOSS_CX - 30, y:GROUND - 80, w:60, h:80, hp:BOSS_HP, state:'wait', t:0, flash:0, phase:1, qi:0, face:-1, pose:'idle', vx:0, vy:0, air:false };
   else boss = { kind:'mom', x:BOSS_CX - 30, y:GROUND - 78, w:60, h:80, hp:BOSS_HP, state:'wait', t:0, flash:0, phase:1, qi:0, face:-1, pose:'idle', anim:0 };
   camLock = false; doorOpen = false; cpIndex = 0;
@@ -1422,7 +1580,7 @@ function update() {
     case 'pause': if (pressed.start) { state = 'play'; sfx('pause'); } break;
     case 'fall':
       if (stateT === 40) respawn();
-      if (stateT > 70) { state = 'play'; stateT = 0; playSong(camLock ? 'boss' : L.song); }
+      if (stateT > 70) { state = 'play'; stateT = 0; playSong(camLock ? L.bossSong || 'boss' : L.song); }
       break;
     case 'dying':
       P.vy += 0.22; P.y += P.vy; updateParts();
@@ -1448,17 +1606,32 @@ function respawn() {
   blobs = []; sticks = []; tracts = [];
 }
 
+function updateWeather() {
+  // roof: rain, lightning, and gusts that shove you (telegraphed on the HUD), calm during the boss
+  if (--boltT <= 0) { boltT = 420 + Math.floor(Math.random() * 360); flashT = 10; setTimeout(() => sfx('thunder'), 500); }
+  if (flashT > 0) flashT--;
+  windT = (windT + 1) % 480;
+  if (windT === 300) windDir = Math.random() < 0.5 ? -1 : 1;
+  wind = !camLock && windT >= 360 ? windDir * 0.9 * Math.sin((windT - 360) / 120 * Math.PI) : 0;
+  if (windT === 360 && !camLock) sfx('wind');
+  if (wind && state === 'play') {
+    const v = P.vx; P.vx = wind; P.x += wind; collideX(P); P.vx = v;
+    for (const b of blobs) b.vx += wind * 0.02;
+    if (frame % 2 === 0) parts.push({ x:cam + (wind > 0 ? -4 : W + 4), y:HUD + Math.random() * (GROUND - HUD), vx:wind * 6, vy:0.3, life:60, c:Math.random() < 0.3 ? '#6a8a3a' : '#8a98b8', g:0 });
+  }
+}
 function updatePlay() {
   updatePlayer();
   if (state !== 'play') return;
-  if (!camLock && P.x > LOCK_X) { camLock = true; boss.state = 'intro'; boss.t = 0; playSong('boss'); enemies = enemies.filter(e => e.x > ARENA_X - 40); }
+  if (L.wind) updateWeather();
+  if (!camLock && P.x > LOCK_X) { camLock = true; boss.state = 'intro'; boss.t = 0; playSong(L.bossSong || 'boss'); enemies = enemies.filter(e => e.x > ARENA_X - 40); }
   if (camLock) { cam += (ARENA_X - cam) * 0.1; if (Math.abs(cam - ARENA_X) < 0.5) cam = ARENA_X; }
   else { cam += ((P.x - 140 + P.face * 24) - cam) * 0.12; cam = Math.max(0, Math.min(cam, COLS * T - W)); }
   for (const s of spawns) if (!s.done && s.x < cam + W + 24 && s.x > cam - 24) { s.done = true; enemies.push(makeEnemy(s.type, s.x)); }
   lamps.forEach((l, i) => { if (!l.on && P.x > l.x) { l.on = true; cpIndex = i; sfx('check'); popText('CHECKPOINT', l.x + 6, GROUND - 40, '#ff88cc'); } });
   for (const e of enemies) updateEnemy(e);
   enemies = enemies.filter(e => !e.gone);
-  updateDazed(); updateBlobs(); updateSnots(); updateClouds(); updateTracts(); updateBoss(); updateSticks(); updateWaves(); updateMomStuff(); updateNotes(); updatePickups(); updateTrash(); updateTVs(); updateParts();
+  updateDazed(); updateBlobs(); updateSnots(); updateClouds(); updateTracts(); updateBoss(); updateSticks(); updateWaves(); updateMomStuff(); updateNotes(); updateDiscs(); updatePickups(); updateTrash(); updateTVs(); updateParts();
   for (const p of puddles) p.life--; puddles = puddles.filter(p => p.life > 0);
   for (const b of beams) b.life--; beams = beams.filter(b => b.life > 0);
   if (gag.t > 0) gag.t--;
@@ -1533,6 +1706,7 @@ function updatePlayer() {
 function makeEnemy(type, x) {
   const base = { type, x, vx:0, vy:0, face:-1, flash:0, stun:0, slip:0, slipCd:0, anim:0, onGround:false, mode:'walk', mt:0, cd:40 };
   if (type === 'rat') Object.assign(base, { w:16, h:9, hp:1 });
+  else if (type === 'doll') { Object.assign(base, { w:10, h:16, hp:1, mode:'sit', face:-1 }); base.y = groundYAt(x + 5, 16); return base; }
   else if (type === 'sheet') { Object.assign(base, { w:14, h:20, hp:2, y:GROUND - 74, by:GROUND - 74, mt:0, cd:60 }); return base; }
   else Object.assign(base, { w:12, h:32, hp:type === 'mosher' ? 3 : 2, hops:0 });
   base.y = groundYAt(x + base.w / 2, base.h);
@@ -1542,6 +1716,10 @@ function killEnemy(e) {
   e.gone = true;
   const cx = e.x + e.w / 2;
   if (e.type === 'rat') { burst(cx, e.y + 4, 10, ['#c8ff3c', '#58a010', '#ffffff']); addScore(100, cx, e.y - 10); sfx('hit'); return; }
+  if (e.type === 'doll') {
+    burst(cx, e.y + 6, 14, ['#f8f0f0', '#ffffff', '#d8b8c8', '#c8ff3c'], 2); sfx('shatter');
+    addScore(150, cx, e.y - 10); popText('SHATTERED!', cx, e.y - 20, '#f4f0ff', 45); return;
+  }
   if (e.type === 'sheet') {
     staticPuff(cx, e.y + 10); sfx('purge'); burst(cx, e.y + 10, 10, ['#ffffff', '#c8ff3c']);
     parts.push({ x:cx - 9, y:e.y, vx:(Math.random() < 0.5 ? -1 : 1) * 0.8, vy:-1.5, life:80, g:0.04, spr:SHEET_RAG, spin:true });
@@ -1563,6 +1741,7 @@ function updateEnemy(e) {
   else if (e.type === 'pusher') updatePusher(e);
   else if (e.type === 'aerobic') updateAerobic(e);
   else if (e.type === 'airg') updateAirG(e);
+  else if (e.type === 'doll') updateDoll(e);
   else { e.vx = e.face * 1.05; if (e.onGround && edgeAhead(e)) { e.face *= -1; e.vx = e.face * 1.05; } }
   if (e.slimed > 0) { e.slimed--; e.vx *= 0.45; if (frame % 10 === 0) parts.push({ x:e.x + Math.random() * e.w, y:e.y + 6 + Math.random() * 10, vx:0, vy:0.6, life:24, c:'#9ad828', g:0.05 }); }
   moveBody(e);
@@ -1616,6 +1795,18 @@ function updateSheet(e) {
   e.x += e.vx; e.y = Math.min(GROUND - e.h, e.y + e.vy);
   e.anim += 0.12;
   if (overlap(e, P)) hurt(e.x + e.w / 2, true);
+}
+// porcelain doll: sits like decor until you get close, then sprints at you in little hops
+function updateDoll(e) {
+  const dx = (P.x + P.w / 2) - (e.x + e.w / 2);
+  if (e.mode === 'sit') { e.vx = 0; if (Math.abs(dx) < 84 && Math.abs(P.y + P.h - e.y - e.h) < 48) { e.mode = 'wake'; e.mt = 22; e.face = dx >= 0 ? 1 : -1; sfx('doll'); popText('PLAY WITH ME', e.x + 5, e.y - 10, '#ff88cc', 40); } }
+  else if (e.mode === 'wake') { e.vx = 0; if (--e.mt <= 0) e.mode = 'run'; }
+  else {
+    if (frame % 24 === 0) e.face = dx >= 0 ? 1 : -1;
+    e.vx = e.face * 1.9;
+    if (e.onGround && edgeAhead(e)) { e.vy = -3.6; }
+    else if (e.onGround && frame % 20 === 0) e.vy = -1.8;
+  }
 }
 function updateAerobic(e) {
   const dx = (P.x + P.w / 2) - (e.x + e.w / 2);
@@ -1723,7 +1914,8 @@ function updateBlobs() {
     }
     if (b.dead) continue;
     if (!gag.done && overlap(b, gag)) {
-      b.dead = true; gag.done = true; gag.t = 240; sfx(gag.kind === 'phone' ? 'record' : 'backward'); addScore(300, gag.x + 13, gag.y - 8);
+      b.dead = true; gag.done = true; gag.t = 240; sfx(gag.kind === 'phone' ? 'record' : gag.kind === 'dice' ? 'dice' : gag.kind === 'cat' ? 'meow' : 'backward'); addScore(300, gag.x + 13, gag.y - 8);
+      if (gag.kind === 'dice') { P.hearts = Math.min(3, P.hearts + 1); P.belly = 100; }
       continue;
     }
     if (bossHittable() && overlap(b, bossBox())) {
@@ -1806,16 +1998,16 @@ function updateTVs() {
   }
 }
 
-const bossBox = () => boss.kind === 'pastor' ? (boss.pose === 'plank' ? { x:boss.x - 10, y:GROUND - 30, w:80, h:26 } : { x:boss.x + 18, y:boss.y + 8, w:24, h:70 })
+const bossBox = () => boss.kind === 'heli' ? { x:boss.x - 30, y:boss.y - 12, w:60, h:30 } : boss.kind === 'phono' ? { x:boss.x, y:boss.y - 8, w:72, h:72 } : boss.kind === 'pastor' ? (boss.pose === 'plank' ? { x:boss.x - 10, y:GROUND - 30, w:80, h:26 } : { x:boss.x + 18, y:boss.y + 8, w:24, h:70 })
   : boss.kind === 'mom' ? { x:boss.x + 18, y:boss.y + 8, w:24, h:70 } : { x:boss.x + 6, y:boss.y, w:28, h:24 };
-const bossHittable = () => ['idle', 'volley', 'crash', 'roll', 'records', 'cart', 'yell', 'walk', 'strum', 'luge', 'slam'].includes(boss.state);
+const bossHittable = () => ['idle', 'volley', 'crash', 'roll', 'records', 'cart', 'yell', 'walk', 'strum', 'luge', 'slam', 'spit', 'needle', 'backmask', 'plates', 'spot', 'strafe', 'troops'].includes(boss.state);
 function throwStick(ft, jitter) {
   const g = 0.15, sx = BOSS_CX - 10, sy = boss.y + 4;
   const tx = P.x + P.w / 2 + (Math.random() * 2 - 1) * jitter;
   sticks.push({ x:sx, y:sy, vx:(tx - sx) / ft, vy:(GROUND - 4 - sy - 0.5 * g * ft * ft) / ft, rot:0, bounced:false, harmless:false });
   sfx('stick');
 }
-function updateBoss() { if (boss.kind === 'pastor') updatePastor(); else if (boss.kind === 'mom') updateMom(); else updateDrummer(); }
+function updateBoss() { if (boss.kind === 'heli') updateHeli(); else if (boss.kind === 'phono') updatePhono(); else if (boss.kind === 'pastor') updatePastor(); else if (boss.kind === 'mom') updateMom(); else updateDrummer(); }
 function updateDrummer() {
   const B = boss;
   if (B.state === 'wait') return;
@@ -1973,6 +2165,156 @@ function updatePastor() {
   }
   if (bossHittable() && overlap(P, bossBox())) hurt(B.x + 30, true);
 }
+function updatePhono() {
+  const B = boss;
+  if (B.state === 'wait' || B.state === 'gone') return;
+  B.t++; if (B.flash > 0) B.flash--;
+  const p2 = B.phase === 2, pcx = P.x + P.w / 2;
+  const pivot = { x:B.x + 62, y:B.y - 8 }, rest = { x:B.x + 26, y:B.y - 10 };
+  if (!B.arm) B.arm = { x:rest.x, y:rest.y };
+  const armTo = (x, y, k) => { B.arm.x += (x - B.arm.x) * k; B.arm.y += (y - B.arm.y) * k; };
+  switch (B.state) {
+    case 'intro':
+      armTo(rest.x, rest.y, 0.2);
+      if (B.t === 30) popText('NAEM I EVOL... OOT TSUJ', B.x - 20, B.y - 90, '#c8ff3c', 90);
+      if (B.t > 120) { B.state = 'idle'; B.t = 0; }
+      break;
+    case 'idle': armTo(rest.x, rest.y, 0.15); if (B.t > (p2 ? 26 : 46)) { B.state = ['spit', 'needle', 'backmask'][B.qi++ % 3]; B.t = 0; } break;
+    case 'spit': {
+      // flings records off the platter; they roll and hop along the floor
+      armTo(rest.x, rest.y, 0.15);
+      const n = p2 ? 5 : 3;
+      for (let i = 0; i < n; i++) if (B.t === 16 + i * 16) { discs.push({ x:B.x + 10, y:B.y - 14, vx:-(p2 ? 2.9 : 2.4) - (i % 2) * 0.4, vy:-2.6, r:0 }); sfx('scratch'); }
+      if (B.t > 16 + n * 16 + 14) { B.state = 'idle'; B.t = 0; }
+      break;
+    }
+    case 'needle': {
+      // the tonearm swings out, locks on, and drops the needle like a pickaxe
+      if (B.t === 1) { B.tx = pcx; popText('SCRATCH!', B.x + 36, B.y - 40, '#ff5060', 50); }
+      if (B.t < 34) { B.tx += (pcx - B.tx) * 0.12; armTo(B.tx, GROUND - 120, 0.12); }
+      else if (B.t < 50) armTo(B.tx, GROUND - 120, 0.3);
+      else if (B.t < 58) { armTo(B.tx, GROUND - 4, 0.45); if (B.t === 57) { shake = 9; sfx('boom'); for (const d of [-1, 1]) waves.push({ x:B.tx - 7 + d * 12, y:GROUND - 12, w:14, h:12, vx:d * (p2 ? 2.8 : 2.2), life:140 }); } }
+      else if (B.t > 80) armTo(rest.x, rest.y, 0.12);
+      if (B.t >= 50 && B.t < 80 && overlap(P, { x:B.arm.x - 5, y:B.arm.y - 16, w:10, h:20 })) hurt(B.arm.x, false);
+      if (B.t > 104) { if (p2 && !B.again) { B.again = true; B.t = 0; } else { B.again = false; B.state = 'idle'; B.t = 0; } }
+      break;
+    }
+    case 'backmask': {
+      // the horn sings backwards: each letter homes in on you
+      armTo(rest.x, rest.y, 0.15);
+      const msg = (B.qi % 2 ? 'YEWEDYEBO' : 'YENOMDNES'), every = p2 ? 7 : 10;
+      if (B.t === 6) popText('...' + (B.qi % 2 ? 'YEWED YEBO' : 'YENOM DNES') + '...', B.x - 30, B.y - 112, '#c8ff3c', 70);
+      if (B.t >= 14 && (B.t - 14) % every === 0 && (B.t - 14) / every < msg.length) {
+        notes.push({ x:B.x - 40, y:GROUND - 118, by:GROUND - 118, vx:-(p2 ? 2.0 : 1.6), t:0, ch:msg[(B.t - 14) / every] }); sfx('strum');
+      }
+      if (B.t > 14 + msg.length * every + 20) { B.state = 'idle'; B.t = 0; }
+      break;
+    }
+    case 'dying':
+      armTo(B.x + 36 + Math.sin(B.t * 0.5) * 30, B.y - 30, 0.3); shake = 4;
+      if (B.t % 6 === 0) staticPuff(B.x + 10 + Math.random() * 52, B.y + Math.random() * 50);
+      if (B.t % 14 === 0) { sfx('scratch'); parts.push({ x:B.x + 26, y:B.y - 12, vx:(Math.random() - 0.5) * 4, vy:-3 - Math.random() * 2, life:80, g:0.15, spr:RECORD, spin:true }); }
+      if (B.t === 120) {
+        B.state = 'gone'; sfx('boom'); shake = 12;
+        for (let i = 0; i < 10; i++) parts.push({ x:B.x + 36, y:B.y, vx:(Math.random() - 0.5) * 5, vy:-2 - Math.random() * 4, life:90, g:0.15, spr:RECORD, spin:true });
+        addScore(8000, B.x + 36, B.y - 30); popText('BACKMASKER BUSTED!', B.x + 36, B.y - 50, '#c8ff3c', 90);
+        playSong('win', () => { doorOpen = true; if (state === 'play') { playSong(L.song); popText('UP TO THE ROOF', DOOR_X + 18, GROUND - 70, '#c8ff3c', 120); } });
+      }
+      break;
+  }
+  if (bossHittable() && overlap(P, bossBox())) hurt(B.x + 36, true);
+}
+function updateDiscs() {
+  for (const d of discs) {
+    d.vy += 0.2; d.x += d.vx; d.y += d.vy; d.r++;
+    if (d.y > GROUND - 8) { d.y = GROUND - 8; d.vy = -2.8; }
+    const box = { x:d.x - 7, y:d.y - 7, w:14, h:14 };
+    if (overlap(P, box)) { hurt(d.x, false); d.dead = true; }
+    for (const b of blobs) if (!b.dead && overlap(b, box)) { b.dead = true; d.dead = true; }
+    for (const s of snots) if (!s.dead && overlap(s, box)) { s.dead = true; d.dead = true; }
+    if (d.dead && !overlap(P, box)) { burst(d.x, d.y, 8, ['#141018', '#9ae030', '#6a6080']); addScore(50, d.x, d.y - 8); sfx('stick'); }
+    if (d.x < ARENA_X - 20) d.dead = true;
+  }
+  discs = discs.filter(d => !d.dead);
+}
+function throwPlate(sx, sy, ft, jitter) {
+  const g = 0.15, tx = P.x + P.w / 2 + (Math.random() * 2 - 1) * jitter, ty = P.y + P.h - 4;
+  sticks.push({ x:sx, y:sy, vx:(tx - sx) / ft, vy:(ty - sy - 0.5 * g * ft * ft) / ft, rot:0, bounced:false, harmless:false, plate:true });
+  sfx('toss');
+}
+function updateHeli() {
+  const B = boss;
+  if (B.state === 'wait') return;
+  if (B.state === 'gone') { if (frame % 6 === 0) parts.push({ x:ARENA_X + 30 + Math.random() * 30, y:GROUND + 10, vx:0.2, vy:-0.8, life:120, c:'#3a3446', g:-0.002 }); return; }
+  B.t++; if (B.flash > 0) B.flash--;
+  const p2 = B.phase === 2, pcx = P.x + P.w / 2, L0 = ARENA_X + 50, R0 = ARENA_X + W - 50;
+  const fly = (tx, ty, k = 0.04) => { const dx = tx - B.x; B.x += dx * k; B.y += (ty - B.y) * k; B.tilt = Math.max(-0.25, Math.min(0.25, dx * 0.004)); };
+  const bob = Math.sin(frame * 0.05) * 4;
+  if (B.state !== 'strafe') B.face = pcx < B.x ? -1 : 1;
+  if (p2 && frame % 5 === 0 && B.state !== 'dying') parts.push({ x:B.x + 20 * -B.face, y:B.y - 8, vx:(Math.random() - 0.5) * 0.4, vy:-0.6, life:50, c:'#4a4458', g:-0.004 });
+  switch (B.state) {
+    case 'intro':
+      fly(BOSS_CX, 66, 0.035);
+      if (B.t === 40) popText('FRIENDS! WE ARE LIVE!', BOSS_CX, 110, '#ffd850', 90);
+      if (B.t > 140) { B.state = 'idle'; B.t = 0; }
+      break;
+    case 'idle':
+      if (B.t === 1) B.tx = L0 + Math.random() * (R0 - L0);
+      fly(B.tx, 66 + bob);
+      if (B.t > (p2 ? 34 : 56)) { B.state = ['plates', 'spot', 'strafe', 'plates', 'troops'][B.qi++ % 5]; B.t = 0; }
+      break;
+    case 'plates': {
+      // collection plates, flung at you
+      fly(B.tx, 66 + bob, 0.03);
+      const throws = p2 ? [20, 30, 40, 50, 60] : [20, 34, 48];
+      throws.forEach((f, i) => { if (B.t === f) throwPlate(B.x + B.face * 10, B.y + 12, 40 + i * 4, 18); });
+      if (B.t === 18) popText(['PASS THE PLATE!', 'GIVE TILL IT HURTS!', 'TITHE, SON!'][B.qi % 3], B.x, B.y - 26, '#ffd850', 50);
+      if (B.t > (p2 ? 84 : 74)) { B.state = 'idle'; B.t = 0; }
+      break;
+    }
+    case 'spot': {
+      // the spotlight hunts you; when it locks on, the Reverend calls down a smiting
+      fly(B.tx, 60 + bob, 0.03);
+      if (B.t === 1) { B.spot = { x:B.x, lock:0, strikes:0 }; popText('LET ME SEE YOU, SON!', B.x, B.y - 26, '#fff0a0', 50); }
+      const S = B.spot;
+      if (!S.lock) { S.x += Math.sign(pcx - S.x) * Math.min(Math.abs(pcx - S.x), p2 ? 2.6 : 1.9); if (Math.abs(pcx - S.x) < 4 || B.t > 150) { S.lock = 1; sfx('charge'); } }
+      else if (++S.lock === 34) { sfx('zap'); shake = 6; S.fire = 12; }
+      if (S.fire > 0) { S.fire--; if (overlap(P, { x:S.x - 12, y:0, w:24, h:GROUND })) hurt(S.x, false); if (frame % 2 === 0) burst(S.x, GROUND - 4, 4, ['#ffffff', '#fff0a0'], 2); }
+      if (S.lock > 52) { S.strikes++; if (p2 && S.strikes < 2) { S.lock = 0; } else { B.state = 'idle'; B.t = 0; B.spot = null; } }
+      break;
+    }
+    case 'strafe': {
+      // dives low and sweeps the roof: get off the platforms
+      if (B.t === 1) { B.face = B.x < (L0 + R0) / 2 ? 1 : -1; B.sx = B.face > 0 ? L0 - 30 : R0 + 30; popText('HALLELUJAH!', B.x, B.y - 26, '#ff88cc', 50); }
+      if (B.t < 40) fly(B.sx, 50, 0.08);
+      else if (B.t < 44) { if (B.t === 40) sfx('charge'); }
+      else { B.x += B.face * (p2 ? 3.8 : 3); B.y += (118 - B.y) * 0.1; B.tilt = B.face * 0.3;
+        if ((B.face > 0 && B.x > R0 + 30) || (B.face < 0 && B.x < L0 - 30)) { B.state = 'idle'; B.t = 0; } }
+      break;
+    }
+    case 'troops':
+      fly(B.tx, 70 + bob, 0.04);
+      if (B.t === 10) popText('SEND IN THE FAITHFUL!', B.x, B.y - 26, '#80c8ff', 50);
+      if ((B.t === 30 || (p2 && B.t === 60)) && enemies.length < 3) {
+        const e = makeEnemy(B.t === 30 ? 'pusher' : 'mosher', B.x - 6); e.y = B.y + 14; e.vy = 0; enemies.push(e); sfx('toss');
+      }
+      if (B.t > 80) { B.state = 'idle'; B.t = 0; }
+      break;
+    case 'dying':
+      B.tilt = Math.sin(B.t * 0.4) * 0.6; B.x -= 1.2; B.y += 0.5 + B.t * 0.01; shake = 4;
+      if (B.t % 4 === 0) parts.push({ x:B.x, y:B.y, vx:(Math.random() - 0.5), vy:-1, life:60, c:Math.random() < 0.5 ? '#ff7020' : '#3a3446', g:-0.01 });
+      if (B.t % 18 === 0) sfx('purge');
+      if (B.t === 40) popText('NOT ON LIVE TV!', B.x, B.y - 26, '#ffd850', 70);
+      if (B.t === 160) {
+        B.state = 'gone'; sfx('boom'); shake = 16; flashT = 14;
+        for (const tv of tvs) if (tv.on) { tv.on = false; burst(tv.x + 16, tv.y + 14, 10, ['#ffffff', '#80c8ff'], 2); }
+        addScore(10000, BOSS_CX, 90); popText('GLORY ONE IS DOWN!', BOSS_CX, 80, '#c8ff3c', 120); popText('SIGNAL LOST', BOSS_CX, 100, '#80c8ff', 120);
+        playSong('win', () => { doorOpen = true; if (state === 'play') { playSong('stage'); popText('FREE ROXY!', DOOR_X + 18, GROUND - 74, '#ff88cc', 160); } });
+      }
+      break;
+  }
+  if (bossHittable() && overlap(P, bossBox())) hurt(B.x, false);
+}
 function updateNotes() {
   for (const n of notes) {
     n.t++; n.x += n.vx;
@@ -1990,8 +2332,8 @@ function updateNotes() {
 }
 function damageBoss(n, x, y) {
   boss.hp -= n; boss.flash = 8; shake = 3; sfx('bossHit'); addScore(100);
-  if (boss.hp <= Math.floor(BOSS_HP / 2) && boss.phase === 1) { boss.phase = 2; popText(boss.kind === 'mom' ? 'NOW SHE\'S MAD!' : boss.kind === 'pastor' ? 'NOT COOL, DUDE!' : 'HE IS ENRAGED!', x, 120, '#ff5060'); }
-  if (boss.hp <= 0) { boss.state = 'dying'; boss.t = 0; stopSong(); sticks = []; waves = []; frisbees = []; carts = []; yells = []; notes = []; if (boss.kind === 'pastor') { boss.pose = 'idle'; boss.y = GROUND - 80; boss.air = false; } }
+  if (boss.hp <= Math.floor(BOSS_HP / 2) && boss.phase === 1) { boss.phase = 2; popText(boss.kind === 'mom' ? 'NOW SHE\'S MAD!' : boss.kind === 'pastor' ? 'NOT COOL, DUDE!' : boss.kind === 'phono' ? 'SKIPPING!' : boss.kind === 'heli' ? 'ENGINE SMOKING!' : 'HE IS ENRAGED!', x, 120, '#ff5060'); }
+  if (boss.hp <= 0) { boss.state = 'dying'; boss.t = 0; stopSong(); sticks = []; waves = []; frisbees = []; carts = []; yells = []; notes = []; discs = []; if (boss.kind === 'pastor') { boss.pose = 'idle'; boss.y = GROUND - 80; boss.air = false; } }
 }
 function updateMomStuff() {
   for (const f of frisbees) {
@@ -2158,10 +2500,16 @@ const DECOR_F2 = [
   { t:'poster', x:2640, i:1 }, { t:'poster', x:2700, i:2 },
   { t:'portrait', x:2860 }, { t:'pure', x:2940 }, { t:'portrait', x:3040 },
 ];
+const DECOR_F3 = [
+  { t:'roundwin', x:200 }, { t:'stencil', x:330, str:'XMAS' }, { t:'roundwin', x:700 }, { t:'stencil', x:880, str:'BABY CLOTHES' },
+  { t:'stencil', x:1240, str:'CONFISCATED' }, { t:'roundwin', x:1450 }, { t:'stencil', x:1620, str:'CONFISCATED' }, { t:'stencil', x:1900, str:'BURN LATER' },
+  { t:'pure', x:2180 }, { t:'roundwin', x:2440 }, { t:'stencil', x:2560, str:'PLEDGES' }, { t:'stencil', x:2760, str:'DO NOT PLAY' }, { t:'roundwin', x:2960 },
+];
 const HOUSE_CFG = {
   f1:{ walls:[[960, KITCHEN_WALL], [2240, LIVING_WALL], [1e9, DEN_WALL]], decor:DECOR_F1, fixtures:[180, 560, 900, 1300, 1700, 2100, 2500, 2860], fix:'#fff0c0', molding:['#f0e8d8', '#c8b898', '#8a7a5a'] },
   f2:{ walls:[[768, HALL_WALL], [1600, SIS_WALL], [2048, BATH_WALL], [2816, TEEN_WALL], [1e9, MASTER_WALL]], decor:DECOR_F2,
        fixtures:[200, 560, 1000, 1400, 1840, 2900, 3060], fix:'#fff0c0', molding:['#e8e0d0', '#b8a888', '#6a5a3a'], doorways:[768, 1600, 2048, 2816] },
+  f3:{ walls:[[1e9, ATTIC_WALL]], decor:DECOR_F3, fixtures:[120, 420, 760, 1100, 1380, 1700, 2000, 2300, 2620, 2940, 3120], fix:'#ffd890', molding:['#24160a', '#3a2614', '#140a04'], bulbs:true },
 };
 function drawHouseWall(cx) {
   const cfg = HOUSE_CFG[L.id], x0 = Math.floor(cx / 64) * 64;
@@ -2244,6 +2592,11 @@ function drawHouseWall(cx) {
       case 'keepout':
         rect(x, 80, 40, 28, '#ffd850'); rect(x + 2, 82, 36, 24, '#141018'); text('KEEP', x + 20, 85, '#ffd850', { align:'center' }); text('OUT', x + 20, 96, '#ff5060', { align:'center' }); break;
       case 'banner': drawBanner(x, 52, d.str, d.c); break;
+      case 'roundwin':
+        disc(x, 80, 20, '#5a3a20'); disc(x, 80, 17, '#0e1440'); rect(x - 17, 79, 34, 2, '#5a3a20'); rect(x - 1, 63, 2, 34, '#5a3a20');
+        rect(x + 6, 70, 2, 2, '#f4ecd0'); rect(x - 9, 86, 1, 1, '#ffffff');
+        light(x, 80, 40, '#4060d0', 0.16); break;
+      case 'stencil': text(d.str, x, 132, '#8a6a42'); break;
       case 'poster': {
         const p = POSTER[d.i], y = 70;
         rect(x, y, 30, 40, p.bg); rect(x + 2, y + 2, 26, 36, p.inner); rect(x + 2, y + 2, 26, 1, '#ffffff');
@@ -2255,11 +2608,41 @@ function drawHouseWall(cx) {
   // ceiling light fixtures
   for (const fx of cfg.fixtures) {
     const x = fx - cx; if (x < -80 || x > W + 80) continue;
+    if (cfg.bulbs) {
+      // bare bulbs on pull chains; some flicker
+      const sw = Math.round(Math.sin(frame * 0.03 + fx) * 2), on = (fx % 7 !== 3) || Math.random() > 0.08;
+      rect(x, HUD + 9, 1, 26, '#5a5468'); rect(x - 3 + sw, HUD + 35, 7, 3, '#8a8698'); rect(x - 2 + sw, HUD + 38, 5, 6, on ? '#fff0b0' : '#5a5040'); rect(x + 4 + sw, HUD + 38, 1, 12, '#c8c4d4');
+      if (on) { light(x + sw, HUD + 44, 80, cfg.fix, 0.2); light(x + sw, GROUND - 30, 70, null); }
+      continue;
+    }
     rect(x - 10, HUD + 6, 20, 5, '#f0e8d8'); rect(x - 7, HUD + 11, 14, 3, '#fff8d0');
     light(x, HUD + 50, 90, cfg.fix, 0.18);
   }
 }
-function drawWall(cx) { if (L.theme === 'basement') drawBasementWall(cx); else drawHouseWall(cx); }
+function drawWall(cx) { if (L.theme === 'basement') drawBasementWall(cx); else if (L.theme === 'roof') drawRoofSky(cx); else drawHouseWall(cx); }
+const SKY_STARS = Array.from({ length:40 }, (_, i) => { const r = rng(i * 31 + 7); return [Math.floor(r() * 640), HUD + Math.floor(r() * 70)]; });
+const SUBURB = Array.from({ length:24 }, (_, i) => { const r = rng(i * 13 + 5); return { x:i * 64 + Math.floor(r() * 20), w:40 + Math.floor(r() * 20), h:22 + Math.floor(r() * 18), roof:r() < 0.5 }; });
+function drawRoofSky(cx) {
+  bands(0, HUD, W, GROUND - HUD, ['#0a0820', '#100c2c', '#181238', '#221844', '#2c1c4c', '#3a2250']);
+  for (const [sx, sy] of SKY_STARS) { const x = ((sx - cx * 0.05) % 640 + 640) % 640; if (x < W && ((frame >> 5) + sx) % 9) rect(x, sy, 1, 1, '#8a88b0'); }
+  const mx = 250 - cx * 0.04; disc(mx, HUD + 38, 15, '#e8e0c8'); disc(mx - 4, HUD + 34, 3, '#c8c0a8');
+  // storm clouds drift over the moon
+  for (let i = 0; i < 6; i++) { const x = ((i * 90 - frame * 0.15 - cx * 0.1) % 540 + 540) % 540 - 100, y = HUD + 18 + (i % 3) * 14; ctx.globalAlpha = 0.85; disc(x, y, 18, '#1a1430'); disc(x + 20, y + 4, 14, '#1a1430'); disc(x - 18, y + 6, 12, '#1a1430'); ctx.globalAlpha = 1; }
+  // the Glory broadcast tower on the horizon
+  const tx = 60 - cx * 0.08;
+  ctx.strokeStyle = '#2a2040'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(tx - 14, GROUND - 40); ctx.lineTo(tx, HUD + 30); ctx.lineTo(tx + 14, GROUND - 40); ctx.stroke();
+  for (let y = HUD + 40; y < GROUND - 40; y += 12) { const hw = (y - HUD - 30) * 0.17; rect(tx - hw, y, hw * 2, 1, '#2a2040'); }
+  if ((frame >> 5) & 1) { rect(tx - 1, HUD + 28, 3, 3, '#ff3030'); light(tx, HUD + 29, 14, '#ff3030', 0.4); }
+  // suburb skyline with every TV tuned to the Reverend
+  for (const h of SUBURB) {
+    const x = ((h.x - cx * 0.25) % 1536 + 1536) % 1536 - 80; if (x < -70 || x > W + 10) continue;
+    const top = GROUND - 26 - h.h;
+    rect(x, top, h.w, GROUND - top, '#120c22');
+    if (h.roof) { ctx.fillStyle = '#120c22'; ctx.beginPath(); ctx.moveTo(x - 4, top); ctx.lineTo(x + h.w / 2, top - 12); ctx.lineTo(x + h.w + 4, top); ctx.fill(); }
+    for (let k = 0; k < 2; k++) { const wx = x + 6 + k * (h.w - 16), lit = ((frame >> 4) + h.x + k) % 13 > 1; rect(wx, top + 8, 8, 7, lit ? '#3a5cd0' : '#5a7cf0'); if (lit) light(wx + 4, top + 11, 12, '#4060ff', 0.2); }
+  }
+  bands(0, GROUND - 26, W, 26, ['#0c0818', '#08060f']);
+}
 function drawBasementWall(cx) {
   const wx = cx * 0.6;
   const off = Math.floor(wx) % 96;
@@ -2331,7 +2714,16 @@ const PROPS_F2 = [
   { t:'tank', x:1824 }, { t:'towels', x:1960 }, { t:'lavalamp', x:2240 }, { t:'blacklight', x:2420 }, { t:'lavalamp', x:2560 }, { t:'bgamps', x:2600 },
   { t:'nightstand', x:2846 }, { t:'nightstand', x:3010 },
 ];
-const PROPS = { b1:PROPS_B1, f1:PROPS_F1, f2:PROPS_F2 };
+const PROPS_F3 = [
+  { t:'basedoor', x:2, label:'2F' }, { t:'dressform', x:230 }, { t:'xmastree', x:560 }, { t:'rocker', x:800 }, { t:'crib', x:990 },
+  { t:'dressform', x:1320 }, { t:'recordpile', x:1500 }, { t:'recordpile', x:1760 }, { t:'cashbags', x:2290 }, { t:'cashbags', x:2600 },
+  { t:'recordpile', x:2860 },
+];
+const PROPS_RF = [
+  { t:'hatch', x:6 }, { t:'tvantenna', x:300 }, { t:'dish', x:690 }, { t:'tvantenna', x:1040 }, { t:'weathervane', x:1380 }, { t:'tvantenna', x:1700 },
+  { t:'dish', x:2120 }, { t:'mast', x:2700 },
+];
+const PROPS = { b1:PROPS_B1, f1:PROPS_F1, f2:PROPS_F2, f3:PROPS_F3, rf:PROPS_RF };
 function drawProps(cx) {
   for (const d of PROPS[L.id]) {
     const x = Math.round(d.x - cx);
@@ -2405,6 +2797,46 @@ function drawProps(cx) {
         rect(x, GROUND - 56, 40, 56, '#5a3418'); rect(x + 3, GROUND - 53, 34, 53, '#0a0610');
         for (let i = 0; i < 5; i++) rect(x + 4, GROUND - 10 - i * 10, 32, 2, '#3a2a30');
         text(d.label || 'B1', x + 20, GROUND - 66, '#80c8ff', { align:'center', shadow:'#000' }); break;
+      case 'dressform':
+        rect(x + 7, GROUND - 14, 2, 14, '#5a3418'); rect(x + 1, GROUND - 2, 14, 2, '#5a3418');
+        disc(x + 8, GROUND - 34, 8, '#c8a890'); rect(x + 2, GROUND - 34, 13, 18, '#c8a890'); rect(x + 6, GROUND - 46, 4, 6, '#8a6a50');
+        rect(x, GROUND - 26, 16, 10, '#f4f0ff'); rect(x, GROUND - 26, 16, 1, '#ffffff'); text('?', x + 4, GROUND - 40, '#5a4a3a'); break;
+      case 'xmastree':
+        for (let i = 0; i < 4; i++) { ctx.fillStyle = '#1a4a28'; ctx.beginPath(); ctx.moveTo(x + 18, GROUND - 60 + i * 10); ctx.lineTo(x + 2 - i * 2, GROUND - 40 + i * 10); ctx.lineTo(x + 34 + i * 2, GROUND - 40 + i * 10); ctx.fill(); }
+        rect(x + 15, GROUND - 10, 6, 10, '#5a3418');
+        for (let i = 0; i < 7; i++) { const lx = x + 6 + (i * 13) % 26, ly = GROUND - 48 + i * 6, on = ((frame >> 4) + i) % 3; rect(lx, ly, 2, 2, on ? ['#ff4030', '#ffd850', '#40c0ff'][i % 3] : '#3a3446'); }
+        rect(x + 16, GROUND - 64, 4, 4, '#ffd850'); break;
+      case 'rocker':
+        ctx.strokeStyle = '#8a5428'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(x + 18, GROUND - 26, 22, 0.5, 2.6); ctx.stroke();
+        rect(x + 6, GROUND - 26, 26, 10, '#f4f0e8'); disc(x + 30, GROUND - 32, 6, '#f4f0e8'); rect(x + 33, GROUND - 34, 2, 2, '#140b1a'); rect(x + 24, GROUND - 40, 4, 6, '#c02838');
+        rect(x + 8, GROUND - 16, 2, 10, '#8a5428'); rect(x + 26, GROUND - 16, 2, 10, '#8a5428'); break;
+      case 'crib':
+        rect(x, GROUND - 40, 60, 3, '#e8dcc0'); rect(x, GROUND - 14, 60, 3, '#e8dcc0'); for (let i = 0; i <= 60; i += 6) rect(x + i, GROUND - 40, 2, 40, '#e8dcc0');
+        text('Z', x + 30, GROUND - 56 - ((frame >> 4) % 3) * 2, '#5a5468'); break;
+      case 'recordpile':
+        for (let i = 0; i < 6; i++) { rect(x + (i % 2) * 3, GROUND - 4 - i * 4, 30, 4, '#141018'); rect(x + 12 + (i % 2) * 3, GROUND - 3 - i * 4, 6, 2, ['#9ae030', '#ff60c0', '#ffd850'][i % 3]); }
+        rect(x + 32, GROUND - 22, 22, 22, '#b8864a'); rect(x + 32, GROUND - 22, 22, 2, '#d8a868'); text('X', x + 39, GROUND - 16, '#c02838'); break;
+      case 'cashbags':
+        for (const [ox, sz] of [[0, 10], [16, 13], [36, 9]]) { disc(x + ox + sz, GROUND - sz, sz, '#c8b888'); rect(x + ox + sz - 3, GROUND - sz * 2 - 3, 6, 4, '#a89868'); text('$', x + ox + sz - 4, GROUND - sz - 4, '#3a6a30'); }
+        light(x + 30, GROUND - 14, 30, '#ffd850', 0.15); break;
+      case 'hatch':
+        rect(x, GROUND - 4, 36, 4, '#5a3418'); rect(x + 2, GROUND - 22, 32, 18, '#3a2410'); rect(x + 2, GROUND - 22, 32, 1, '#8a5428'); rect(x + 4, GROUND - 26, 2, 8, '#8a8698');
+        text('3F', x + 18, GROUND - 38, '#80c8ff', { align:'center', shadow:'#000' }); break;
+      case 'tvantenna':
+        rect(x, GROUND - 70, 2, 70, '#5a5468');
+        for (let i = 0; i < 4; i++) rect(x - 14 + i * 2, GROUND - 66 + i * 8, 30 - i * 4, 1, '#8a8698');
+        rect(x - 1, GROUND - 72, 4, 2, '#8a8698'); break;
+      case 'dish':
+        rect(x + 10, GROUND - 22, 3, 22, '#5a5468'); ctx.fillStyle = '#c8c4d4'; ctx.beginPath(); ctx.ellipse(x + 10, GROUND - 30, 14, 9, -0.5, 0, 7); ctx.fill();
+        ctx.fillStyle = '#8a8698'; ctx.beginPath(); ctx.ellipse(x + 11, GROUND - 30, 10, 6, -0.5, 0, 7); ctx.fill(); rect(x + 14, GROUND - 38, 2, 8, '#5a5468'); break;
+      case 'weathervane': {
+        const wd = Math.sign(wind || 1);
+        rect(x, GROUND - 60, 2, 60, '#5a5468'); rect(x - 12 * wd, GROUND - 56, 24, 2, '#c8a040'); rect(x + 10 * wd, GROUND - 60, 4, 8, '#c8a040'); text('N', x - 3, GROUND - 74, '#8a8698'); break;
+      }
+      case 'mast':
+        rect(x + 4, HUD + 30, 3, GROUND - HUD - 30, '#6a6478'); rect(x + 4, HUD + 30, 1, GROUND - HUD - 30, '#a8a4b8');
+        for (let i = 0; i < 4; i++) rect(x - 10 + i * 2, HUD + 36 + i * 10, 30 - i * 4, 2, '#8a8698');
+        if ((frame >> 4) & 1) { rect(x + 3, HUD + 26, 5, 4, '#ff3030'); light(x + 5, HUD + 28, 20, '#ff3030', 0.4); } break;
       case 'nightlight':
         rect(x, GROUND - 24, 6, 8, '#f4f0e8'); rect(x + 1, GROUND - 23, 4, 5, '#ffe890'); light(x + 3, GROUND - 20, 26, '#ffe890', 0.3); break;
       case 'bunk':
@@ -2491,6 +2923,15 @@ function drawTiles(cx) {
       }
       continue;
     }
+    if (L.theme === 'attic' || L.theme === 'roof') {
+      const roof = L.theme === 'roof';
+      if (t === 1) { const z = roof ? HOUSE.shingle : HOUSE.plank; ctx.drawImage(below === 1 ? z.fill : z.top, x, y); }
+      else if (t === 2) ctx.drawImage(roof ? (below === 2 ? HOUSE.shingle.fill : HOUSE.shingle.top) : HOUSE.box[below === 2 ? 1 : 0], x, y);
+      else if (t === 3) ctx.drawImage(roof ? HOUSE.grate : HOUSE.beam, x, y);
+      else if (t === 4) ctx.drawImage(roof ? HOUSE.chimney[below === 4 ? 1 : 0] : TILE.crate, x, y);
+      if (roof && t === 4 && below !== 4 && frame % 12 === tx % 12) parts.push({ x:tx * T + 8, y:y - 2, vx:0.3 + wind * 0.8, vy:-0.5, life:60, c:'#4a4458', g:-0.003 });
+      continue;
+    }
     if (L.theme === 'upstairs') {
       if (t === 1) { const z = HOUSE[FLOOR_ZONE(tx)]; ctx.drawImage(below === 1 ? z.fill : z.top, x, y); }
       else if (t === 2) ctx.drawImage(HOUSE.dresser[below === 2 ? 1 : 0], x, y);
@@ -2558,6 +2999,20 @@ function drawTV(tv, cx) {
 function drawGag(cx) {
   const x = Math.round(gag.x - cx), y = gag.y;
   if (x < -60 || x > W + 60) return;
+  if (gag.kind === 'dice') {
+    ctx.drawImage(DICEBOX, x, y);
+    if (gag.done && gag.t > 0) {
+      const rolling = gag.t > 190, n = rolling ? 1 + (frame % 20) : 20;
+      text('D' + n, x + 12, y - 16, rolling ? '#ffffff' : '#c8ff3c', { align:'center', shadow:'#000' });
+      if (!rolling) { text('NATURAL 20!', x + 12, y - 40, '#ffd850', { align:'center', shadow:'#000' }); text('+1 HEART', x + 12, y - 28, '#ff88cc', { align:'center', shadow:'#000' }); }
+    } else if ((frame % 140) < 30) light(x + 16, y + 4, 20, '#e83860', 0.35);
+    return;
+  }
+  if (gag.kind === 'cat') {
+    ctx.drawImage(CAT[gag.done && gag.t > 0 ? 1 : (frame >> 5) & 1], x, y + 8);
+    if (gag.done && gag.t > 0) { text('MRRROW.', x + 10, y - 30, '#ffd850', { align:'center', shadow:'#000' }); text('(HAIL PUKE)', x + 10, y - 18, '#a8a4b8', { align:'center', shadow:'#000' }); }
+    return;
+  }
   if (gag.kind === 'board') {
     ctx.drawImage(BOARD, x, y + 8);
     const a = gag.done ? frame * 0.21 : frame * 0.03;
@@ -2605,6 +3060,18 @@ function drawLamps(cx) {
 function drawDoor(cx) {
   const x = DOOR_X - cx, y = GROUND - 56;
   if (x > W + 4) return;
+  if (L.id === 'rf') {
+    // Roxy, tied to the base of the broadcast mast
+    if (!doorOpen) {
+      ctx.drawImage(pick(ROXY, -1), Math.round(x + 2), GROUND - 40);
+      for (let i = 0; i < 3; i++) rect(x + 8, GROUND - 26 + i * 6, 18, 1, '#c8a878');
+      if ((frame % 160) < 60) text('HELP!', x + 18, GROUND - 54, '#ff88cc', { align:'center', shadow:'#000' });
+    } else {
+      ctx.drawImage(pick(ROXY_FREE, -1), Math.round(x + 2), GROUND - 40 - ((frame >> 3) & 1) * 2);
+      light(x + 18, GROUND - 20, 40, '#ff88cc', 0.3);
+    }
+    return;
+  }
   rect(x - 4, y - 4, 44, 60, '#3a2410'); rect(x - 4, y - 4, 44, 3, '#8a5428');
   if (!doorOpen) {
     rect(x, y, 36, 56, '#6a2a18');
@@ -2641,7 +3108,80 @@ function drawPickups(cx) {
     }
   }
 }
-function drawBossObj(cx) { if (boss.kind === 'pastor') drawPastor(cx); else if (boss.kind === 'mom') drawMom(cx); else drawKit(cx); }
+function drawPhono(cx) {
+  const B = boss, x = Math.round(B.x - cx), y = B.y;
+  if (x < -160 || x > W + 60) return;
+  if (B.state === 'gone') {
+    rect(x + 4, GROUND - 24, 64, 24, '#4a2a14'); rect(x + 4, GROUND - 24, 64, 2, '#7a4a28'); rect(x + 20, GROUND - 30, 30, 6, '#3a2010');
+    ctx.save(); ctx.translate(x - 4, GROUND - 6); ctx.rotate(-0.3); rect(0, -6, 30, 12, '#8a6a30'); ctx.restore();
+    if (frame % 10 === 0) parts.push({ x:B.x + 30 + Math.random() * 10, y:GROUND - 26, vx:0, vy:-0.6, life:50, c:'#4a4458', g:-0.003 });
+    return;
+  }
+  if (B.state === 'dying' && (frame & 2)) return;
+  const fl = B.flash > 0 && (B.flash & 2), wood = fl ? '#ffffff' : '#6a3a1a', woodH = fl ? '#ffffff' : '#9a5a2a';
+  // horn: a flared brass bell rising up and to the left
+  const hx = x - 22, hy = GROUND - 120, sing = B.state === 'backmask' ? Math.sin(frame * 0.6) * 2 : 0;
+  ctx.strokeStyle = fl ? '#ffffff' : '#a87820'; ctx.lineWidth = 8; ctx.beginPath(); ctx.moveTo(x + 20, y - 8); ctx.quadraticCurveTo(x + 6, hy + 30, hx + 10, hy + 12); ctx.stroke();
+  disc(hx, hy, 24 + sing, fl ? '#ffffff' : '#c89838'); disc(hx - 3, hy, 19 + sing, '#e8c060'); disc(hx - 6, hy, 13 + sing, '#3a2010'); disc(hx - 8, hy, 7, '#140808');
+  if (B.state === 'backmask') light(hx - 6, hy, 40, '#c8ff3c', 0.4);
+  // cabinet with a speaker-grille face
+  rect(x, y, 72, 64, wood); rect(x, y, 72, 3, woodH); rect(x + 70, y, 2, 64, '#3a2010');
+  rect(x + 8, y + 14, 56, 36, '#2a1608');
+  for (let i = 0; i < 56; i += 4) rect(x + 8 + i, y + 14, 2, 36, '#4a2a10');
+  const glare = B.state === 'idle' || B.state === 'intro' ? '#c8ff3c' : '#ff4040';
+  rect(x + 14, y + 22, 12, 6, glare); rect(x + 46, y + 22, 12, 6, glare); rect(x + 22, y + 40, 28, 4, '#140808');
+  for (let i = 0; i < 6; i++) rect(x + 24 + i * 4, y + 38, 2, 3, '#f4f0e0');
+  light(x + 36, y + 26, 30, glare, 0.3);
+  rect(x + 4, y + 56, 8, 8, '#3a2010'); rect(x + 60, y + 56, 8, 8, '#3a2010');
+  // platter + spinning record
+  rect(x + 4, y - 6, 60, 6, '#8a8698'); rect(x + 4, y - 6, 60, 1, '#c8c4d4');
+  ctx.fillStyle = '#141018'; ctx.beginPath(); ctx.ellipse(x + 34, y - 9, 26, 4, 0, 0, 7); ctx.fill();
+  rect(x + 31, y - 10, 6, 2, '#9ae030'); rect(x + 34 + Math.round(Math.cos(frame * 0.3) * 18), y - 10, 2, 1, '#6a6080');
+  // tonearm
+  if (B.arm) {
+    const px0 = x + 62, py0 = y - 8, ax = Math.round(B.arm.x - cx), ay = Math.round(B.arm.y);
+    rect(px0 - 4, py0 - 6, 8, 8, '#c8c4d4');
+    ctx.strokeStyle = '#c8c4d4'; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(px0, py0 - 2); ctx.quadraticCurveTo((px0 + ax) / 2, Math.min(py0, ay) - 40, ax, ay - 10); ctx.stroke();
+    ctx.strokeStyle = '#8a8698'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(px0, py0 - 3); ctx.quadraticCurveTo((px0 + ax) / 2, Math.min(py0, ay) - 41, ax, ay - 11); ctx.stroke();
+    rect(ax - 5, ay - 14, 10, 8, '#e8e4f0'); rect(ax - 1, ay - 6, 2, 6, '#ffffff');
+    if (B.state === 'needle' && B.t >= 30 && B.t < 52 && (frame & 4)) { rect(Math.round(B.tx - cx) - 8, GROUND - 2, 16, 2, '#ff4040'); text('X', Math.round(B.tx - cx), GROUND - 14, '#ff4040', { align:'center' }); }
+  }
+}
+function drawGloryOne(cx) {
+  const B = boss; if (B.state === 'wait' || B.state === 'gone') return;
+  const x = Math.round(B.x - cx), y = Math.round(B.y);
+  if (B.state === 'dying' && (frame & 4)) return;
+  const fl = B.flash > 0 && (B.flash & 2);
+  const img = fl ? pick(HELI.flash, B.face) : pick(B.phase === 2 ? HELI.hurt : HELI.ok, B.face);
+  // spotlight
+  if (B.spot) {
+    const S = B.spot, sx = Math.round(S.x - cx), hot = S.lock > 0;
+    ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = S.fire > 0 ? 0.6 : hot ? ((frame & 4) ? 0.3 : 0.16) : 0.14;
+    ctx.fillStyle = S.fire > 0 ? '#ffffff' : hot ? '#fff0a0' : '#d0e0ff';
+    ctx.beginPath(); ctx.moveTo(x - 4, y + 8); ctx.lineTo(sx - (S.fire > 0 ? 12 : 22), GROUND); ctx.lineTo(sx + (S.fire > 0 ? 12 : 22), GROUND); ctx.lineTo(x + 4, y + 8); ctx.fill();
+    ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
+    light(sx, GROUND - 10, 30, '#fff0a0', 0.3);
+    if (S.fire > 0) rect(sx - 12, HUD, 24, GROUND - HUD, 'rgba(255,255,255,0.5)');
+  }
+  ctx.save(); ctx.translate(x, y); ctx.rotate(B.tilt);
+  ctx.drawImage(img, -48, -24);
+  // rotor
+  const rw = 52 - ((frame >> 1) & 1) * 30;
+  rect(-rw - 2, -26, rw * 2, 2, (frame & 1) ? '#c8c4d4' : '#6a6478');
+  // the Reverend in the door
+  ctx.drawImage(DEWEY_SMALL, 0, 0, 20, 15, B.face > 0 ? -16 : -4, -10, 20, 15);
+  ctx.restore();
+  rect(x - 40 * B.face - 1, y - 6, 3, 3, (frame >> 3) & 1 ? '#ff3030' : '#601010');
+  light(x, y, 40, '#fff0c0', 0.2);
+}
+function drawDiscs(cx) {
+  for (const d of discs) {
+    const x = Math.round(d.x - cx), y = Math.round(d.y), sq = Math.abs(Math.round(Math.cos(d.r * 0.3) * 7));
+    ctx.fillStyle = '#141018'; ctx.beginPath(); ctx.ellipse(x, y, Math.max(1, sq), 7, 0, 0, 7); ctx.fill();
+    rect(x - 1, y - 2, 2, 4, '#9ae030');
+  }
+}
+function drawBossObj(cx) { if (boss.kind === 'heli') drawGloryOne(cx); else if (boss.kind === 'phono') drawPhono(cx); else if (boss.kind === 'pastor') drawPastor(cx); else if (boss.kind === 'mom') drawMom(cx); else drawKit(cx); }
 function drawSkateboard(x, y) {
   rect(x, y, 40, 3, '#e02838'); rect(x, y, 40, 1, '#ff6870'); rect(x - 2, y - 1, 3, 2, '#e02838'); rect(x + 39, y - 1, 3, 2, '#e02838');
   for (const wx of [6, 30]) { rect(x + wx, y + 3, 4, 2, '#8a8698'); disc(x + wx + 2, y + 6, 2, '#ffd850'); }
@@ -2673,6 +3213,7 @@ function drawPastor(cx) {
 function drawNotes(cx) {
   for (const n of notes) {
     const x = Math.round(n.x - cx), y = Math.round(n.y), c = (n.t >> 3) & 1 ? '#ffd850' : '#ff88cc';
+    if (n.ch) { text(n.ch, x - 4, y - 4, (n.t >> 2) & 1 ? '#c8ff3c' : '#ffffff', { shadow:'#3a1060' }); light(x, y, 16, '#c8ff3c', 0.35); continue; }
     disc(x - 2, y + 3, 3, OUT); disc(x - 2, y + 3, 2, c); rect(x, y - 6, 2, 9, OUT); rect(x, y - 6, 1, 9, c); rect(x + 1, y - 6, 3, 2, c);
     light(x, y, 16, c, 0.35);
   }
@@ -2738,6 +3279,7 @@ function drawKit(cx) {
 function drawStick(s, cx) {
   const x = Math.round(s.x - cx), y = Math.round(s.y), a = s.rot * 0.35;
   const dx = Math.round(Math.cos(a) * 5), dy = Math.round(Math.sin(a) * 5);
+  if (s.plate) { ctx.fillStyle = s.harmless ? '#8a8498' : '#ffd850'; ctx.beginPath(); ctx.ellipse(x, y, 6, Math.max(1, Math.abs(dy)), 0, 0, 7); ctx.fill(); if (!s.harmless) { rect(x - 2, y - 1, 4, 1, '#fff8d0'); light(x, y, 12, '#ffd850', 0.3); } return; }
   ctx.strokeStyle = s.harmless ? '#8a8498' : '#f0d890'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x - dx, y - dy); ctx.lineTo(x + dx, y + dy); ctx.stroke();
   if (!s.harmless) rect(x + dx - 1, y + dy - 1, 2, 2, '#ffffff');
 }
@@ -2771,6 +3313,14 @@ function drawHumanoidEntity(set, e, cx, white) {
 }
 function drawEnemy(e, cx) {
   const white = e.flash > 0 && (e.flash & 2);
+  if (e.type === 'doll') {
+    const x = Math.round(e.x - 3 - cx), y = Math.round(e.y - 4);
+    if (x < -30 || x > W + 30) return;
+    const fr = e.mode === 'sit' ? 0 : e.mode === 'wake' ? 0 : 1 + ((frame >> 2) & 1);
+    ctx.drawImage(pick((white ? DOLL_W : DOLL)[fr], e.face), x, y);
+    if (e.mode !== 'sit') light(x + 8 + e.face * 2, y + 6, 12, '#c8ff3c', 0.4);
+    return;
+  }
   if (e.type === 'sheet') {
     const x = Math.round(e.x - 2 - cx), y = Math.round(e.y - 1);
     if (x < -30 || x > W + 30) return;
@@ -2844,6 +3394,12 @@ function drawForeground(cx) {
     ctx.strokeStyle = '#0a0610'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(px0 + 16, HUD + 30); ctx.quadraticCurveTo(px0 + 70, HUD + 80, px0 + 130, HUD + 34); ctx.stroke();
   }
 }
+function drawRain() {
+  const sl = 1.5 + wind * 3;
+  for (let i = 0; i < 60; i++) { const x = ((i * 53 + frame * (3 + sl)) % (W + 40)) - 20, y = HUD + ((i * 97 + frame * 7) % (GROUND - HUD)); rect(x, y, 1, 4, '#6a78a8'); }
+  if (flashT > 6) { ctx.globalAlpha = 0.5; rect(0, HUD, W, H - HUD, '#e0e8ff'); ctx.globalAlpha = 1; }
+  if (windT >= 300 && windT < 360 && !camLock && (frame >> 3) & 1) text(windDir > 0 ? 'WIND \u25BA\u25BA' : '\u25C4\u25C4 WIND', 160, HUD + 8, '#c8ff3c', { align:'center', shadow:'#000' });
+}
 function drawHUD() {
   bands(0, 0, W, HUD, ['#2e1838', '#26142e', '#1e1026', '#180c1e']);
   rect(0, HUD - 1, W, 1, '#6a3a80'); rect(0, HUD - 2, W, 1, '#0a0410');
@@ -2892,9 +3448,10 @@ function drawPlayScene() {
   for (const t of tracts) { ctx.save(); ctx.translate(Math.round(t.x - cx), Math.round(t.y)); ctx.rotate(t.rot * 0.25); ctx.drawImage(TRACT, -5, -4); ctx.restore(); }
   for (const s of sticks) drawStick(s, cx);
   for (const w of waves) drawWave(w, cx);
-  drawMomStuff(cx); drawNotes(cx);
+  drawMomStuff(cx); drawNotes(cx); drawDiscs(cx);
   drawParts(cx);
-  drawLighting(L.theme === 'house' ? 0.34 : L.theme === 'upstairs' ? 0.44 : 0.6);
+  drawLighting(flashT > 0 ? 0.08 : { house:0.34, upstairs:0.44, attic:0.62, roof:0.46 }[L.theme] || 0.6);
+  if (L.theme === 'roof') drawRain();
   if (L.theme === 'basement') drawForeground(cx);
   ctx.restore();
   drawHUD();
@@ -3041,7 +3598,73 @@ const BROADCAST_F2 = [
     items:['1. ACNE', '2. BACKMASKING', '3. MULLETS', '4. AIR GUITAR', '5. SLEEPOVERS', '6. SAXOPHONE', '7. YOUR WALLET'] },
   { art:sceneCloth, text:'"SON, I SEE YOU\'VE MADE IT TO THE ATTIC STAIRS. THAT\'S WHERE THIS HOUSE KEEPS WHAT IT\'S ASHAMED OF. COME ON UP."' },
 ];
-const BROADCASTS = { b1:BROADCAST, f1:BROADCAST_F1, f2:BROADCAST_F2 };
+function sceneChopper() {
+  rect(0, 0, W, 164, '#0c0818');
+  bigTV(84, 80, 144, 118, (x, y, w, h) => {
+    bands(x, y, w, h, ['#0a0820', '#141030', '#221844', '#2c1c4c']);
+    for (let i = 0; i < 20; i++) rect(x + ((i * 37 + frame) % w), y + (i * 23) % h, 1, 3, '#6a78a8');
+    ctx.save(); ctx.translate(x + w / 2, y + 48 + Math.sin(frame * 0.05) * 3); ctx.drawImage(HELI.ok[0], -48, -24); ctx.drawImage(DEWEY_SMALL, 0, 0, 20, 15, -16, -10, 20, 15); rect(-50, -26, 100, 2, '#c8c4d4'); ctx.restore();
+    rect(x, y + h - 9, w, 9, '#a01828'); text('LIVE: GLORY ONE', x + w - (frame % (w + 140)), y + h - 9, '#ffd850');
+  });
+  text('TONIGHT, LIVE', 240, 14, '#ffd850', { align:'center', bands:GOLD, shadow:'#3a1060' });
+  rect(166, 28, 148, 1, '#6a3a80');
+}
+const BROADCAST_F3 = [
+  { art:sceneChopper, song:'glory', text:'"FRIENDS, I AM IN THE GLORY ONE, FLYING TO THAT HOUSE. TONIGHT, ON THAT ROOF, THE ROCK GETS CAST OUT OF THAT GIRL. LIVE."',
+    items:['PLEDGE GOAL:', '$1,000,000', '', 'PLEDGED:', '$12', '', 'CALL NOW'] },
+  { art:sceneChopper, text:'"AND SON? IF YOU\'RE COMING UP TO THAT ROOF, BRING YOUR CHECKBOOK."' },
+];
+function sceneSignalLost() {
+  rect(0, 0, W, 164, '#0c0818');
+  bigTV(160, 78, 170, 120, (x, y, w, h) => {
+    const cols = ['#c0c0c0', '#c0c000', '#00c0c0', '#00c000', '#c000c0', '#c00000', '#0000c0'];
+    cols.forEach((c, i) => rect(x + Math.floor(i * w / 7), y, Math.ceil(w / 7) + 1, h * 0.7, c));
+    rect(x, y + h * 0.7, w, h * 0.3, '#101018');
+    rect(x + 30, y + 40, w - 60, 22, '#000000'); text('SIGNAL LOST', x + w / 2, y + 47, '#ffffff', { align:'center' });
+  });
+}
+function sceneRoofDawn(lineup) {
+  bands(0, 0, W, 164, ['#3a2a68', '#6a3a78', '#b85a70', '#f08a60', '#ffc070']);
+  disc(260, 120, 22, '#fff0a0');
+  for (let x = 0; x < W; x += 10) { const h = 8 + ((x * 37) % 13); rect(x, 130 - h, 10, h, '#2a1a40'); }
+  ctx.fillStyle = '#1a1028'; ctx.beginPath(); ctx.moveTo(0, 164); ctx.lineTo(0, 132); ctx.lineTo(W, 120); ctx.lineTo(W, 164); ctx.fill();
+  const b = (frame >> 3) & 1;
+  if (lineup) {
+    ctx.drawImage(ROXY_FREE[0], 0, 0, 30, 40, 150, 52 + b, 60, 80);
+    ctx.drawImage(HERO.idle[b][0], 0, 0, 30, 40, 90, 56 - b, 60, 80);
+    ctx.drawImage(DRUM_PURGED, 220, 92); ctx.drawImage(MOSHER.dazed[0][0], 0, 0, 30, 40, 30, 70, 45, 60);
+    drawBanner(100, 12, 'VOMITRON', '#ff70c0');
+  } else {
+    ctx.drawImage(ROXY_FREE[1], 0, 0, 30, 40, 170, 54 + b, 60, 80);
+    ctx.drawImage(HERO.idleP[b][0], 0, 0, 30, 40, 100, 56, 60, 80);
+  }
+}
+function sceneWreck() {
+  rect(0, 0, W, 164, '#0c0818');
+  bigTV(160, 78, 170, 120, (x, y, w, h) => {
+    bands(x, y, w, h, ['#1a1430', '#2a1c40', '#3a2448']);
+    rect(x + 20, y + 70, 120, 20, '#8a8698'); rect(x + 60, y + 50, 40, 22, '#e8e8f0'); rect(x + 100, y + 60, 30, 3, '#ffd850');
+    for (let i = 0; i < 6; i++) { const fh = 6 + ((frame >> 2) + i * 3) % 8; rect(x + 30 + i * 18, y + 70 - fh, 8, fh, i % 2 ? '#ff7020' : '#ffc030'); }
+    ctx.drawImage(DEWEY_BIG, Math.round(x + w / 2 - 32), Math.round(y + h - 60));
+    rect(x + w / 2 - 20, y + h - 60, 40, 14, '#2a1a40');
+    rect(x, y + h - 9, w, 9, '#a01828'); text('BREAKING: REVEREND IN CUL-DE-SAC CRASH', x + w - (frame % (w + 300)), y + h - 9, '#ffd850');
+  });
+}
+function sceneLawn() {
+  bands(0, 0, W, 164, ['#3a2a68', '#6a3a78', '#b85a70', '#f08a60']);
+  rect(0, 120, W, 44, '#2a5a28'); rect(0, 120, W, 2, '#4a8a40');
+  const row = [MOSHER, PUSHER, AEROBIC, AIRG, MOSHER];
+  row.forEach((s, i) => { const b = ((frame >> 4) + i) & 1; ctx.drawImage(s.dazed[(frame >> 3) % 4][i % 2], 0, 0, 30, 40, 10 + i * 62, 64 + b, 45, 60); });
+  text('?', 50, 50, '#ffffff', { scale:2 }); text('?', 180, 44, '#ffffff', { scale:2 }); text('?', 270, 52, '#ffffff', { scale:2 });
+}
+const ENDING = [
+  { art:sceneSignalLost, song:'over', text:'THE GLORY ONE SPINS INTO THE CUL-DE-SAC. EVERY TV ON THE BLOCK CUTS TO COLOR BARS.' },
+  { art:sceneLawn, song:'title', text:'ON THE LAWN, THE BORN-AGAIN UNDEAD WAKE UP. NOBODY REMEMBERS ANYTHING. EVERYBODY REMEMBERS THE PUKE.' },
+  { art:sceneWreck, song:'glory', text:'REV. DOLLARSON CRAWLS OUT OF THE WRECKAGE AND STRAIGHT INTO A NEWS CAMERA: "FRIENDS... THE DEVIL\'S MUSIC DID THIS. CALL NOW."' },
+  { art:() => sceneRoofDawn(false), song:'title', text:'ROXY: "YOU PUKED YOUR WAY UP FIVE FLOORS... FOR ME?"  YOU: "MOSTLY THE PIZZA. BUT ALSO YES."' },
+  { art:() => sceneRoofDawn(true), song:'stage', text:'AT DAWN, VOMITRON PLAYS THE REST OF THE SET ON THE ROOF. THE WHOLE STREET COMES OUT TO WATCH. THE END.' },
+];
+const BROADCASTS = { b1:BROADCAST, f1:BROADCAST_F1, f2:BROADCAST_F2, f3:BROADCAST_F3, rf:ENDING };
 const GAMEOVER = [
   { art:sceneGameOver, song:'glory', text:'"SON, THAT WASN\'T PUKE. THAT WAS SIN LEAVING YOUR BODY. CONTINUE? CALL NOW."' },
 ];
@@ -3119,7 +3742,7 @@ function drawTitle() {
   for (const d of DRIPS) { d.len += d.sp; if (d.len > 18) d.len = 0; rect(d.x, 52, 2, Math.floor(d.len), '#58a010'); if (d.len > 2) rect(d.x - 1, 52 + Math.floor(d.len), 4, 3, '#a8e030'); }
   if ((frame >> 5) & 1 || frame < 30) text('PRESS START', 160, 222, '#ffffff', { align:'center', shadow:'#000' });
   text('HI ' + pad6(hiscore), 6, 232, '#6a6478');
-  text('\u25C4 START: FLOOR ' + LEVELS[startFloor].label + ' \u25BA', 160, 207, startFloor === 'b1' ? '#a8a4b8' : startFloor === 'f1' ? '#80c8ff' : '#ff88cc', { align:'center', shadow:'#000' });
+  text('\u25C4 START: FLOOR ' + LEVELS[startFloor].label + ' \u25BA', 160, 207, ({ b1:'#a8a4b8', f1:'#80c8ff', f2:'#ff88cc', f3:'#ffd850', rf:'#c8ff3c' })[startFloor], { align:'center', shadow:'#000' });
   text('©198X BARFTRONICS', 314, 232, '#58a010', { align:'right' });
 }
 function drawFloorCard() {
@@ -3144,10 +3767,15 @@ function drawTally() {
   rows.forEach(([k, v], i) => { if (stateT > 16 + i * 8) { text(k, 60, 84 + i * 12, '#c8c4d4'); text(String(v), 260, 84 + i * 12, '#f4f0ff', { align:'right' }); } });
   if (stateT > 50) text('SCORE ' + pad6(score), 160, 140, '#ffd850', { align:'center' });
   if (stateT > 120) {
-    text('ROXY IS STILL UP THERE...', 160, 164, '#ff88cc', { align:'center' });
     const nx = L.next && LEVELS[L.next];
-    text(nx ? 'NEXT: FLOOR ' + nx.label + '  ' + nx.name : 'NEXT: THE ATTIC', 160, 182, '#80c8ff', { align:'center' });
-    if (!nx) text('COMING SOON', 160, 196, '#6a6478', { align:'center' });
+    if (nx) {
+      text(nx.id === 'rf' ? 'ROXY IS RIGHT ABOVE YOU...' : 'ROXY IS STILL UP THERE...', 160, 164, '#ff88cc', { align:'center' });
+      text('NEXT: FLOOR ' + nx.label + '  ' + nx.name, 160, 182, '#80c8ff', { align:'center' });
+    } else {
+      text('THE END', 160, 164, '#c8ff3c', { align:'center', bands:SLIME });
+      text('THANKS FOR PLAYING', 160, 182, '#80c8ff', { align:'center' });
+      text('RECORDS FOUND: ' + (P.recordsFound || 0) + ' OF 5', 160, 196, '#ffd850', { align:'center' });
+    }
     if ((frame >> 4) & 1) text('PRESS START', 160, 222, '#ffffff', { align:'center' });
   }
   ctx.drawImage(HERO.idle[(frame >> 4) & 1][0], 270, 190);
@@ -3186,7 +3814,7 @@ function boot(data) {
 try { window.claude && window.claude.hot && window.claude.hot.snapshot && window.claude.hot.snapshot(() => ({ hiscore })); } catch (e) {}
 const hot = window.claude && window.claude.hot;
 if (hot && hot.ready) hot.ready(boot); else boot((hot && hot.data) || {});
-window.__HMVP = { update, render, kbd, goto(id) { loadLevel(id); startRun(); state = 'play'; stateT = 0; playSong(L.song); }, get L() { return L; }, get pickups() { return pickups; }, get gag() { return gag; }, get state() { return state; }, set state(v) { state = v; }, get P() { return P; }, get boss() { return boss; }, get enemies() { return enemies; }, get dazed() { return dazed; }, get tvs() { return tvs; }, get score() { return score; }, get cam() { return cam; }, set cam(v) { cam = v; } };
+window.__HMVP = { get discs() { return discs; }, get notes() { return notes; }, update, render, kbd, goto(id) { loadLevel(id); startRun(); state = 'play'; stateT = 0; playSong(L.song); }, get L() { return L; }, get pickups() { return pickups; }, get gag() { return gag; }, get state() { return state; }, set state(v) { state = v; }, get P() { return P; }, get boss() { return boss; }, get enemies() { return enemies; }, get dazed() { return dazed; }, get tvs() { return tvs; }, get score() { return score; }, get cam() { return cam; }, set cam(v) { cam = v; } };
 
 })();
 </script>

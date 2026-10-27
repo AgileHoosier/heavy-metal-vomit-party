@@ -127,6 +127,16 @@ const UP_RIFF =
   "D2 D2 D2 . D2 D2 F2! ~ D2 D2 C3! ~ A#2! ~ A2! ~ " +
   "A#1! ~ A#1 A#1 A#1 . A#1 A#1 C2! ~ C2 C2 C2 . C2 C2 " +
   "D2 D2 D2 . D2 D2 F2! ~ D2 D2 A2! ~ G#2! ~ G2! ~";
+const ATTIC_RIFF =
+  "C2! ~ ~ ~ C2 . C2 . D#2! ~ ~ ~ D2! ~ C#2! ~ " +
+  "C2! ~ ~ ~ C2 . C2 . F#2! ~ ~ ~ F2! ~ D#2! ~ " +
+  "G#1! ~ ~ ~ G#1 . G#1 . A#1! ~ ~ ~ A#1 . A#1 . " +
+  "C2! ~ ~ ~ C2 . C2 . G2! ~ F#2! ~ F2! ~ D#2! ~";
+const ROOF_RIFF =
+  "E2 E2 B2! ~ E2 E2 A2! ~ E2 E2 G2! ~ F#2! ~ G2! ~ " +
+  "E2 E2 B2! ~ E2 E2 D3! ~ C3! ~ B2! ~ A2! ~ G2! ~ " +
+  "C2! ~ C2 C2 G2! ~ C2 C2 D2! ~ D2 D2 A2! ~ D2 D2 " +
+  "E2 E2 B2! ~ E2 E2 A2! ~ G2! ~ A2! ~ B2! ~ ~ ~";
 const BOSS_RIFF =
   "E2 E2 E2 E2 F2! ~ E2 . E2 E2 E2 E2 A#2! ~ A2! ~ " +
   "E2 E2 E2 E2 F2! ~ E2 . G2! ~ F#2! ~ F2! ~ E2! ~ " +
@@ -180,6 +190,39 @@ const SONGS = {
       "F5 ~ ~ ~ E5 ~ D5 ~ C5 ~ D5 ~ E5 ~ ~ ~ " +
       "D5 ~ F5 ~ A5 ~ G#5 ~ G5 ~ F5 ~ D5 ~ ~ ~") },
     drum:{ steps:parse("C . h . S . h h K . K h S . h . " + rep("K . h . S . h h K . K h S . h .", 6) + " S . S . S S K . S S S S C . . .") },
+  }},
+  attic: { bpm:112, loop:true, ch:{
+    gtr:{ inst:'gtr', vol:0.55, steps:parse(ATTIC_RIFF) },
+    bass:{ inst:'bass', vol:0.32, steps:parse(ATTIC_RIFF) },
+    organ:{ inst:'organ', vol:0.05, steps:parse(
+      "C4 ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ C4 ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ " +
+      "G#3 ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ G3 ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~") },
+    lead:{ inst:'lead', vol:0.045, steps:parse(
+      rep(". . . . . . . . . . . . . . . .", 4) +
+      "C5 ~ ~ ~ D#5 ~ ~ ~ D5 ~ C#5 ~ C5 ~ ~ ~ " +
+      "G4 ~ ~ ~ F#4 ~ ~ ~ G4 ~ ~ ~ ~ ~ ~ ~ " +
+      "G#4 ~ ~ ~ A#4 ~ ~ ~ C5 ~ ~ ~ D5 ~ ~ ~ " +
+      "D#5 ~ D5 ~ C5 ~ A#4 ~ G4 ~ ~ ~ ~ ~ ~ ~") },
+    drum:{ steps:parse("C . . . S . . . K . K . S . . . " + rep("K . . . S . . h K . K . S . . h", 6) + " S . S . S . S S K K K K C . . .") },
+  }},
+  roof: { bpm:176, loop:true, ch:{
+    gtr:{ inst:'gtr', vol:0.55, steps:parse(ROOF_RIFF) },
+    bass:{ inst:'bass', vol:0.3, steps:parse(ROOF_RIFF) },
+    lead:{ inst:'lead', vol:0.05, steps:parse(
+      rep(". . . . . . . . . . . . . . . .", 4) +
+      "B4 ~ ~ ~ E5 ~ ~ ~ G5 ~ F#5 ~ E5 ~ D5 ~ " +
+      "E5 ~ ~ ~ B4 ~ ~ ~ D5 ~ C5 ~ B4 ~ A4 ~ " +
+      "C5 ~ ~ ~ G5 ~ ~ ~ D5 ~ ~ ~ A5 ~ ~ ~ " +
+      "B5 ~ A5 ~ G5 ~ F#5 ~ E5 ~ ~ ~ ~ ~ ~ ~") },
+    drum:{ steps:parse("C . h h S . h h K K h h S . h h " + rep("K . h h S . h h K K h h S . h K", 6) + " S S S S K K S S S S K K C . C .") },
+  }},
+  final: { bpm:184, loop:true, ch:{
+    gtr:{ inst:'gtr', vol:0.55, steps:parse(BOSS_RIFF) },
+    bass:{ inst:'bass', vol:0.3, steps:parse(BOSS_RIFF) },
+    organ:{ inst:'organ', vol:0.06, steps:parse(
+      "E5 ~ ~ ~ ~ ~ ~ ~ F5 ~ ~ ~ ~ ~ ~ ~ E5 ~ ~ ~ ~ ~ ~ ~ A#4 ~ ~ ~ ~ ~ ~ ~ " +
+      "E5 ~ ~ ~ ~ ~ ~ ~ F5 ~ ~ ~ ~ ~ ~ ~ G5 ~ ~ ~ F5 ~ ~ ~ E5 ~ ~ ~ D5 ~ ~ ~") },
+    drum:{ steps:parse(rep("K h S h K K S h K h S h K K S S", 4)) },
   }},
   boss: { bpm:172, loop:true, ch:{
     gtr:{ inst:'gtr', vol:0.55, steps:parse(BOSS_RIFF) },
@@ -272,6 +315,13 @@ const SFX = {
     o.connect(fl); fl.connect(g); g.connect(AU.sGain); o.start(t); o.stop(t + 0.5); lfo.start(t); lfo.stop(t + 0.5);
     noiseHit(AU.sGain, t, 0.3, 0.12, 'bandpass', 300, 120, 1.5);
   },
+  doll()   { const t = AU.ctx.currentTime; [0, 3, 7, 3, 12].forEach((s, i) => osc('triangle', 1046 * Math.pow(2, s / 12), t + i * 0.07, 0.09, AU.sGain, 0.04)); },
+  shatter(){ const t = AU.ctx.currentTime; noiseHit(AU.sGain, t, 0.25, 0.3, 'highpass', 5000); [2600, 3400, 2100].forEach((f, i) => osc('triangle', f, t + i * 0.03, 0.06, AU.sGain, 0.05)); },
+  scratch(){ const t = AU.ctx.currentTime; noiseHit(AU.sGain, t, 0.18, 0.3, 'bandpass', 800, 2600, 3); noiseHit(AU.sGain, t + 0.18, 0.14, 0.25, 'bandpass', 2600, 700, 3); },
+  dice()   { const t = AU.ctx.currentTime; for (let i = 0; i < 6; i++) noiseHit(AU.sGain, t + i * 0.06, 0.03, 0.25, 'bandpass', 3000 + i * 300); [0, 4, 7, 12, 16].forEach((s, i) => osc('square', 523 * Math.pow(2, s / 12), t + 0.4 + i * 0.06, 0.1, AU.sGain, 0.05)); },
+  meow()   { const t = AU.ctx.currentTime; osc('sawtooth', 600, t, 0.35, AU.sGain, 0.05, 900); osc('sawtooth', 900, t + 0.15, 0.3, AU.sGain, 0.04, 500); },
+  wind()   { const t = AU.ctx.currentTime; noiseHit(AU.sGain, t, 2.2, 0.18, 'bandpass', 400, 1200, 1); },
+  thunder(){ const t = AU.ctx.currentTime; noiseHit(AU.sGain, t, 1.6, 0.4, 'lowpass', 600, 60); osc('sine', 50, t, 1.2, AU.sGain, 0.15, 30); },
   boing()  { const t = AU.ctx.currentTime; osc('sine', 140, t, 0.28, AU.sGain, 0.14, 420); osc('triangle', 280, t + 0.02, 0.2, AU.sGain, 0.05, 700); },
   strum()  { const t = AU.ctx.currentTime; [0, 4, 7, 12].forEach((s, i) => osc('triangle', 392 * Math.pow(2, s / 12), t + i * 0.025, 0.3, AU.sGain, 0.05)); },
   whip()   { const t = AU.ctx.currentTime; noiseHit(AU.sGain, t, 0.16, 0.3, 'bandpass', 600, 3500, 1.2); },

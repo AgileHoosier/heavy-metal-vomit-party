@@ -167,8 +167,45 @@ const LEVELS = {
     spawns:[['rat', 16], ['pusher', 24], ['sheet', 31], ['mosher', 46], ['sheet', 54], ['aerobic', 64], ['sheet', 72], ['airg', 82], ['pusher', 96],
             ['rat', 106], ['sheet', 112], ['mosher', 118], ['airg', 134], ['sheet', 144], ['mosher', 152], ['aerobic', 158], ['sheet', 165], ['pusher', 170]],
     pickups:[['pizza', 19.5], ['punch', 58.5], ['pizza', 81.5], ['turbo', 111], ['record', 138.5], ['pizza', 155.5], ['punch', 172]],
-    tvs:[9, 63, 101, 131, 168], checks:[3, 99, 172], gag:{ col:70, kind:'board' }, next:null, trashEnd:174,
+    tvs:[9, 63, 101, 131, 168], checks:[3, 99, 172], gag:{ col:70, kind:'board' }, next:'f3', trashEnd:174,
     zone:tx => tx < 48 ? 'carpet' : tx < 100 ? 'pink' : tx < 128 ? 'lino' : tx < 176 ? 'purple' : 'wood', doorSign:['GOD', 'SEES'],
+  },
+  f3: {
+    id:'f3', label:'3F', name:'THE ATTIC', tagline:'WHERE THIS HOUSE KEEPS WHAT IT\'S ASHAMED OF.', theme:'attic', song:'attic',
+    cols:200, arena:180, lock:182, bossCx:3056, door:3150, boss:'phono', bossHp:34, bossName:['THE', 'BACKMASKER'],
+    build() {
+      fill(0, 13, COLS - 1, 14, 1);
+      // gaps between the joists: step on the insulation and you go through
+      for (const [a, b] of [[40, 42], [66, 68], [96, 98], [128, 131], [160, 162]]) fill(a, 13, b, 14, 0);
+      // cardboard boxes and filing cabinets
+      [[10, 11, 12, 12], [30, 12, 31, 12], [52, 10, 53, 12], [76, 11, 78, 12], [110, 11, 111, 12], [146, 10, 147, 12], [150, 10, 151, 12], [170, 11, 172, 12]].forEach(r => fill(...r, 2));
+      // crates of confiscated records
+      [[20, 12, 22, 12], [58, 12, 59, 12], [86, 12, 88, 12], [118, 12, 120, 12], [138, 12, 139, 12]].forEach(r => fill(...r, 4));
+      // rafters and plank catwalks, plus one high beam with the record on it
+      [[16, 9, 19, 9], [34, 8, 38, 8], [44, 10, 47, 10], [62, 9, 65, 9], [70, 9, 73, 9], [90, 8, 93, 8], [102, 10, 105, 10], [104, 5, 106, 5],
+       [128, 10, 131, 10], [134, 8, 137, 8], [154, 9, 157, 9], [164, 10, 167, 10]].forEach(r => fill(...r, 3));
+    },
+    spawns:[['doll', 14], ['rat', 24], ['mosher', 33], ['doll', 46], ['sheet', 50], ['pusher', 60], ['doll', 74], ['airg', 82], ['sheet', 92], ['doll', 100],
+            ['aerobic', 108], ['mosher', 116], ['doll', 124], ['sheet', 134], ['pusher', 142], ['doll', 152], ['airg', 158], ['mosher', 166], ['doll', 172]],
+    pickups:[['pizza', 17.5], ['punch', 36], ['pizza', 71.5], ['turbo', 91.5], ['record', 105], ['pizza', 135.5], ['punch', 155.5], ['pizza', 174]],
+    tvs:[7, 48, 81, 113, 143], checks:[3, 100, 176], gag:{ col:26, kind:'dice' }, next:'rf', trashEnd:178, doorSign:['TO', 'ROOF'],
+  },
+  rf: {
+    id:'rf', label:'RF', name:'THE ROOF', tagline:'STORM. HELICOPTER. ROXY. LIVE ON AIR.', theme:'roof', song:'roof', bossSong:'final', wind:true,
+    cols:172, arena:152, lock:154, bossCx:2600, door:2708, boss:'heli', bossHp:40, bossName:['REV. DEWEY', 'DOLLARSON'],
+    build() {
+      fill(0, 13, COLS - 1, 14, 1);
+      for (const [a, b] of [[30, 32], [68, 71], [106, 108], [138, 140]]) fill(a, 13, b, 14, 0);
+      // gables, chimneys, antenna and satellite-dish platforms
+      [[14, 11, 19, 12], [42, 10, 47, 12], [84, 11, 90, 12], [118, 10, 123, 12]].forEach(r => fill(...r, 2));
+      [[24, 10, 25, 12], [58, 10, 59, 12], [98, 10, 99, 12], [130, 10, 131, 12]].forEach(r => fill(...r, 4));
+      [[35, 9, 38, 9], [50, 8, 53, 8], [62, 9, 65, 9], [74, 9, 77, 9], [92, 6, 94, 6], [111, 9, 114, 9], [144, 9, 147, 9],
+       [156, 9, 159, 9], [161, 6, 164, 6], [166, 9, 168, 9]].forEach(r => fill(...r, 3));
+    },
+    spawns:[['pusher', 18], ['sheet', 28], ['mosher', 40], ['aerobic', 48], ['sheet', 57], ['airg', 66], ['pusher', 78], ['sheet', 88],
+            ['mosher', 96], ['aerobic', 104], ['sheet', 114], ['airg', 122], ['pusher', 128], ['sheet', 136], ['mosher', 146]],
+    pickups:[['pizza', 37], ['punch', 51.5], ['pizza', 75.5], ['record', 93.5], ['turbo', 112.5], ['pizza', 145.5], ['punch', 150]],
+    tvs:[9, 55, 80, 126], checks:[3, 82, 150], gag:{ col:61, kind:'cat' }, next:null, trashEnd:150,
   },
 };
 const FLOOR_ORDER = Object.keys(LEVELS);
@@ -225,8 +262,8 @@ try { hiscore = +localStorage.getItem('hmvp_hi') || 0; } catch (e) {}
 try { if (localStorage.getItem('hmvp_sound') === '0') AU.on = false; } catch (e) {}
 let score = 0, shake = 0, cam = 0, camLock = false, doorOpen = false, cpIndex = 0;
 let frisbees = [], carts = [], yells = [], startFloor = 'b1', floorScore = 0;
-try { const h = location.hash || ''; if (/^#?(1f|f1|floor2|level2)$/i.test(h)) startFloor = 'f1'; else if (/^#?(2f|f2|floor3|level3)$/i.test(h)) startFloor = 'f2'; } catch (e) {}
-let notes = [], clouds = [], snots = [], P, enemies, dazed, blobs, puddles, parts, pops, pickups, sticks, waves, boss, spawns, lamps, tvs, tracts, trash, beams, gag;
+try { const h = location.hash || ''; if (/^#?(1f|f1|floor2|level2)$/i.test(h)) startFloor = 'f1'; else if (/^#?(2f|f2|floor3|level3)$/i.test(h)) startFloor = 'f2'; else if (/^#?(3f|f3|attic)$/i.test(h)) startFloor = 'f3'; else if (/^#?(rf|roof)$/i.test(h)) startFloor = 'rf'; } catch (e) {}
+let wind = 0, windT = 0, windDir = 1, flashT = 0, boltT = 400, discs = [], notes = [], clouds = [], snots = [], P, enemies, dazed, blobs, puddles, parts, pops, pickups, sticks, waves, boss, spawns, lamps, tvs, tracts, trash, beams, gag;
 let sceneList = null, sceneIdx = 0, afterScene = null, tally = 0, clearBonus = 0;
 
 function newPlayer(x) {
@@ -245,7 +282,7 @@ function makeTrash() {
   return out;
 }
 function resetLevel() {
-  frisbees = []; carts = []; yells = []; notes = [];
+  frisbees = []; carts = []; yells = []; notes = []; discs = []; wind = 0; windT = 0; flashT = 0;
   clouds = []; snots = []; enemies = []; dazed = []; blobs = []; puddles = []; parts = []; pops = []; sticks = []; waves = []; tracts = []; beams = [];
   trash = makeTrash();
   spawns = SPAWNS.map(([type, x]) => ({ type, x:x * T, done:false }));
@@ -256,8 +293,10 @@ function resetLevel() {
   lamps = CHECKS.map((c, i) => ({ x:c * T, on:i === 0 }));
   tvs = TV_COLS.map(c => { const x = c * T; return { x, y:groundYAt(x + 16, 28), w:32, h:28, hp:5, on:true, flash:0 }; });
   if (L.gag.kind === 'record') gag = { kind:'record', x:L.gag.col * T + 2, y:GROUND - 30, w:26, h:30, done:false, t:0 };
-  else { const gx = L.gag.col * T, gw = L.gag.kind === 'board' ? 26 : 22, gh = L.gag.kind === 'board' ? 20 : 18; gag = { kind:L.gag.kind, x:gx, y:groundYAt(gx + gw / 2, gh), w:gw, h:gh, done:false, t:0 }; }
+  else { const gx = L.gag.col * T, gw = { board:26, dice:24, cat:20 }[L.gag.kind] || 22, gh = { board:20, dice:20, cat:24 }[L.gag.kind] || 18; gag = { kind:L.gag.kind, x:gx, y:groundYAt(gx + gw / 2, gh), w:gw, h:gh, done:false, t:0 }; }
   if (L.boss === 'drummer') boss = { kind:'drummer', x:BOSS_CX - 20, y:144, w:40, h:34, hp:BOSS_HP, state:'wait', t:0, flash:0, arms:0, phase:1, qi:0, crashFlash:0 };
+  else if (L.boss === 'phono') boss = { kind:'phono', x:BOSS_CX - 36, y:GROUND - 64, w:72, h:64, hp:BOSS_HP, state:'wait', t:0, flash:0, phase:1, qi:0, face:-1, arm:null };
+  else if (L.boss === 'heli') boss = { kind:'heli', x:BOSS_CX + 200, y:-40, hp:BOSS_HP, state:'wait', t:0, flash:0, phase:1, qi:0, face:-1, tx:BOSS_CX, ty:66, spot:null, tilt:0 };
   else if (L.boss === 'pastor') boss = { kind:'pastor', x:BOSS_CX - 30, y:GROUND - 80, w:60, h:80, hp:BOSS_HP, state:'wait', t:0, flash:0, phase:1, qi:0, face:-1, pose:'idle', vx:0, vy:0, air:false };
   else boss = { kind:'mom', x:BOSS_CX - 30, y:GROUND - 78, w:60, h:80, hp:BOSS_HP, state:'wait', t:0, flash:0, phase:1, qi:0, face:-1, pose:'idle', anim:0 };
   camLock = false; doorOpen = false; cpIndex = 0;
@@ -317,7 +356,7 @@ function update() {
     case 'pause': if (pressed.start) { state = 'play'; sfx('pause'); } break;
     case 'fall':
       if (stateT === 40) respawn();
-      if (stateT > 70) { state = 'play'; stateT = 0; playSong(camLock ? 'boss' : L.song); }
+      if (stateT > 70) { state = 'play'; stateT = 0; playSong(camLock ? L.bossSong || 'boss' : L.song); }
       break;
     case 'dying':
       P.vy += 0.22; P.y += P.vy; updateParts();
@@ -343,17 +382,32 @@ function respawn() {
   blobs = []; sticks = []; tracts = [];
 }
 
+function updateWeather() {
+  // roof: rain, lightning, and gusts that shove you (telegraphed on the HUD), calm during the boss
+  if (--boltT <= 0) { boltT = 420 + Math.floor(Math.random() * 360); flashT = 10; setTimeout(() => sfx('thunder'), 500); }
+  if (flashT > 0) flashT--;
+  windT = (windT + 1) % 480;
+  if (windT === 300) windDir = Math.random() < 0.5 ? -1 : 1;
+  wind = !camLock && windT >= 360 ? windDir * 0.9 * Math.sin((windT - 360) / 120 * Math.PI) : 0;
+  if (windT === 360 && !camLock) sfx('wind');
+  if (wind && state === 'play') {
+    const v = P.vx; P.vx = wind; P.x += wind; collideX(P); P.vx = v;
+    for (const b of blobs) b.vx += wind * 0.02;
+    if (frame % 2 === 0) parts.push({ x:cam + (wind > 0 ? -4 : W + 4), y:HUD + Math.random() * (GROUND - HUD), vx:wind * 6, vy:0.3, life:60, c:Math.random() < 0.3 ? '#6a8a3a' : '#8a98b8', g:0 });
+  }
+}
 function updatePlay() {
   updatePlayer();
   if (state !== 'play') return;
-  if (!camLock && P.x > LOCK_X) { camLock = true; boss.state = 'intro'; boss.t = 0; playSong('boss'); enemies = enemies.filter(e => e.x > ARENA_X - 40); }
+  if (L.wind) updateWeather();
+  if (!camLock && P.x > LOCK_X) { camLock = true; boss.state = 'intro'; boss.t = 0; playSong(L.bossSong || 'boss'); enemies = enemies.filter(e => e.x > ARENA_X - 40); }
   if (camLock) { cam += (ARENA_X - cam) * 0.1; if (Math.abs(cam - ARENA_X) < 0.5) cam = ARENA_X; }
   else { cam += ((P.x - 140 + P.face * 24) - cam) * 0.12; cam = Math.max(0, Math.min(cam, COLS * T - W)); }
   for (const s of spawns) if (!s.done && s.x < cam + W + 24 && s.x > cam - 24) { s.done = true; enemies.push(makeEnemy(s.type, s.x)); }
   lamps.forEach((l, i) => { if (!l.on && P.x > l.x) { l.on = true; cpIndex = i; sfx('check'); popText('CHECKPOINT', l.x + 6, GROUND - 40, '#ff88cc'); } });
   for (const e of enemies) updateEnemy(e);
   enemies = enemies.filter(e => !e.gone);
-  updateDazed(); updateBlobs(); updateSnots(); updateClouds(); updateTracts(); updateBoss(); updateSticks(); updateWaves(); updateMomStuff(); updateNotes(); updatePickups(); updateTrash(); updateTVs(); updateParts();
+  updateDazed(); updateBlobs(); updateSnots(); updateClouds(); updateTracts(); updateBoss(); updateSticks(); updateWaves(); updateMomStuff(); updateNotes(); updateDiscs(); updatePickups(); updateTrash(); updateTVs(); updateParts();
   for (const p of puddles) p.life--; puddles = puddles.filter(p => p.life > 0);
   for (const b of beams) b.life--; beams = beams.filter(b => b.life > 0);
   if (gag.t > 0) gag.t--;
@@ -428,6 +482,7 @@ function updatePlayer() {
 function makeEnemy(type, x) {
   const base = { type, x, vx:0, vy:0, face:-1, flash:0, stun:0, slip:0, slipCd:0, anim:0, onGround:false, mode:'walk', mt:0, cd:40 };
   if (type === 'rat') Object.assign(base, { w:16, h:9, hp:1 });
+  else if (type === 'doll') { Object.assign(base, { w:10, h:16, hp:1, mode:'sit', face:-1 }); base.y = groundYAt(x + 5, 16); return base; }
   else if (type === 'sheet') { Object.assign(base, { w:14, h:20, hp:2, y:GROUND - 74, by:GROUND - 74, mt:0, cd:60 }); return base; }
   else Object.assign(base, { w:12, h:32, hp:type === 'mosher' ? 3 : 2, hops:0 });
   base.y = groundYAt(x + base.w / 2, base.h);
@@ -437,6 +492,10 @@ function killEnemy(e) {
   e.gone = true;
   const cx = e.x + e.w / 2;
   if (e.type === 'rat') { burst(cx, e.y + 4, 10, ['#c8ff3c', '#58a010', '#ffffff']); addScore(100, cx, e.y - 10); sfx('hit'); return; }
+  if (e.type === 'doll') {
+    burst(cx, e.y + 6, 14, ['#f8f0f0', '#ffffff', '#d8b8c8', '#c8ff3c'], 2); sfx('shatter');
+    addScore(150, cx, e.y - 10); popText('SHATTERED!', cx, e.y - 20, '#f4f0ff', 45); return;
+  }
   if (e.type === 'sheet') {
     staticPuff(cx, e.y + 10); sfx('purge'); burst(cx, e.y + 10, 10, ['#ffffff', '#c8ff3c']);
     parts.push({ x:cx - 9, y:e.y, vx:(Math.random() < 0.5 ? -1 : 1) * 0.8, vy:-1.5, life:80, g:0.04, spr:SHEET_RAG, spin:true });
@@ -458,6 +517,7 @@ function updateEnemy(e) {
   else if (e.type === 'pusher') updatePusher(e);
   else if (e.type === 'aerobic') updateAerobic(e);
   else if (e.type === 'airg') updateAirG(e);
+  else if (e.type === 'doll') updateDoll(e);
   else { e.vx = e.face * 1.05; if (e.onGround && edgeAhead(e)) { e.face *= -1; e.vx = e.face * 1.05; } }
   if (e.slimed > 0) { e.slimed--; e.vx *= 0.45; if (frame % 10 === 0) parts.push({ x:e.x + Math.random() * e.w, y:e.y + 6 + Math.random() * 10, vx:0, vy:0.6, life:24, c:'#9ad828', g:0.05 }); }
   moveBody(e);
@@ -511,6 +571,18 @@ function updateSheet(e) {
   e.x += e.vx; e.y = Math.min(GROUND - e.h, e.y + e.vy);
   e.anim += 0.12;
   if (overlap(e, P)) hurt(e.x + e.w / 2, true);
+}
+// porcelain doll: sits like decor until you get close, then sprints at you in little hops
+function updateDoll(e) {
+  const dx = (P.x + P.w / 2) - (e.x + e.w / 2);
+  if (e.mode === 'sit') { e.vx = 0; if (Math.abs(dx) < 84 && Math.abs(P.y + P.h - e.y - e.h) < 48) { e.mode = 'wake'; e.mt = 22; e.face = dx >= 0 ? 1 : -1; sfx('doll'); popText('PLAY WITH ME', e.x + 5, e.y - 10, '#ff88cc', 40); } }
+  else if (e.mode === 'wake') { e.vx = 0; if (--e.mt <= 0) e.mode = 'run'; }
+  else {
+    if (frame % 24 === 0) e.face = dx >= 0 ? 1 : -1;
+    e.vx = e.face * 1.9;
+    if (e.onGround && edgeAhead(e)) { e.vy = -3.6; }
+    else if (e.onGround && frame % 20 === 0) e.vy = -1.8;
+  }
 }
 function updateAerobic(e) {
   const dx = (P.x + P.w / 2) - (e.x + e.w / 2);
@@ -618,7 +690,8 @@ function updateBlobs() {
     }
     if (b.dead) continue;
     if (!gag.done && overlap(b, gag)) {
-      b.dead = true; gag.done = true; gag.t = 240; sfx(gag.kind === 'phone' ? 'record' : 'backward'); addScore(300, gag.x + 13, gag.y - 8);
+      b.dead = true; gag.done = true; gag.t = 240; sfx(gag.kind === 'phone' ? 'record' : gag.kind === 'dice' ? 'dice' : gag.kind === 'cat' ? 'meow' : 'backward'); addScore(300, gag.x + 13, gag.y - 8);
+      if (gag.kind === 'dice') { P.hearts = Math.min(3, P.hearts + 1); P.belly = 100; }
       continue;
     }
     if (bossHittable() && overlap(b, bossBox())) {
@@ -701,16 +774,16 @@ function updateTVs() {
   }
 }
 
-const bossBox = () => boss.kind === 'pastor' ? (boss.pose === 'plank' ? { x:boss.x - 10, y:GROUND - 30, w:80, h:26 } : { x:boss.x + 18, y:boss.y + 8, w:24, h:70 })
+const bossBox = () => boss.kind === 'heli' ? { x:boss.x - 30, y:boss.y - 12, w:60, h:30 } : boss.kind === 'phono' ? { x:boss.x, y:boss.y - 8, w:72, h:72 } : boss.kind === 'pastor' ? (boss.pose === 'plank' ? { x:boss.x - 10, y:GROUND - 30, w:80, h:26 } : { x:boss.x + 18, y:boss.y + 8, w:24, h:70 })
   : boss.kind === 'mom' ? { x:boss.x + 18, y:boss.y + 8, w:24, h:70 } : { x:boss.x + 6, y:boss.y, w:28, h:24 };
-const bossHittable = () => ['idle', 'volley', 'crash', 'roll', 'records', 'cart', 'yell', 'walk', 'strum', 'luge', 'slam'].includes(boss.state);
+const bossHittable = () => ['idle', 'volley', 'crash', 'roll', 'records', 'cart', 'yell', 'walk', 'strum', 'luge', 'slam', 'spit', 'needle', 'backmask', 'plates', 'spot', 'strafe', 'troops'].includes(boss.state);
 function throwStick(ft, jitter) {
   const g = 0.15, sx = BOSS_CX - 10, sy = boss.y + 4;
   const tx = P.x + P.w / 2 + (Math.random() * 2 - 1) * jitter;
   sticks.push({ x:sx, y:sy, vx:(tx - sx) / ft, vy:(GROUND - 4 - sy - 0.5 * g * ft * ft) / ft, rot:0, bounced:false, harmless:false });
   sfx('stick');
 }
-function updateBoss() { if (boss.kind === 'pastor') updatePastor(); else if (boss.kind === 'mom') updateMom(); else updateDrummer(); }
+function updateBoss() { if (boss.kind === 'heli') updateHeli(); else if (boss.kind === 'phono') updatePhono(); else if (boss.kind === 'pastor') updatePastor(); else if (boss.kind === 'mom') updateMom(); else updateDrummer(); }
 function updateDrummer() {
   const B = boss;
   if (B.state === 'wait') return;
@@ -868,6 +941,156 @@ function updatePastor() {
   }
   if (bossHittable() && overlap(P, bossBox())) hurt(B.x + 30, true);
 }
+function updatePhono() {
+  const B = boss;
+  if (B.state === 'wait' || B.state === 'gone') return;
+  B.t++; if (B.flash > 0) B.flash--;
+  const p2 = B.phase === 2, pcx = P.x + P.w / 2;
+  const pivot = { x:B.x + 62, y:B.y - 8 }, rest = { x:B.x + 26, y:B.y - 10 };
+  if (!B.arm) B.arm = { x:rest.x, y:rest.y };
+  const armTo = (x, y, k) => { B.arm.x += (x - B.arm.x) * k; B.arm.y += (y - B.arm.y) * k; };
+  switch (B.state) {
+    case 'intro':
+      armTo(rest.x, rest.y, 0.2);
+      if (B.t === 30) popText('NAEM I EVOL... OOT TSUJ', B.x - 20, B.y - 90, '#c8ff3c', 90);
+      if (B.t > 120) { B.state = 'idle'; B.t = 0; }
+      break;
+    case 'idle': armTo(rest.x, rest.y, 0.15); if (B.t > (p2 ? 26 : 46)) { B.state = ['spit', 'needle', 'backmask'][B.qi++ % 3]; B.t = 0; } break;
+    case 'spit': {
+      // flings records off the platter; they roll and hop along the floor
+      armTo(rest.x, rest.y, 0.15);
+      const n = p2 ? 5 : 3;
+      for (let i = 0; i < n; i++) if (B.t === 16 + i * 16) { discs.push({ x:B.x + 10, y:B.y - 14, vx:-(p2 ? 2.9 : 2.4) - (i % 2) * 0.4, vy:-2.6, r:0 }); sfx('scratch'); }
+      if (B.t > 16 + n * 16 + 14) { B.state = 'idle'; B.t = 0; }
+      break;
+    }
+    case 'needle': {
+      // the tonearm swings out, locks on, and drops the needle like a pickaxe
+      if (B.t === 1) { B.tx = pcx; popText('SCRATCH!', B.x + 36, B.y - 40, '#ff5060', 50); }
+      if (B.t < 34) { B.tx += (pcx - B.tx) * 0.12; armTo(B.tx, GROUND - 120, 0.12); }
+      else if (B.t < 50) armTo(B.tx, GROUND - 120, 0.3);
+      else if (B.t < 58) { armTo(B.tx, GROUND - 4, 0.45); if (B.t === 57) { shake = 9; sfx('boom'); for (const d of [-1, 1]) waves.push({ x:B.tx - 7 + d * 12, y:GROUND - 12, w:14, h:12, vx:d * (p2 ? 2.8 : 2.2), life:140 }); } }
+      else if (B.t > 80) armTo(rest.x, rest.y, 0.12);
+      if (B.t >= 50 && B.t < 80 && overlap(P, { x:B.arm.x - 5, y:B.arm.y - 16, w:10, h:20 })) hurt(B.arm.x, false);
+      if (B.t > 104) { if (p2 && !B.again) { B.again = true; B.t = 0; } else { B.again = false; B.state = 'idle'; B.t = 0; } }
+      break;
+    }
+    case 'backmask': {
+      // the horn sings backwards: each letter homes in on you
+      armTo(rest.x, rest.y, 0.15);
+      const msg = (B.qi % 2 ? 'YEWEDYEBO' : 'YENOMDNES'), every = p2 ? 7 : 10;
+      if (B.t === 6) popText('...' + (B.qi % 2 ? 'YEWED YEBO' : 'YENOM DNES') + '...', B.x - 30, B.y - 112, '#c8ff3c', 70);
+      if (B.t >= 14 && (B.t - 14) % every === 0 && (B.t - 14) / every < msg.length) {
+        notes.push({ x:B.x - 40, y:GROUND - 118, by:GROUND - 118, vx:-(p2 ? 2.0 : 1.6), t:0, ch:msg[(B.t - 14) / every] }); sfx('strum');
+      }
+      if (B.t > 14 + msg.length * every + 20) { B.state = 'idle'; B.t = 0; }
+      break;
+    }
+    case 'dying':
+      armTo(B.x + 36 + Math.sin(B.t * 0.5) * 30, B.y - 30, 0.3); shake = 4;
+      if (B.t % 6 === 0) staticPuff(B.x + 10 + Math.random() * 52, B.y + Math.random() * 50);
+      if (B.t % 14 === 0) { sfx('scratch'); parts.push({ x:B.x + 26, y:B.y - 12, vx:(Math.random() - 0.5) * 4, vy:-3 - Math.random() * 2, life:80, g:0.15, spr:RECORD, spin:true }); }
+      if (B.t === 120) {
+        B.state = 'gone'; sfx('boom'); shake = 12;
+        for (let i = 0; i < 10; i++) parts.push({ x:B.x + 36, y:B.y, vx:(Math.random() - 0.5) * 5, vy:-2 - Math.random() * 4, life:90, g:0.15, spr:RECORD, spin:true });
+        addScore(8000, B.x + 36, B.y - 30); popText('BACKMASKER BUSTED!', B.x + 36, B.y - 50, '#c8ff3c', 90);
+        playSong('win', () => { doorOpen = true; if (state === 'play') { playSong(L.song); popText('UP TO THE ROOF', DOOR_X + 18, GROUND - 70, '#c8ff3c', 120); } });
+      }
+      break;
+  }
+  if (bossHittable() && overlap(P, bossBox())) hurt(B.x + 36, true);
+}
+function updateDiscs() {
+  for (const d of discs) {
+    d.vy += 0.2; d.x += d.vx; d.y += d.vy; d.r++;
+    if (d.y > GROUND - 8) { d.y = GROUND - 8; d.vy = -2.8; }
+    const box = { x:d.x - 7, y:d.y - 7, w:14, h:14 };
+    if (overlap(P, box)) { hurt(d.x, false); d.dead = true; }
+    for (const b of blobs) if (!b.dead && overlap(b, box)) { b.dead = true; d.dead = true; }
+    for (const s of snots) if (!s.dead && overlap(s, box)) { s.dead = true; d.dead = true; }
+    if (d.dead && !overlap(P, box)) { burst(d.x, d.y, 8, ['#141018', '#9ae030', '#6a6080']); addScore(50, d.x, d.y - 8); sfx('stick'); }
+    if (d.x < ARENA_X - 20) d.dead = true;
+  }
+  discs = discs.filter(d => !d.dead);
+}
+function throwPlate(sx, sy, ft, jitter) {
+  const g = 0.15, tx = P.x + P.w / 2 + (Math.random() * 2 - 1) * jitter, ty = P.y + P.h - 4;
+  sticks.push({ x:sx, y:sy, vx:(tx - sx) / ft, vy:(ty - sy - 0.5 * g * ft * ft) / ft, rot:0, bounced:false, harmless:false, plate:true });
+  sfx('toss');
+}
+function updateHeli() {
+  const B = boss;
+  if (B.state === 'wait') return;
+  if (B.state === 'gone') { if (frame % 6 === 0) parts.push({ x:ARENA_X + 30 + Math.random() * 30, y:GROUND + 10, vx:0.2, vy:-0.8, life:120, c:'#3a3446', g:-0.002 }); return; }
+  B.t++; if (B.flash > 0) B.flash--;
+  const p2 = B.phase === 2, pcx = P.x + P.w / 2, L0 = ARENA_X + 50, R0 = ARENA_X + W - 50;
+  const fly = (tx, ty, k = 0.04) => { const dx = tx - B.x; B.x += dx * k; B.y += (ty - B.y) * k; B.tilt = Math.max(-0.25, Math.min(0.25, dx * 0.004)); };
+  const bob = Math.sin(frame * 0.05) * 4;
+  if (B.state !== 'strafe') B.face = pcx < B.x ? -1 : 1;
+  if (p2 && frame % 5 === 0 && B.state !== 'dying') parts.push({ x:B.x + 20 * -B.face, y:B.y - 8, vx:(Math.random() - 0.5) * 0.4, vy:-0.6, life:50, c:'#4a4458', g:-0.004 });
+  switch (B.state) {
+    case 'intro':
+      fly(BOSS_CX, 66, 0.035);
+      if (B.t === 40) popText('FRIENDS! WE ARE LIVE!', BOSS_CX, 110, '#ffd850', 90);
+      if (B.t > 140) { B.state = 'idle'; B.t = 0; }
+      break;
+    case 'idle':
+      if (B.t === 1) B.tx = L0 + Math.random() * (R0 - L0);
+      fly(B.tx, 66 + bob);
+      if (B.t > (p2 ? 34 : 56)) { B.state = ['plates', 'spot', 'strafe', 'plates', 'troops'][B.qi++ % 5]; B.t = 0; }
+      break;
+    case 'plates': {
+      // collection plates, flung at you
+      fly(B.tx, 66 + bob, 0.03);
+      const throws = p2 ? [20, 30, 40, 50, 60] : [20, 34, 48];
+      throws.forEach((f, i) => { if (B.t === f) throwPlate(B.x + B.face * 10, B.y + 12, 40 + i * 4, 18); });
+      if (B.t === 18) popText(['PASS THE PLATE!', 'GIVE TILL IT HURTS!', 'TITHE, SON!'][B.qi % 3], B.x, B.y - 26, '#ffd850', 50);
+      if (B.t > (p2 ? 84 : 74)) { B.state = 'idle'; B.t = 0; }
+      break;
+    }
+    case 'spot': {
+      // the spotlight hunts you; when it locks on, the Reverend calls down a smiting
+      fly(B.tx, 60 + bob, 0.03);
+      if (B.t === 1) { B.spot = { x:B.x, lock:0, strikes:0 }; popText('LET ME SEE YOU, SON!', B.x, B.y - 26, '#fff0a0', 50); }
+      const S = B.spot;
+      if (!S.lock) { S.x += Math.sign(pcx - S.x) * Math.min(Math.abs(pcx - S.x), p2 ? 2.6 : 1.9); if (Math.abs(pcx - S.x) < 4 || B.t > 150) { S.lock = 1; sfx('charge'); } }
+      else if (++S.lock === 34) { sfx('zap'); shake = 6; S.fire = 12; }
+      if (S.fire > 0) { S.fire--; if (overlap(P, { x:S.x - 12, y:0, w:24, h:GROUND })) hurt(S.x, false); if (frame % 2 === 0) burst(S.x, GROUND - 4, 4, ['#ffffff', '#fff0a0'], 2); }
+      if (S.lock > 52) { S.strikes++; if (p2 && S.strikes < 2) { S.lock = 0; } else { B.state = 'idle'; B.t = 0; B.spot = null; } }
+      break;
+    }
+    case 'strafe': {
+      // dives low and sweeps the roof: get off the platforms
+      if (B.t === 1) { B.face = B.x < (L0 + R0) / 2 ? 1 : -1; B.sx = B.face > 0 ? L0 - 30 : R0 + 30; popText('HALLELUJAH!', B.x, B.y - 26, '#ff88cc', 50); }
+      if (B.t < 40) fly(B.sx, 50, 0.08);
+      else if (B.t < 44) { if (B.t === 40) sfx('charge'); }
+      else { B.x += B.face * (p2 ? 3.8 : 3); B.y += (118 - B.y) * 0.1; B.tilt = B.face * 0.3;
+        if ((B.face > 0 && B.x > R0 + 30) || (B.face < 0 && B.x < L0 - 30)) { B.state = 'idle'; B.t = 0; } }
+      break;
+    }
+    case 'troops':
+      fly(B.tx, 70 + bob, 0.04);
+      if (B.t === 10) popText('SEND IN THE FAITHFUL!', B.x, B.y - 26, '#80c8ff', 50);
+      if ((B.t === 30 || (p2 && B.t === 60)) && enemies.length < 3) {
+        const e = makeEnemy(B.t === 30 ? 'pusher' : 'mosher', B.x - 6); e.y = B.y + 14; e.vy = 0; enemies.push(e); sfx('toss');
+      }
+      if (B.t > 80) { B.state = 'idle'; B.t = 0; }
+      break;
+    case 'dying':
+      B.tilt = Math.sin(B.t * 0.4) * 0.6; B.x -= 1.2; B.y += 0.5 + B.t * 0.01; shake = 4;
+      if (B.t % 4 === 0) parts.push({ x:B.x, y:B.y, vx:(Math.random() - 0.5), vy:-1, life:60, c:Math.random() < 0.5 ? '#ff7020' : '#3a3446', g:-0.01 });
+      if (B.t % 18 === 0) sfx('purge');
+      if (B.t === 40) popText('NOT ON LIVE TV!', B.x, B.y - 26, '#ffd850', 70);
+      if (B.t === 160) {
+        B.state = 'gone'; sfx('boom'); shake = 16; flashT = 14;
+        for (const tv of tvs) if (tv.on) { tv.on = false; burst(tv.x + 16, tv.y + 14, 10, ['#ffffff', '#80c8ff'], 2); }
+        addScore(10000, BOSS_CX, 90); popText('GLORY ONE IS DOWN!', BOSS_CX, 80, '#c8ff3c', 120); popText('SIGNAL LOST', BOSS_CX, 100, '#80c8ff', 120);
+        playSong('win', () => { doorOpen = true; if (state === 'play') { playSong('stage'); popText('FREE ROXY!', DOOR_X + 18, GROUND - 74, '#ff88cc', 160); } });
+      }
+      break;
+  }
+  if (bossHittable() && overlap(P, bossBox())) hurt(B.x, false);
+}
 function updateNotes() {
   for (const n of notes) {
     n.t++; n.x += n.vx;
@@ -885,8 +1108,8 @@ function updateNotes() {
 }
 function damageBoss(n, x, y) {
   boss.hp -= n; boss.flash = 8; shake = 3; sfx('bossHit'); addScore(100);
-  if (boss.hp <= Math.floor(BOSS_HP / 2) && boss.phase === 1) { boss.phase = 2; popText(boss.kind === 'mom' ? 'NOW SHE\'S MAD!' : boss.kind === 'pastor' ? 'NOT COOL, DUDE!' : 'HE IS ENRAGED!', x, 120, '#ff5060'); }
-  if (boss.hp <= 0) { boss.state = 'dying'; boss.t = 0; stopSong(); sticks = []; waves = []; frisbees = []; carts = []; yells = []; notes = []; if (boss.kind === 'pastor') { boss.pose = 'idle'; boss.y = GROUND - 80; boss.air = false; } }
+  if (boss.hp <= Math.floor(BOSS_HP / 2) && boss.phase === 1) { boss.phase = 2; popText(boss.kind === 'mom' ? 'NOW SHE\'S MAD!' : boss.kind === 'pastor' ? 'NOT COOL, DUDE!' : boss.kind === 'phono' ? 'SKIPPING!' : boss.kind === 'heli' ? 'ENGINE SMOKING!' : 'HE IS ENRAGED!', x, 120, '#ff5060'); }
+  if (boss.hp <= 0) { boss.state = 'dying'; boss.t = 0; stopSong(); sticks = []; waves = []; frisbees = []; carts = []; yells = []; notes = []; discs = []; if (boss.kind === 'pastor') { boss.pose = 'idle'; boss.y = GROUND - 80; boss.air = false; } }
 }
 function updateMomStuff() {
   for (const f of frisbees) {
